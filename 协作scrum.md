@@ -2,7 +2,7 @@
 
 > 最后更新: 2026-04-25
 > 模式: 独立团队模式（CEO 直接指派）
-> Sprint 0 启动
+> Sprint 1 完成，Sprint 2 启动
 
 ## 角色与会话
 - Team Manager: `jarvis`
@@ -16,28 +16,25 @@
 - 只有 executor_spawned=true 时才能分配任务
 - 禁止匿名 subagent
 
-## 当前 Sprint
+## Sprint 1 完成（14:08）
 
-### Sprint 0 — 项目初始化（2026-04-25）
-- [x] 创建项目结构
-- [x] 添加 GDD.md
-- [x] 添加 AGENTS.md
-- [x] 添加 README.md
-- [ ] 创建 GitHub 仓库
-- [ ] 推送初始代码
+| Task | Agent | 状态 | 产出 |
+|------|-------|------|------|
+| godot-init | apollo | ✅ 完成 | 14个文件（场景/脚本/资源） |
+| battle-system-design | einstein | ✅ 完成 | docs/SUBSYSTEMS_BATTLE.md |
+| tech-architecture | athena | ✅ 完成 | docs/TECH_ARCHITECTURE.md + 19个.tres |
 
 ---
 
-## 阶段一：原型开发
+## Sprint 2 — 原型完善（2026-04-25 14:26 启动）
 
-### 目标
-核心船只移动、DIY基础界面、简单回合战斗
+**目标**: 改装界面 + 战斗系统实现 + 港口场景
 
-### 任务池
-| Task | Agent | 状态 | 依赖 |
-|------|-------|------|------|
-| 项目初始化 | hermes | 待分配 | - |
-| Godot 项目配置 | apollo | 待分配 | - |
-| 船只基础场景 | apollo | 待分配 | Godot项目 |
-| 战斗系统框架 | einstein | 待分配 | - |
-| 射程环UI | apollo | 待分配 | 战斗系统 |
+| Task | Agent | 目标 |
+|------|-------|------|
+| ship-editor-ui | apollo | 船只改装界面（拖拽/实时反馈/重量条） |
+| battle-implementation | einstein | 战斗逻辑实现（状态机/射程环/伤害计算） |
+| port-scene | apollo | 港口场景交互（酒馆/船坞/公会/商店） |
+| git-sync | hermes | 代码同步到 GitHub |
+
+---
