@@ -1,0 +1,33 @@
+# Godot-specific
+.import/
+export.cfg
+export_presets.cfg
+
+# Build outputs
+*.pck
+*.exe
+*.dll
+*.so
+*.dylib
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Python
+__pycache__/
+*.pyc
+.venv/
+
+# IDE
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# Godot specific
+*.log
+*.tmp
+
+# Backup
+*.bak
