@@ -1,0 +1,24 @@
+[gd_resource type="Resource" script_class="Companion" load_steps=1 format=3]
+
+[ext_resource type="Script" path="res://src/scripts/resources/companion.gd" id="1"]
+
+[resource]
+script = ExtResource("1")
+companion_id = "companion_shenlan"
+name = "深蓝"
+species = "鱼人"
+portrait = null
+base_stats = {
+	"hp": 150,
+	"attack": 25,
+	"defense": 20,
+	"speed": 25,
+	"morale_max": 4
+}
+personality = "内向，能与鱼群对话"
+likes = ["item_glowing_seaweed", "item_pearl"]
+dislikes = ["item_thunder_rod"]
+affection = 0
+story_flags = {}
+is_recruited = false
+skill_ids = ["skill_current_pull", "skill_fish_call"]

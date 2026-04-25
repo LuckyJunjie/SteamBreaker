@@ -1,0 +1,16 @@
+[gd_resource type="Resource" script_class="ShipHelm" load_steps=1 format=3]
+
+[ext_resource type="Script" path="res://scripts/resources/ship_helm.gd" id="1_helm"]
+
+[resource]
+script = ExtResource("1_helm")
+part_id = "helm_manual"
+part_name = "手动操舵轮"
+part_type = "helm"
+weight = 20.0
+price = 1500
+description = "基础操舵装置，转向一般，可装备1个战术技能。"
+turn_bonus = 2
+intercept_bonus = 0
+skill_slots = 1
+special_tags = []

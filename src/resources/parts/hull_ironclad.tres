@@ -1,0 +1,18 @@
+[gd_resource type="Resource" script_class="ShipHull" load_steps=1 format=3]
+
+[ext_resource type="Script" path="res://scripts/resources/ship_hull.gd" id="1_hull_script"]
+
+[resource]
+script = ExtResource("1_hull_script")
+part_id = "hull_ironclad"
+part_name = "铁甲战列舰壳"
+part_type = "hull"
+weight = 200.0
+price = 25000
+description = "重装甲战列舰，耐久极高但机动性差。可装备4门主炮2门副炮。"
+max_hp = 2500
+cargo_capacity = 400.0
+weapon_slot_main = 4
+weapon_slot_sub = 2
+defense_bonus = 15
+special_tags = ["armored", "heavy"]

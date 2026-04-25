@@ -1,0 +1,16 @@
+[gd_resource type="Resource" script_class="ShipHelm" load_steps=1 format=3]
+
+[ext_resource type="Script" path="res://scripts/resources/ship_helm.gd" id="1_helm"]
+
+[resource]
+script = ExtResource("1_helm")
+part_id = "helm_gyroscope"
+part_name = "陀螺仪"
+part_type = "helm"
+weight = 40.0
+price = 8000
+description = "自动稳定船身，大幅提升转向与迎击率。可装备2个战术技能。"
+turn_bonus = 5
+intercept_bonus = 10
+skill_slots = 2
+special_tags = ["stabilized"]

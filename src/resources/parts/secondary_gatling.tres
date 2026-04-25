@@ -1,0 +1,17 @@
+[gd_resource type="Resource" script_class="ShipSecondary" load_steps=1 format=3]
+
+[ext_resource type="Script" path="res://scripts/resources/ship_secondary.gd" id="1_secondary"]
+
+[resource]
+script = ExtResource("1_secondary")
+part_id = "secondary_gatling"
+part_name = "速射转管炮"
+part_type = "secondary"
+weight = 30.0
+price = 3500
+description = "高射速副炮，主要用于拦截敌方弹药，迎击效率出色。"
+damage = 40
+intercept_power = 80
+focus_max = 3
+range_type = "anti_missile"
+special_tags = ["high_intercept"]

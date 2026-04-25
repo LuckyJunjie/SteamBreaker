@@ -1,0 +1,16 @@
+[gd_resource type="Resource" script_class="ShipHull" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://scripts/systems/ShipHull.gd" id="1_hull_script"]
+
+[resource]
+script = ExtResource("1_hull_script")
+hull_name = "Steam Breaker"
+hull_type = "Cruiser"
+max_hp = 120
+armor = 8
+speed = 3
+min_range = 1.0
+max_range = 4.0
+base_damage = 15
+fire_rate = 2.0
+steering = 2.0

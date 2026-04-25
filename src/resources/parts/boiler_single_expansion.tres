@@ -1,0 +1,17 @@
+[gd_resource type="Resource" script_class="ShipBoiler" load_steps=1 format=3]
+
+[ext_resource type="Script" path="res://scripts/resources/ship_boiler.gd" id="1_boiler"]
+
+[resource]
+script = ExtResource("1_boiler")
+part_id = "boiler_single_expansion"
+part_name = "单胀式蒸汽机"
+part_type = "boiler"
+weight = 60.0
+price = 3000
+description = "经典蒸汽机，性能均衡，可靠性高。"
+speed_bonus = 3
+overheat_threshold = 80
+heat_recovery = 5
+maneuver_power = 3
+special_tags = ["reliable"]

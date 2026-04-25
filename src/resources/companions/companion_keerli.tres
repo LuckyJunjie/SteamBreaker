@@ -1,0 +1,24 @@
+[gd_resource type="Resource" script_class="Companion" load_steps=1 format=3]
+
+[ext_resource type="Script" path="res://src/scripts/resources/companion.gd" id="1"]
+
+[resource]
+script = ExtResource("1")
+companion_id = "companion_keerli"
+name = "珂尔莉"
+species = "鸟族"
+portrait = null
+base_stats = {
+	"hp": 120,
+	"attack": 35,
+	"defense": 15,
+	"speed": 40,
+	"morale_max": 5
+}
+personality = "傲娇但怕雷声"
+likes = ["item_rum", "item_feather_fan"]
+dislikes = ["item_thunder_rod"]
+affection = 0
+story_flags = {}
+is_recruited = false
+skill_ids = ["skill_snipe_helm", "skill_eagle_eye"]

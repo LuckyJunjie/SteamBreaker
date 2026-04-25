@@ -1,0 +1,20 @@
+[gd_resource type="Resource" script_class="ShipWeapon" load_steps=1 format=3]
+
+[ext_resource type="Script" path="res://scripts/resources/ship_weapon.gd" id="1_weapon"]
+
+[resource]
+script = ExtResource("1_weapon")
+part_id = "weapon_torpedo"
+part_name = "旋转式鱼雷管"
+part_type = "weapon"
+weight = 60.0
+price = 10000
+description = "发射鱼雷，无视护甲但仅限中近距离。需要目标处于本方半场。"
+damage = 350
+range_min = 5
+range_max = 25
+overheat_cost = 25
+ammo_type = "torpedo"
+armor_pierce = 999
+fire_rate = 0.6
+special_tags = ["armor_ignore", "close_range"]

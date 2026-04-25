@@ -1,0 +1,16 @@
+[gd_resource type="Resource" script_class="Skill" load_steps=1 format=3]
+
+[ext_resource type="Script" path="res://src/scripts/resources/skill.gd" id="1"]
+
+[resource]
+script = ExtResource("1")
+skill_id = "skill_current_pull"
+name = "洋流牵引"
+description = "利用深蓝与海洋的联系，将敌方拉近一个射程环。不会造成伤害但改变站位。"
+mp_cost = 1
+cooldown = 2
+effect_type = "utility"
+effect_params = {
+	"pull_rings": 1,
+	"damage": 0
+}

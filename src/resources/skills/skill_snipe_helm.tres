@@ -1,0 +1,18 @@
+[gd_resource type="Resource" script_class="Skill" load_steps=1 format=3]
+
+[ext_resource type="Script" path="res://src/scripts/resources/skill.gd" id="1"]
+
+[resource]
+script = ExtResource("1")
+skill_id = "skill_snipe_helm"
+name = "桅顶狙击"
+description = "在远距离精准射击敌方操舵室，命中率极高。若命中则使敌方无法移动。"
+mp_cost = 2
+cooldown = 3
+effect_type = "targeted_attack"
+effect_params = {
+	"target_part": "helm",
+	"hit_bonus": 30,
+	"disable_turn": true,
+	"damage_multiplier": 0.8
+}

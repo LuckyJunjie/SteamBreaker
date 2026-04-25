@@ -1,0 +1,21 @@
+[gd_resource type="Resource" script_class="Bounty" load_steps=1 format=3]
+
+[ext_resource type="Script" path="res://src/scripts/resources/bounty.gd" id="1"]
+
+[resource]
+script = ExtResource("1")
+bounty_id = "bounty_ghost_queen"
+name = "幽灵船「悔恨女王」"
+rank = "sea"
+reward_gold = 8000
+reward_items = ["material_undead_compass", "item_soul_vessel"]
+required_story_flag = "chapter_2_unlocked"
+spawn_location = "phantom_sea"
+encounter_conditions = {"time": "night_only", "weather": "fog"}
+dialogue = {
+	"pre_battle": "雾气中浮现出一艘古老的幽灵船，甲板上空无一人……但亡灵的哀嚎在耳边响起。",
+	"in_battle": "幽灵船的桅杆亮起了幽蓝的光芒——击碎它！",
+	"post_battle": "幽灵船的亡灵得到安息，悔恨女王号缓缓沉入深海……留下了她的亡灵罗盘。"
+}
+special_mechanics = {"life_drain": true, "ghost_form": true, "weakness": "holy_water"}
+is_defeated = false

@@ -1,0 +1,20 @@
+[gd_resource type="Resource" script_class="ShipWeapon" load_steps=1 format=3]
+
+[ext_resource type="Script" path="res://scripts/resources/ship_weapon.gd" id="1_weapon"]
+
+[resource]
+script = ExtResource("1_weapon")
+part_id = "weapon_24pounder"
+part_name = "24磅卡隆炮"
+part_type = "weapon"
+weight = 45.0
+price = 4000
+description = "经典舰炮，伤害高但精度一般。适合中距离作战。"
+damage = 180
+range_min = 10
+range_max = 40
+overheat_cost = 15
+ammo_type = "solid_shot"
+armor_pierce = 5
+fire_rate = 1.0
+special_tags = ["high_damage"]

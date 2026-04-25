@@ -1,0 +1,21 @@
+[gd_resource type="Resource" script_class="Bounty" load_steps=1 format=3]
+
+[ext_resource type="Script" path="res://src/scripts/resources/bounty.gd" id="1"]
+
+[resource]
+script = ExtResource("1")
+bounty_id = "bounty_irontooth_shark"
+name = "「铁牙」独眼鲨"
+rank = "sea"
+reward_gold = 3000
+reward_items = ["material_shark_tooth_spike", "material_iron_fang"]
+required_story_flag = "chapter_1_unlocked"
+spawn_location = "rusty_gulf"
+encounter_conditions = {"time": "any", "weather": "storm"}
+dialogue = {
+	"pre_battle": "一条巨大的铁牙鲨在前方水域游弋——它装备了铁制下颚，咬碎过无数船只！",
+	"in_battle": "",
+	"post_battle": "「铁牙」倒下了，它的铁下颚沉入海底……但那锋利的牙齿可是好材料！"
+}
+special_mechanics = {"charge_attack": true, "armor_head": true}
+is_defeated = false

@@ -1,0 +1,16 @@
+[gd_resource type="Resource" script_class="ShipLoadout" load_steps=1 format=3]
+
+[ext_resource type="Script" path="res://scripts/resources/ship_loadout.gd" id="1_loadout_script"]
+
+[resource]
+script = ExtResource("1_loadout_script")
+ship_name = "蒸汽破浪号"
+hull = null
+boiler = null
+helm = null
+main_weapons = []
+secondary_weapons = []
+special_devices = []
+current_hp = 800
+current_overheat = 0.0
+status_effects = []

@@ -1,0 +1,18 @@
+[gd_resource type="Resource" script_class="ShipHull" load_steps=1 format=3]
+
+[ext_resource type="Script" path="res://scripts/resources/ship_hull.gd" id="1_hull_script"]
+
+[resource]
+script = ExtResource("1_hull_script")
+part_id = "hull_scout"
+part_name = "侦察艇壳"
+part_type = "hull"
+weight = 80.0
+price = 5000
+description = "轻便灵活的小型船体，适合快速侦察。载重较低，炮位有限。"
+max_hp = 800
+cargo_capacity = 150.0
+weapon_slot_main = 2
+weapon_slot_sub = 1
+defense_bonus = 0
+special_tags = ["high_evade"]

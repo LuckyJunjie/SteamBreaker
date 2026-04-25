@@ -1,0 +1,16 @@
+[gd_resource type="Resource" script_class="Skill" load_steps=1 format=3]
+
+[ext_resource type="Script" path="res://src/scripts/resources/skill.gd" id="1"]
+
+[resource]
+script = ExtResource("1")
+skill_id = "skill_emergency_repair"
+name = "紧急抢修"
+description = "消耗一回合，恢复船只船体300点耐久，并对受损部件进行临时修补。"
+mp_cost = 3
+cooldown = 4
+effect_type = "heal"
+effect_params = {
+	"heal_amount": 300,
+	"repair_disable": false
+}

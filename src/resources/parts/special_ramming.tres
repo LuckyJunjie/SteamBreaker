@@ -1,0 +1,18 @@
+[gd_resource type="Resource" script_class="ShipSpecial" load_steps=1 format=3]
+
+[ext_resource type="Script" path="res://scripts/resources/ship_special.gd" id="1_special"]
+
+[resource]
+script = ExtResource("1_special")
+part_id = "special_ramming"
+part_name = "蒸汽撞角"
+part_type = "special"
+weight = 50.0
+price = 2000
+description = "近距离撞击武器，造成大量伤害并有几率使敌锅炉过热。仅近战可用。"
+skill_id = "skill_ramming"
+cooldown = 3
+target_type = "enemy_ship"
+effect_type = "damage_and_overheat"
+effect_value = {"damage": 300, "overheat_chance": 0.4}
+special_tags = ["melee", "high_risk"]
