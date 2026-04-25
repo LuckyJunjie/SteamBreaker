@@ -6,6 +6,17 @@ extends Node
 signal state_changed(from_name: String, to_name: String)
 signal state_update(state_name: String, delta: float)
 
+const TurnStartStateScript = preload("res://scripts/battles/states/TurnStartState.gd")
+const PlayerMoveStateScript = preload("res://scripts/battles/states/PlayerMoveState.gd")
+const PlayerActionStateScript = preload("res://scripts/battles/states/PlayerActionState.gd")
+const PartySkillStateScript = preload("res://scripts/battles/states/PartySkillState.gd")
+const InterceptStateScript = preload("res://scripts/battles/states/InterceptState.gd")
+const EnemyTurnStateScript = preload("res://scripts/battles/states/EnemyTurnState.gd")
+const DamageResolveStateScript = preload("res://scripts/battles/states/DamageResolveState.gd")
+const StatusEffectStateScript = preload("res://scripts/battles/states/StatusEffectState.gd")
+const CheckEndStateScript = preload("res://scripts/battles/states/CheckEndState.gd")
+const BattleEndStateScript = preload("res://scripts/battles/states/BattleEndState.gd")
+
 var current_state: BattleState
 var states: Dictionary = {}
 var battle_manager: Node = null
@@ -19,16 +30,16 @@ func setup(p_battle_manager: Node) -> void:
 
 func _register_states() -> void:
     states = {
-        "TURN_START":       TurnStartState.new(self),
-        "PLAYER_MOVE":      PlayerMoveState.new(self),
-        "PLAYER_ACTION":    PlayerActionState.new(self),
-        "PARTY_SKILL":      PartySkillState.new(self),
-        "INTERCEPT":        InterceptState.new(self),
-        "ENEMY_TURN":       EnemyTurnState.new(self),
-        "DAMAGE_RESOLVE":  DamageResolveState.new(self),
-        "STATUS_EFFECT":    StatusEffectState.new(self),
-        "CHECK_END":        CheckEndState.new(self),
-        "BATTLE_END":       BattleEndState.new(self),
+        "TURN_START":      TurnStartStateScript.new(self),
+        "PLAYER_MOVE":     PlayerMoveStateScript.new(self),
+        "PLAYER_ACTION":   PlayerActionStateScript.new(self),
+        "PARTY_SKILL":     PartySkillStateScript.new(self),
+        "INTERCEPT":       InterceptStateScript.new(self),
+        "ENEMY_TURN":      EnemyTurnStateScript.new(self),
+        "DAMAGE_RESOLVE":  DamageResolveStateScript.new(self),
+        "STATUS_EFFECT":   StatusEffectStateScript.new(self),
+        "CHECK_END":       CheckEndStateScript.new(self),
+        "BATTLE_END":      BattleEndStateScript.new(self),
     }
 
 func start() -> void:
@@ -52,30 +63,3 @@ func _physics_process(delta: float) -> void:
     if current_state:
         current_state.update(delta)
         state_update.emit(current_state.name, delta)
-
-## ─── 基类状态 ───────────────────────────────────────────────
-class BattleState:
-    var state_machine: BattleStateMachine
-    var battle_manager: Node = null
-    var name: String = "Base"
-
-    func _init(sm: BattleStateMachine) -> void:
-        state_machine = sm
-
-    func enter() -> void:
-        pass
-
-    func exit() -> void:
-        pass
-
-    func update(delta: float) -> void:
-        pass
-
-    func handle_input(event: InputEvent) -> void:
-        pass
-
-    func next_phase() -> void:
-        pass
-
-    func get_turn_manager() -> Node:
-        return state_machine.battle_manager

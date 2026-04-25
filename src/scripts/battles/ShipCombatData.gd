@@ -83,7 +83,7 @@ func setup(
     overheating_value = 0
     is_paralyzed = false
     focus.clear()
-    for i in range(weapons.count() if weapons else 1):
+    for i in range(weapons.size() if weapons else 1):
         focus.append(3)
 
 ## ---------- 伤害处理 ----------

@@ -71,7 +71,7 @@ func get_turn_bonus() -> int:
     return 0
 
 # 复制当前配置（用于预览）
-func duplicate() -> ShipLoadout:
+func duplicate(subresources: bool = false) -> Resource:
     var copy: ShipLoadout = ShipLoadout.new()
     copy.ship_name = ship_name
     copy.hull = hull
@@ -79,9 +79,9 @@ func duplicate() -> ShipLoadout:
     copy.helm = helm
     copy.current_hp = current_hp
     copy.current_overheat = current_overheat
-    copy.main_weapons = main_weapons.duplicate()
-    copy.secondary_weapons = secondary_weapons.duplicate()
-    copy.special_devices = special_devices.duplicate()
+    copy.main_weapons = main_weapons.duplicate(subresources)
+    copy.secondary_weapons = secondary_weapons.duplicate(subresources)
+    copy.special_devices = special_devices.duplicate(subresources)
     return copy
 
 func _to_string() -> String:

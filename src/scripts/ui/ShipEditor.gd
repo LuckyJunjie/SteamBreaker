@@ -48,7 +48,7 @@ func _ready() -> void:
     _connect_signals()
     _scan_available_parts()
     if _current_loadout:
-        _preview_loadout = _current_loadout.duplicate()
+        _preview_loadout = _current_loadout.duplicate() as ShipLoadout
         _refresh_ui()
 
 
@@ -76,7 +76,7 @@ func _connect_signals() -> void:
 func set_loadout(loadout: ShipLoadout) -> void:
     _current_loadout = loadout
     if loadout:
-        _preview_loadout = loadout.duplicate()
+        _preview_loadout = loadout.duplicate() as ShipLoadout
     else:
         _preview_loadout = ShipLoadout.new()
     _refresh_ui()
