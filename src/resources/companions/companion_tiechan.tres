@@ -1,6 +1,6 @@
 [gd_resource type="Resource" script_class="Companion" load_steps=1 format=3]
 
-[ext_resource type="Script" path="res://src/scripts/resources/companion.gd" id="1"]
+[ext_resource type="Script" path="res://scripts/resources/companion.gd" id="1"]
 
 [resource]
 script = ExtResource("1")

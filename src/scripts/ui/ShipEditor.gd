@@ -29,6 +29,202 @@ var _all_parts: Dictionary = {
     "special": [],
 }
 
+# 拖拽状态
+var _dragged_part: Resource = null
+var _drag_preview: Control = null
+var _drag_slot_type: String = ""
+var _drag_ghost: Label = null
+var _drop_target_slot: String = ""
+
+# 拖拽预览数据
+const DRAG_PREVIEW_SIZE = 64
+
+# === Godot Native Drag 兼容 ===
+func _get_drag_data(pos: Vector2) -> Dictionary:
+    # 找到当前鼠标下的控件
+    var control = _find_control_at_pos(pos)
+    if not control:
+        return {}
+
+    var part = control.get_meta("part")
+    var slot_type = control.get_meta("slot_type")
+
+    if part:
+        var preview = Control.new()
+        preview.custom_minimum_size = Vector2(DRAG_PREVIEW_SIZE, 30)
+        var bg = ColorRect.new()
+        bg.color = Color(0.2, 0.6, 1.0, 0.8)
+        bg.set_anchors_preset(Control.PRESET_FULL_RECT)
+        preview.add_child(bg)
+        var lbl = Label.new()
+        lbl.text = part.part_name
+        lbl.set_anchors_preset(Control.PRESET_CENTER)
+        preview.add_child(lbl)
+        set_drag_preview(preview)
+
+        return {"part": part, "slot_type": slot_type}
+
+    return {}
+
+
+func _find_control_at_pos(pos: Vector2) -> Control:
+    if not _slots_vbox:
+        return null
+    for row in _slots_vbox.get_children():
+        if row is Control and row.get_global_rect().has_point(pos):
+            # 找到有part meta的子控件
+            for child in row.get_children():
+                if child is Label and child.has_meta("part"):
+                    return child
+    return null
+
+
+func _can_drop_data(pos: Vector2, data: Dictionary) -> bool:
+    if not data.has("part") or not data.has("slot_type"):
+        return false
+    # 找到目标槽位
+    var target_slot = _get_slot_at_pos(pos)
+    if target_slot == "":
+        return false
+    return target_slot == data["slot_type"]
+
+
+func _drop_data(pos: Vector2, data: Dictionary) -> void:
+    if not data.has("part"):
+        return
+
+    var slot_type = _get_slot_at_pos(pos)
+    if slot_type == data["slot_type"]:
+        _install_part_to_slot(data["part"], slot_type)
+        _refresh_ui()
+    else:
+        _play_reject_feedback()
+
+
+func _get_slot_at_pos(pos: Vector2) -> String:
+    if not _slots_vbox:
+        return ""
+    for row in _slots_vbox.get_children():
+        if row is Control and row.has_meta("slot_type") and row.get_global_rect().has_point(pos):
+            return row.get_meta("slot_type")
+    return ""
+
+# === 拖拽交互 (Godot Native) ===
+func _input(event: InputEvent) -> void:
+    # Godot native drag handles most of this via _get_drag_data, _can_drop_data, _drop_data
+    # 仅处理额外的视觉反馈
+    pass
+
+
+func _start_drag(part: Resource, slot_type: String) -> void:
+    _dragged_part = part
+    _drag_slot_type = slot_type
+
+    # 创建拖拽预览
+    _drag_preview = Control.new()
+    _drag_preview.custom_minimum_size = Vector2(DRAG_PREVIEW_SIZE, DRAG_PREVIEW_SIZE)
+    var bg = ColorRect.new()
+    bg.color = Color(0.2, 0.6, 1.0, 0.8)
+    bg.set_anchors_preset(Control.PRESET_FULL_RECT)
+    _drag_preview.add_child(bg)
+
+    var lbl = Label.new()
+    lbl.text = part.part_name
+    lbl.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+    lbl.set_anchors_preset(Control.PRESET_CENTER)
+    lbl.position = Vector2(0, DRAG_PREVIEW_SIZE / 2 - 10)
+    _drag_preview.add_child(lbl)
+
+    get_tree().root.add_child(_drag_preview)
+    _drag_preview.z_index = 1000
+
+    # 创建幽灵预览（在槽位上）
+    _drag_ghost = Label.new()
+    _drag_ghost.text = "↔ " + part.part_name
+    _drag_ghost.add_theme_color_override("font_color", Color(0.2, 0.6, 1.0, 0.7))
+    _drag_ghost.background_color = Color(0, 0, 0, 0.5)
+    get_node("/root").add_child(_drag_ghost)
+    _drag_ghost.z_index = 999
+
+    print("[ShipEditor] Started drag: ", part.part_name, " slot:", slot_type)
+
+
+func _update_drag_preview(mouse_pos: Vector2) -> void:
+    if _drag_preview:
+        _drag_preview.position = mouse_pos - Vector2(DRAG_PREVIEW_SIZE / 2, DRAG_PREVIEW_SIZE / 2)
+
+    # 检测当前悬停的槽位
+    _drop_target_slot = ""
+    if _slots_vbox:
+        for row in _slots_vbox.get_children():
+            if row is Control and row.get_global_rect().has_point(mouse_pos):
+                # 从row的元数据或子控件获取slot_type
+                if row.has_meta("slot_type"):
+                    _drop_target_slot = row.get_meta("slot_type")
+                break
+
+    # 更新幽灵预览
+    if _drag_ghost:
+        var slot_rect = _get_slot_rect(_drop_target_slot)
+        if slot_rect != Rect2(-1, -1, 0, 0):
+            _drag_ghost.position = slot_rect.position
+            _drag_ghost.visible = true
+        else:
+            _drag_ghost.visible = false
+
+
+func _get_slot_rect(slot_type: String) -> Rect2:
+    if not _slots_vbox:
+        return Rect2(-1, -1, 0, 0)
+    var idx = SLOT_TYPE_ORDER.find(slot_type)
+    if idx < 0 or idx >= _slots_vbox.get_child_count():
+        return Rect2(-1, -1, 0, 0)
+    var row = _slots_vbox.get_child(idx)
+    if row:
+        return row.get_global_rect()
+    return Rect2(-1, -1, 0, 0)
+
+
+func _finish_drag(mouse_pos: Vector2) -> void:
+    if not _dragged_part:
+        return
+
+    print("[ShipEditor] Finish drag at slot: ", _drop_target_slot)
+
+    if _drop_target_slot != "" and _drop_target_slot == _drag_slot_type:
+        # 有效放置
+        _install_part_to_slot(_dragged_part, _drop_target_slot)
+        _refresh_ui()
+    else:
+        # 无效放置，回弹效果
+        _play_reject_feedback()
+
+    _cleanup_drag()
+
+
+func _play_reject_feedback() -> void:
+    # 简单的红色闪烁反馈
+    if _slots_vbox:
+        var tween = create_tween()
+        var original_color = Color(1, 0, 0, 0.1)
+        var flash_color = Color(1, 0, 0, 0.4)
+        for i in range(3):
+            tween.tween_property(_slots_vbox, "modulate", flash_color, 0.1)
+            tween.tween_property(_slots_vbox, "modulate", original_color, 0.1)
+        tween.play()
+
+
+func _cleanup_drag() -> void:
+    if _drag_preview:
+        _drag_preview.queue_free()
+        _drag_preview = null
+    if _drag_ghost:
+        _drag_ghost.queue_free()
+        _drag_ghost = null
+    _dragged_part = null
+    _drag_slot_type = ""
+    _drop_target_slot = ""
+
 # 槽位UI引用
 var _slots_vbox: VBoxContainer = null
 var _ship_name_label: Label = null
@@ -181,6 +377,10 @@ func _create_slot_row(slot_type: String, label: String, current_part: Resource, 
     var row = HBoxContainer.new()
     row.custom_minimum_size.y = 44
     row.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+    row.set_meta("slot_type", slot_type)
+
+    # 启用拖拽接收
+    row.gui_drag_highlight = true
 
     # 槽位名称
     var lbl = Label.new()
@@ -189,14 +389,17 @@ func _create_slot_row(slot_type: String, label: String, current_part: Resource, 
     lbl.size_flags_horizontal = Control.SIZE_SHRINK_BEGIN
     row.add_child(lbl)
 
-    # 当前部件显示
+    # 当前部件显示（可拖拽）
     var current_lbl = Label.new()
     if current_part:
         current_lbl.text = current_part.part_name + " [%.0fkg]" % current_part.weight
+        current_lbl.set_meta("part", current_part)
+        current_lbl.set_meta("slot_type", slot_type)
     else:
         current_lbl.text = "(空)"
         current_lbl.modulate = Color(0.6, 0.6, 0.6)
     current_lbl.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+    current_lbl.draggable = true
     row.add_child(current_lbl)
 
     # 选择按钮

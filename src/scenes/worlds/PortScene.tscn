@@ -1,6 +1,182 @@
-[gd_scene load_steps=2 format=3 uid="uid://port_scene"]
+[gd_scene load_steps=3 format=3 uid="uid://port_scene_v3"]
 
-[ext_resource type="Script" path="res://scripts/systems/ShipFactory.gd" id="1_ship_factory"]
+[ext_resource type="Script" path="res://scripts/ui/PortScene.gd" id="1_port_scene"]
+[ext_resource type="Script" path="res://scripts/ui/HUD.gd" id="2_hud"]
 
 [node name="PortScene" type="Node2D"]
-script = ExtResource("1_ship_factory")
+script = ExtResource("1_port_scene")
+
+[node name="HUD" type="CanvasLayer" parent="."]
+script = ExtResource("2_hud")
+
+[node name="BgLayer" type="CanvasLayer" parent="."]
+
+[node name="BgColor" type="ColorRect" parent="BgLayer"]
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+color = Color(0.08, 0.1, 0.15, 1)
+
+[node name="Docks" type="Label" parent="BgLayer"]
+anchors_preset = 5
+anchor_left = 0.5
+anchor_right = 0.5
+offset_left = -80.0
+offset_top = 520.0
+offset_right = 80.0
+offset_bottom = 550.0
+grow_horizontal = 2
+text = "~ 船坞码头 ~"
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="WaterLine" type="Label" parent="BgLayer"]
+anchors_preset = 5
+anchor_left = 0.5
+anchor_right = 0.5
+offset_left = -200.0
+offset_top = 580.0
+offset_right = 200.0
+offset_bottom = 610.0
+grow_horizontal = 2
+text = "～ 波光粼粼的锈海湾 ～"
+horizontal_alignment = 1
+vertical_alignment = 1
+modulate = Color(0.5, 0.6, 0.7, 1)
+
+[node name="VBox" type="VBoxContainer" parent="BgLayer"]
+anchors_preset = 10
+anchor_right = 1.0
+offset_top = 40.0
+offset_bottom = 140.0
+
+[node name="PortTitle" type="Label" parent="BgLayer/VBox"]
+layout_mode = 2
+text = "铁锈湾"
+horizontal_alignment = 1
+vertical_alignment = 1
+theme_override_font_sizes/font_size = 42
+
+[node name="DescLabel" type="Label" parent="BgLayer/VBox"]
+layout_mode = 2
+text = "欢迎来到老船长的避风港"
+horizontal_alignment = 1
+vertical_alignment = 1
+modulate = Color(0.7, 0.7, 0.6, 1)
+
+[node name="PointIcons" type="Node2D" parent="BgLayer"]
+position = Vector2(0, 0)
+
+[node name="ShipyardIcon" type="Label" parent="BgLayer/PointIcons"]
+offset_left = 160.0
+offset_top = 260.0
+offset_right = 240.0
+offset_bottom = 340.0
+text = "🏠"
+horizontal_alignment = 1
+vertical_alignment = 1
+theme_override_font_sizes/font_size = 48
+
+[node name="TavernIcon" type="Label" parent="BgLayer/PointIcons"]
+offset_left = 460.0
+offset_top = 160.0
+offset_right = 540.0
+offset_bottom = 240.0
+text = "🍺"
+horizontal_alignment = 1
+vertical_alignment = 1
+theme_override_font_sizes/font_size = 48
+
+[node name="BountyIcon" type="Label" parent="BgLayer/PointIcons"]
+offset_left = 660.0
+offset_top = 310.0
+offset_right = 740.0
+offset_bottom = 390.0
+text = "📋"
+horizontal_alignment = 1
+vertical_alignment = 1
+theme_override_font_sizes/font_size = 48
+
+[node name="ShopIcon" type="Label" parent="BgLayer/PointIcons"]
+offset_left = 360.0
+offset_top = 410.0
+offset_right = 440.0
+offset_bottom = 490.0
+text = "🛒"
+horizontal_alignment = 1
+vertical_alignment = 1
+theme_override_font_sizes/font_size = 48
+
+[node name="PointLabels" type="Node2D" parent="BgLayer"]
+
+[node name="ShipyardLabel" type="Label" parent="BgLayer/PointLabels"]
+offset_left = 140.0
+offset_top = 350.0
+offset_right = 260.0
+offset_bottom = 380.0
+text = "船坞"
+horizontal_alignment = 1
+vertical_alignment = 1
+theme_override_font_sizes/font_size = 20
+
+[node name="TavernLabel" type="Label" parent="BgLayer/PointLabels"]
+offset_left = 430.0
+offset_top = 250.0
+offset_right = 570.0
+offset_bottom = 280.0
+text = "酒馆「沉锚」"
+horizontal_alignment = 1
+vertical_alignment = 1
+theme_override_font_sizes/font_size = 20
+
+[node name="BountyLabel" type="Label" parent="BgLayer/PointLabels"]
+offset_left = 640.0
+offset_top = 400.0
+offset_right = 760.0
+offset_bottom = 430.0
+text = "赏金公会"
+horizontal_alignment = 1
+vertical_alignment = 1
+theme_override_font_sizes/font_size = 20
+
+[node name="ShopLabel" type="Label" parent="BgLayer/PointLabels"]
+offset_left = 340.0
+offset_top = 500.0
+offset_right = 460.0
+offset_bottom = 530.0
+text = "杂货商店"
+horizontal_alignment = 1
+vertical_alignment = 1
+theme_override_font_sizes/font_size = 20
+
+[node name="InteractionHint" type="Label" parent="BgLayer"]
+anchors_preset = 7
+anchor_left = 0.5
+anchor_top = 1.0
+anchor_right = 0.5
+anchor_bottom = 1.0
+offset_left = -200.0
+offset_top = -80.0
+offset_right = 200.0
+offset_bottom = -50.0
+grow_horizontal = 2
+grow_vertical = 0
+text = "移动鼠标到图标上方查看详情"
+horizontal_alignment = 1
+vertical_alignment = 1
+visible = false
+
+[node name="BackBtn" type="Button" parent="BgLayer"]
+anchors_preset = 1
+anchor_left = 1.0
+anchor_right = 1.0
+offset_left = -140.0
+offset_top = 20.0
+offset_right = -40.0
+offset_bottom = 60.0
+grow_horizontal = 0
+text = "ESC 离港"
+
+[node name="PanelsContainer" type="Node2D" parent="."]
