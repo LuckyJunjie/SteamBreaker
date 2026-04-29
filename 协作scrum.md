@@ -121,3 +121,13 @@
 | test-paths-fix | chiron | 🔄 待执行 | 3个测试文件路径修正 |
 
 ---
+
+## Sprint 8 — 战斗流程打通（2026-04-29 13:46 启动）
+
+| Task | Agent | 状态 | 产出 |
+|------|-------|------|------|
+| battle-missing-methods | einstein | ✅ 完成 | commit f6a9567，BattleManager 补充 advance_turn/get_enemy_ships/signals |
+| battle-hud | apollo | ⚠️ 超时→jarvis补全 | HUD.gd 补充战斗面板函数+request_attack() |
+| battle-scene-init | athena | ✅ 完成 | commit 312e2a9，BattleStateMachine 接入+5个stub补充 |
+
+---
