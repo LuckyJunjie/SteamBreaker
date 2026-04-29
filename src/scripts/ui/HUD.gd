@@ -260,7 +260,7 @@ func _add_companion_skills(parent_vbox: VBoxContainer, companion: Companion) -> 
 
 func _load_skill(skill_id: String) -> Skill:
     var paths: Array[String] = [
-        "res://src/resources/skills/%s.tres" % skill_id,
+        "res://resources/skills/%s.tres" % skill_id,
         "res://resources/skills/%s.tres" % skill_id
     ]
     for p in paths:

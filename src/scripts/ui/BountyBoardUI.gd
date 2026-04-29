@@ -41,7 +41,7 @@ func _load_bounties() -> void:
     # 从资源配置加载悬赏
     _available_bounties.clear()
     
-    var bounties_path = "res://src/resources/bounties/"
+    var bounties_path = "res://resources/bounties/"
     var dir = DirAccess.open(bounties_path)
     if not dir:
         print("[BountyBoardUI] Warning: Cannot open bounties directory")

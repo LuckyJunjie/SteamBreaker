@@ -243,7 +243,7 @@ func get_available_skills(companion: Companion) -> Array[Skill]:
     var cooldowns: Dictionary = data["skill_cooldowns"]
 
     for sid in unlocked_ids:
-        var skill: Skill = load("res://src/resources/skills/skill_%s.tres" % sid)
+        var skill: Skill = load("res://resources/skills/skill_%s.tres" % sid)
         if skill == null:
             # 尝试直接加载
             skill = _load_skill_by_id(sid)
@@ -255,7 +255,7 @@ func get_available_skills(companion: Companion) -> Array[Skill]:
 func _load_skill_by_id(skill_id: String) -> Skill:
     # 尝试多种路径
     var paths: Array[String] = [
-        "res://src/resources/skills/%s.tres" % skill_id,
+        "res://resources/skills/%s.tres" % skill_id,
         "res://resources/skills/%s.tres" % skill_id
     ]
     for p in paths:
