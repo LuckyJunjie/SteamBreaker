@@ -148,3 +148,20 @@
 - BountyBoardUI accept_bounty 改用 bounty_manager group
 
 ---
+
+## Sprint 10 — 战斗初始化链路修复（2026-04-29 18:18 启动）
+
+| Task | Agent | 状态 | 产出 |
+|------|-------|------|------|
+| battle-init-chain | jarvis | ✅ 完成 | GameManager存encounter→GameState→BattleManager初始化船只 |
+| port-world-fix | jarvis | ✅ 完成 | PortScene/WorldMapUI延迟一帧查找GameManager |
+| ship-editor-connect | jarvis | ✅ 完成 | _open_ship_editor连接loadout_changed信号 |
+
+### 关键修复
+- GameManager.change_scene_to_battle() 存储 encounter_data 到 GameState
+- BattleManager._ready() 调用 _init_battle_from_encounter() 生成船只
+- 玩家船: player_steam_breaker, 500HP, 3机动值
+- 敌方根据encounter类型生成铁牙鲨/幽灵女王
+- 修复WeaponData字段名: overheat_cost → heat_cost
+
+---
