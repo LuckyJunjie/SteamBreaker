@@ -83,10 +83,12 @@ func _setup_ui() -> void:
 	_setup_top_bar()
 
 func _load_game_manager() -> void:
-	if has_node("/root/GameManager"):
-		_game_manager = get_node("/root/GameManager")
+	await get_tree().process_frame
+	var world = get_tree().root.find_child("World", false, false)
+	if world:
+		_game_manager = world
 		_sync_from_game_manager()
-		print("[WorldMapUI] GameManager found")
+		print("[WorldMapUI] GameManager (World) found")
 	else:
 		print("[WorldMapUI] GameManager not found")
 

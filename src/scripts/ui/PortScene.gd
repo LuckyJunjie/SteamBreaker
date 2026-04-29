@@ -109,10 +109,14 @@ func _recursive_find(node: Node, name: String) -> Node:
 
 
 func _load_game_manager() -> void:
-    # GameManager 是 systems/ 目录下的非 autoload 节点，改用 GameState autoload
-    if has_node("/root/GameState"):
+    await get_tree().process_frame
+    var world = get_tree().root.find_child("World", false, false)
+    if world:
+        _game_manager = world
+        print("[PortScene] GameManager (World) found")
+    elif has_node("/root/GameState"):
         _game_manager = get_node("/root/GameState")
-        print("[PortScene] GameState found")
+        print("[PortScene] Using GameState as fallback")
 
 
 # 处理输入
