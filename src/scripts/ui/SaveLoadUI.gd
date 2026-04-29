@@ -98,13 +98,8 @@ func _create_buttons() -> void:
     buttons_container.add_child(refresh_btn)
 
 func _find_save_manager() -> void:
-    var root := get_tree().root
-    _save_manager = root.find_child("SaveManager", true, false)
-    if not _save_manager:
-        print("[SaveLoadUI] SaveManager not found, creating temporary one")
-        _save_manager = Node.new()
-        _save_manager.set_script(load("res://scripts/systems/SaveManager.gd"))
-        root.add_child(_save_manager)
+    # SaveManager is registered as an autoload singleton — reference it directly
+    _save_manager = SaveManager
 
 # ============================================
 # Public API / 公开接口

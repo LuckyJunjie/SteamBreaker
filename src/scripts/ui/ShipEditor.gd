@@ -68,14 +68,27 @@ func _get_drag_data(pos: Vector2) -> Dictionary:
 
 
 func _find_control_at_pos(pos: Vector2) -> Control:
+    # pos is local to self; convert to global for rect hit-testing
     if not _slots_vbox:
         return null
+    var global_pos := get_global_transform().affine_inverse().xform(pos)
     for row in _slots_vbox.get_children():
-        if row is Control and row.get_global_rect().has_point(pos):
-            # 找到有part meta的子控件
-            for child in row.get_children():
-                if child is Label and child.has_meta("part"):
-                    return child
+        if row is Control and row.get_global_rect().has_point(global_pos):
+            # 递归查找有part meta的子控件
+            var found = _find_part_meta_in_children(row)
+            if found:
+                return found
+    return null
+
+
+func _find_part_meta_in_children(node: Node) -> Control:
+    for child in node.get_children():
+        if child is Control:
+            if child.has_meta("part"):
+                return child
+            var recursive = _find_part_meta_in_children(child)
+            if recursive:
+                return recursive
     return null
 
 
@@ -102,10 +115,12 @@ func _drop_data(pos: Vector2, data: Dictionary) -> void:
 
 
 func _get_slot_at_pos(pos: Vector2) -> String:
+    # pos is local to self; convert to global for rect hit-testing
     if not _slots_vbox:
         return ""
+    var global_pos := get_global_transform().affine_inverse().xform(pos)
     for row in _slots_vbox.get_children():
-        if row is Control and row.has_meta("slot_type") and row.get_global_rect().has_point(pos):
+        if row is Control and row.has_meta("slot_type") and row.get_global_rect().has_point(global_pos):
             return row.get_meta("slot_type")
     return ""
 
