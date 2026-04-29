@@ -22,6 +22,7 @@ signal show_damage_popup(ship_id: String, damage: float, is_crit: bool)
 
 func _ready():
 	print("[BattleManager] Battle initialized")
+	_init_battle_from_encounter()
 	# 初始化战斗状态机
 	var bsm: Node = get_node_or_null("BattleStateMachine")
 	if bsm and bsm.has_method("setup"):
@@ -30,6 +31,62 @@ func _ready():
 		print("[BattleManager] BattleStateMachine started")
 	else:
 		push_error("[BattleManager] BattleStateMachine node not found or invalid")
+
+func _init_battle_from_encounter() -> void:
+	var encounter = GameState.battle_encounter_data
+	var encounter_type = encounter.get("type", "enemy_ship")
+	_battle_location = GameState.current_sea_area
+	
+	# 创建玩家船只
+	var player_ship_data := ShipCombatData.new()
+	player_ship_data.ship_id = "player_steam_breaker"
+	player_ship_data.ship_name = GameState.player_name + "的蒸汽船"
+	player_ship_data.max_hp = 500
+	player_ship_data.current_hp = 500
+	player_ship_data.max_mobility = 3
+	player_ship_data.mobility = 3
+	player_ship_data.position_2d = Vector2(300, 360)
+	player_ship_data.current_ring = 2
+	AddShip(player_ship_data)
+	
+	# 根据遭遇类型创建敌方
+	match encounter_type:
+		"enemy_ship":
+			_spawn_enemy_ship("enemy_irontooth_shark", "铁牙鲨", 300, Vector2(900, 360))
+		"bounty_target":
+			var hint = encounter.get("bounty_hint", "irontooth_shark")
+			if "ghost" in hint:
+				_spawn_enemy_ship("enemy_ghost_queen", "幽灵女王", 450, Vector2(900, 360))
+			else:
+				_spawn_enemy_ship("enemy_irontooth_shark", "铁牙鲨", 300, Vector2(900, 360))
+		"storm":
+			print("[BattleManager] Storm encounter - no enemy ships")
+		_:
+			_spawn_enemy_ship("enemy_irontooth_shark", "铁牙鲨", 300, Vector2(900, 360))
+	
+	GameState.battle_encounter_data = {}
+	print("[BattleManager] Battle initialized with %d ships" % ships.size())
+
+func _spawn_enemy_ship(enemy_id: String, name: String, hp: int, pos: Vector2) -> void:
+	var enemy := ShipCombatData.new()
+	enemy.ship_id = enemy_id
+	enemy.ship_name = name
+	enemy.max_hp = hp
+	enemy.current_hp = hp
+	enemy.max_mobility = 2
+	enemy.mobility = 2
+	enemy.position_2d = pos
+	enemy.current_ring = 2
+	var wpn := WeaponData.new()
+	wpn.damage = 60
+	wpn.accuracy = 65
+	wpn.range_min = 0
+	wpn.range_max = 100
+	wpn.overheat_cost = 20
+	wpn.ammo_type = "solid_shot"
+	enemy.weapons = [wpn]
+	AddShip(enemy)
+	print("[BattleManager] Spawned enemy: ", enemy_id)
 
 func _process(delta):
 	pass

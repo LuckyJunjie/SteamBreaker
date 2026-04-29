@@ -21,6 +21,9 @@ extends Node
 # ============================================
 var player_ship: Node = null
 
+# Battle encounter data (set before entering battle)
+var battle_encounter_data: Dictionary = {}
+
 # ============================================
 # Current Zone / 当前区域
 # ============================================

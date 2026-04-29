@@ -326,6 +326,8 @@ func change_scene_to_world_map() -> void:
 
 func change_scene_to_battle(encounter_data: Dictionary) -> void:
 	current_state = PlayState.BATTLE
+	# 存储 encounter_data 到 GameState，供 BattleManager 初始化使用
+	GameState.battle_encounter_data = encounter_data
 	scene_change_requested.emit("battle", encounter_data)
 	_change_to_scene("res://scenes/battles/Battle.tscn")
 
