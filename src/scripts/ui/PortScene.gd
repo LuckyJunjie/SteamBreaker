@@ -201,7 +201,7 @@ func _open_ship_editor() -> void:
     print("[PortScene] Opening ShipEditor...")
     open_ship_editor.emit()
     
-    var editor_scene = load("res://src/scenes/ui/ShipEditor.tscn")
+    var editor_scene = load("res://scenes/ui/ShipEditor.tscn")
     if editor_scene:
         var instance = editor_scene.instantiate()
         _show_panel(instance, "ShipEditor")
@@ -417,7 +417,7 @@ func _get_recruited_companions() -> Array:
 
 func _load_available_companions() -> Array:
     var list = []
-    var companions_path = "res://src/resources/companions/"
+    var companions_path = "res://resources/companions/"
     var dir = DirAccess.open(companions_path)
     if not dir:
         print("[PortScene] Warning: Cannot open companions dir")
@@ -578,7 +578,7 @@ func _create_bounty_card(bounty) -> Control:
 
 func _load_available_bounties() -> Array:
     var list = []
-    var bounties_path = "res://src/resources/bounties/"
+    var bounties_path = "res://resources/bounties/"
     var dir = DirAccess.open(bounties_path)
     if not dir:
         return _get_demo_bounties()

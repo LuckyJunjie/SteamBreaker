@@ -317,17 +317,17 @@ func get_inventory() -> Array:
 func change_scene_to_port(port_id: String) -> void:
 	set_current_port(port_id)
 	scene_change_requested.emit("port", {"port_id": port_id})
-	_change_to_scene("res://src/scenes/worlds/PortScene.tscn")
+	_change_to_scene("res://scenes/worlds/PortScene.tscn")
 
 func change_scene_to_world_map() -> void:
 	current_state = PlayState.WORLD_MAP
 	scene_change_requested.emit("world_map", {})
-	_change_to_scene("res://src/scenes/worlds/WorldMap.tscn")
+	_change_to_scene("res://scenes/worlds/WorldMap.tscn")
 
 func change_scene_to_battle(encounter_data: Dictionary) -> void:
 	current_state = PlayState.BATTLE
 	scene_change_requested.emit("battle", encounter_data)
-	_change_to_scene("res://src/scenes/battles/Battle.tscn")
+	_change_to_scene("res://scenes/battles/Battle.tscn")
 
 func _change_to_scene(scene_path: String) -> void:
 	print("[GameManager] Loading scene: ", scene_path)
