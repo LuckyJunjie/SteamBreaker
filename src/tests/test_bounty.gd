@@ -141,7 +141,7 @@ func test_bounty_resource_files_exist():
 
 
 func test_bounty_resource_has_required_fields():
-    var bounty = load("res://src/resources/bounties/bounty_irontooth_shark.tres")
+    var bounty = load("res://resources/bounties/bounty_irontooth_shark.tres")
     if bounty:
         assert_true(bounty.has("bounty_id"),
             "Bounty resource should have bounty_id field")

@@ -193,9 +193,9 @@ func test_ship_loadout_serialization_paths():
             "ISSUE: res://resources/ships/ path may be wrong (found in src/resources/ships/)")
     
     # 正确的路径应该存在
-    var correct_hull = load("res://src/resources/ships/SteamBreaker_Hull.tres")
+    var correct_hull = load("res://resources/ships/SteamBreaker_Hull.tres")
     assert_not_null(correct_hull,
-        "Hull resource should load from src/resources/ships/SteamBreaker_Hull.tres")
+        "Hull resource should load from resources/ships/SteamBreaker_Hull.tres")
 
 
 ## ---------- SaveManager ↔ CompanionManager 对接测试 ----------
