@@ -106,8 +106,18 @@
 
 | Task | Agent | 状态 | 产出 |
 |------|-------|------|------|
-| resourcecache-paths | athena | 🔄 执行中 | ResourceCache.gd 路径修正 |
-| shipeditor-interaction | apollo | 🔄 执行中 | ShipEditor 拖拽 + SaveLoadUI 修正 |
-| battle-bounty-integration | einstein | 🔄 执行中 | Battle-Bounty 对接验证 |
+| resourcecache-paths | athena | ✅ 完成 | commit 95e274e，ResourceCache.gd 路径修正 |
+| shipeditor-interaction | apollo | ✅ 完成 | commit 4a17fc4，ShipEditor 拖拽 + SaveLoadUI |
+| battle-bounty-integration | einstein | ✅ 完成 | commit 67faddc，Battle-Bounty 对接验证 |
+
+## Sprint 7 — 残留路径修复（2026-04-29 13:20 启动）
+
+> 独立团队模式 | 发现 GameManager/PortScene 等仍有 `res://src/` 残留
+
+| Task | Agent | 状态 | 产出 |
+|------|-------|------|------|
+| script-scene-paths | apollo | 🔄 待执行 | GameManager.gd + PortScene.gd 场景路径修正 |
+| resource-paths-fix | athena | 🔄 待执行 | HUD/BountyBoardUI/CompanionSkill 资源路径修正 |
+| test-paths-fix | chiron | 🔄 待执行 | 3个测试文件路径修正 |
 
 ---
