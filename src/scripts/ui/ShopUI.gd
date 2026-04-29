@@ -49,12 +49,8 @@ func _find_nodes() -> void:
 
 
 func _load_player_data() -> void:
-    # 从 GameManager 或存档加载玩家金币
-    if has_node("/root/GameManager"):
-        var gm = get_node("/root/GameManager")
-        _player_gold = gm.get("player_gold") if gm.has("player_gold") else 5000
-    else:
-        _player_gold = 5000  # 默认起始金币
+    # 使用 GameState autoload 获取玩家金币
+    _player_gold = GameState.gold if GameState else 5000
 
 
 func _populate_items() -> void:

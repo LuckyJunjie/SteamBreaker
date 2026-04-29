@@ -594,11 +594,14 @@ func open_bounty_board() -> void:
 # ============================================================
 
 func _load_game_manager() -> void:
+    # 延迟一帧查找，确保 World 节点已初始化
+    await get_tree().process_frame
     if has_node("/root/GameManager"):
         _game_manager_ref = get_node("/root/GameManager")
         print("[HUD] GameManager found for navigation")
-    else:
-        print("[HUD] GameManager not found")
+    elif has_node("/root/GameState"):
+        _game_manager_ref = get_node("/root/GameState")
+        print("[HUD] Using GameState as fallback")
 
 ## 设置港口/世界地图导航按钮
 func _setup_navigation_controls() -> void:

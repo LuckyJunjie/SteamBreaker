@@ -109,9 +109,10 @@ func _recursive_find(node: Node, name: String) -> Node:
 
 
 func _load_game_manager() -> void:
-    if has_node("/root/GameManager"):
-        _game_manager = get_node("/root/GameManager")
-        print("[PortScene] GameManager found")
+    # GameManager 是 systems/ 目录下的非 autoload 节点，改用 GameState autoload
+    if has_node("/root/GameState"):
+        _game_manager = get_node("/root/GameState")
+        print("[PortScene] GameState found")
 
 
 # 处理输入
@@ -493,10 +494,12 @@ func _create_bounty_panel() -> Control:
     region_lbl.add_theme_color_override("font_color", Color(0.7, 0.6, 0.4))
     content.add_child(region_lbl)
     
-    var bounties = _load_available_bounties()
+        var bounties = _load_available_bounties()
     for bounty in bounties:
         var card = _create_bounty_card(bounty)
         content.add_child(card)
+    
+    return panel
 
 
 func _create_bounty_card(bounty) -> Control:
@@ -703,20 +706,16 @@ func _create_shop_panel() -> Control:
 
 
 func _get_player_gold() -> int:
-    if _game_manager and _game_manager.has_method("get_player_gold"):
-        return _game_manager.get_player_gold()
-    return 5000  # 默认起始金币
+    return GameState.gold
 
 
 func _on_buy_item(item: Dictionary) -> void:
-    var gold = _get_player_gold()
-    if gold < item["price"]:
+    var price = item["price"]
+    if not GameState.spend_gold(price):
         print("[PortScene] Not enough gold for: ", item["name"])
         return
     
     print("[PortScene] Bought: ", item["name"])
-    if _game_manager and _game_manager.has_method("buy_item"):
-        _game_manager.buy_item(item)
     
     # 刷新商店UI
     _close_active_panel()

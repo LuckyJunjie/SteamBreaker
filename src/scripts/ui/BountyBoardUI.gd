@@ -226,10 +226,10 @@ func _on_accept_bounty(bounty) -> void:
         bounty["is_accepted"] = true
     
     # 通知 GameManager
-    if has_node("/root/GameManager"):
-        var gm = get_node("/root/GameManager")
-        if gm.has_method("accept_bounty"):
-            gm.accept_bounty(bounty)
+    # Use BountyManager autoload or group
+    var bounty_mgr = get_tree().get_first_node_in_group("bounty_manager")
+    if bounty_mgr and bounty_mgr.has_method("accept_bounty"):
+        bounty_mgr.accept_bounty(bounty_id)
     
     # 刷新显示
     _populate_bounties()
