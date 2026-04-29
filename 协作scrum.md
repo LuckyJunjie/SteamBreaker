@@ -99,3 +99,15 @@
 | chiron | db0b1495 | 验证修复 + 剧情系统 |
 
 ---
+
+## Sprint 6 — 路径修复与集成验证（2026-04-29 08:47 启动）
+
+> 独立团队模式 | 发现 ResourceCache 等多处路径错误
+
+| Task | Agent | 状态 | 产出 |
+|------|-------|------|------|
+| resourcecache-paths | athena | 🔄 执行中 | ResourceCache.gd 路径修正 |
+| shipeditor-interaction | apollo | 🔄 执行中 | ShipEditor 拖拽 + SaveLoadUI 修正 |
+| battle-bounty-integration | einstein | 🔄 执行中 | Battle-Bounty 对接验证 |
+
+---
