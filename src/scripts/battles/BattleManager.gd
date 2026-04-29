@@ -17,6 +17,8 @@ var _bounty_manager_ref: Node = null
 
 signal phase_changed(phase: Phase)
 signal turn_ended()
+signal show_battle_action_panel(visible: bool)
+signal show_damage_popup(ship_id: String, damage: float, is_crit: bool)
 
 func _ready():
 	print("[BattleManager] Battle initialized")
@@ -40,6 +42,16 @@ func get_enemy_by_id(enemy_id: String) -> ShipCombatData:
 
 func get_all_ships() -> Array[ShipCombatData]:
 	return ships.duplicate()
+
+func get_enemy_ships() -> Array[ShipCombatData]:
+	var result: Array[ShipCombatData] = []
+	for ship in ships:
+		if ship is ShipCombatData and not _is_player_ship(ship.ship_id):
+			result.append(ship)
+	return result
+
+func advance_turn() -> void:
+	EndTurn()
 
 func AddShip(ship: ShipCombatData) -> void:
 	ships.append(ship)
