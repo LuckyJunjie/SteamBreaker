@@ -82,8 +82,8 @@ func _spawn_enemy_ship(enemy_id: String, name: String, hp: int, pos: Vector2) ->
 	wpn.accuracy = 65
 	wpn.range_min = 0
 	wpn.range_max = 100
-	wpn.overheat_cost = 20
-	wpn.ammo_type = "solid_shot"
+	wpn.heat_cost = 20
+	wpn.ammo_type = WeaponData.AmmoType.STANDARD
 	enemy.weapons = [wpn]
 	AddShip(enemy)
 	print("[BattleManager] Spawned enemy: ", enemy_id)
