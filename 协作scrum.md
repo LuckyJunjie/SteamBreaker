@@ -131,3 +131,20 @@
 | battle-scene-init | athena | ✅ 完成 | commit 312e2a9，BattleStateMachine 接入+5个stub补充 |
 
 ---
+
+## Sprint 9 — 游戏主流程完善（2026-04-29 14:54 启动）
+
+| Task | Agent | 状态 | 产出 |
+|------|-------|------|------|
+| title-screen | apollo | ✅ 完成 | commit 1bd333b，TitleScreen.tscn+TitleScreen.gd+新游戏/继续 |
+| port-panel-fix | einstein | ⚠️ 超时→jarvis补全 | PortScene面板+GameManager引用修复（commit 89cd225）|
+| main-flow-review | athena | ⚠️ 超时 | 分析完成但未完成修复 |
+
+### 补充修复（jarvis）
+- PortScene `_load_game_manager` 改用 GameState autoload
+- 修复 `_create_bounty_panel` 重复定义+indent
+- ShopUI `_load_player_data` 改用 GameState.gold
+- HUD `_load_game_manager` 延迟一帧查找（GameManager延迟加入root）
+- BountyBoardUI accept_bounty 改用 bounty_manager group
+
+---
