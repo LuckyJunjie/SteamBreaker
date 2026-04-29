@@ -38,7 +38,7 @@ func _preload_all_resources() -> void:
 # ============================================
 
 func _preload_companions() -> void:
-	var companion_dir := "res://src/resources/companions/"
+	var companion_dir := "res://resources/companions/"
 	var dir := DirAccess.open(companion_dir)
 	if dir:
 		dir.list_dir_begin()
@@ -72,7 +72,7 @@ func has_companion(companion_id: String) -> bool:
 # ============================================
 
 func _preload_bounties() -> void:
-	var bounty_dir := "res://src/resources/bounties/"
+	var bounty_dir := "res://resources/bounties/"
 	var dir := DirAccess.open(bounty_dir)
 	if dir:
 		dir.list_dir_begin()
@@ -104,7 +104,7 @@ func get_bounty_by_rank(rank: String) -> Array[Resource]:
 # ============================================
 
 func _preload_parts() -> void:
-	var part_dir := "res://src/resources/parts/"
+	var part_dir := "res://resources/parts/"
 	var dir := DirAccess.open(part_dir)
 	if dir:
 		dir.list_dir_begin()
@@ -133,7 +133,7 @@ func get_parts_by_type(part_type: String) -> Array[Resource]:
 # ============================================
 
 func _preload_skills() -> void:
-	var skill_dir := "res://src/resources/skills/"
+	var skill_dir := "res://resources/skills/"
 	var dir := DirAccess.open(skill_dir)
 	if dir:
 		dir.list_dir_begin()
@@ -158,7 +158,7 @@ func get_all_skills() -> Array[Resource]:
 # ============================================
 
 func _preload_ships() -> void:
-	var ship_dir := "res://src/resources/ships/"
+	var ship_dir := "res://resources/ships/"
 	var dir := DirAccess.open(ship_dir)
 	if dir:
 		dir.list_dir_begin()
@@ -185,7 +185,7 @@ func get_all_ships() -> Array[Resource]:
 func _preload_items() -> void:
 	# Items may be in a dedicated items directory
 	# Scan resources directory recursively for .tres files with item_id
-	_scan_items_in_dir("res://src/resources/")
+	_scan_items_in_dir("res://resources/")
 	# Fallback: hardcoded item definitions
 	_items_cache["item_engine_oil"] = _make_simple_item("item_engine_oil", "机械润滑油", 50)
 	_items_cache["item_gear_set"] = _make_simple_item("item_gear_set", "齿轮组", 80)
