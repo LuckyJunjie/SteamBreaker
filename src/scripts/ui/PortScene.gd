@@ -204,14 +204,25 @@ func _activate_point(point_id: String) -> void:
 
 func _open_ship_editor() -> void:
     print("[PortScene] Opening ShipEditor...")
-    open_ship_editor.emit()
     
     var editor_scene = load("res://scenes/ui/ShipEditor.tscn")
     if editor_scene:
         var instance = editor_scene.instantiate()
+        # 传入当前船只配置
+        if _game_manager and _game_manager.has_method("get_current_loadout"):
+            instance.set_loadout(_game_manager.get_current_loadout())
+        # 监听配置变更
+        if instance.has_signal("loadout_changed"):
+            instance.loadout_changed.connect(_on_ship_loadout_changed)
         _show_panel(instance, "ShipEditor")
     else:
         push_error("[PortScene] ERROR: ShipEditor.tscn not found at expected path")
+
+
+func _on_ship_loadout_changed(loadout: ShipLoadout) -> void:
+    if _game_manager and _game_manager.has_method("apply_loadout"):
+        _game_manager.apply_loadout(loadout)
+        print("[PortScene] Ship loadout updated: ", loadout.ship_name if loadout else "?")
 
 
 func _open_tavern() -> void:
