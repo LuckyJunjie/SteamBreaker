@@ -1,6 +1,10 @@
-[gd_scene load_steps=2 format=3 uid="uid://battle_scene"]
+[gd_scene load_steps=4 format=3 uid="uid://battle_scene"]
 
 [ext_resource type="Script" path="res://scripts/battles/BattleManager.gd" id="1_battle_mgr"]
+[ext_resource type="Script" path="res://scripts/battles/states/BattleStateMachine.gd" id="2_bsm"]
 
 [node name="Battle" type="Node2D"]
 script = ExtResource("1_battle_mgr")
+
+[node name="BattleStateMachine" type="Node" parent="."]
+script = ExtResource("2_bsm")

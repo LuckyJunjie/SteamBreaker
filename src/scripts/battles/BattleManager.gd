@@ -22,6 +22,14 @@ signal show_damage_popup(ship_id: String, damage: float, is_crit: bool)
 
 func _ready():
 	print("[BattleManager] Battle initialized")
+	# 初始化战斗状态机
+	var bsm: Node = get_node_or_null("BattleStateMachine")
+	if bsm and bsm.has_method("setup"):
+		bsm.setup(self)
+		bsm.start()
+		print("[BattleManager] BattleStateMachine started")
+	else:
+		push_error("[BattleManager] BattleStateMachine node not found or invalid")
 
 func _process(delta):
 	pass
@@ -135,3 +143,21 @@ func CheckGameOver() -> bool:
 		phase_changed.emit(current_phase)
 		return true
 	return false
+
+## ─── 战斗状态机调用的方法 ────────────────────────────────────
+
+func play_enemy_attack_animation(enemy: ShipCombatData, player: ShipCombatData, weapon: WeaponData, is_hit: bool, damage: float) -> void:
+	print("[BattleManager] Enemy attack animation: ", enemy.ship_id, " -> ", player.ship_id)
+
+func show_miss_effect(target: ShipCombatData) -> void:
+	print("[BattleManager] Miss effect shown on: ", target.ship_id)
+
+func add_pending_projectile(proj_data: Dictionary) -> void:
+	_pending_projectiles.append(proj_data)
+
+func summon_ghost_minion() -> void:
+	print("[BattleManager] Summoning ghost minion")
+
+func execute_party_skill() -> Dictionary:
+	print("[BattleManager] Executing party skill")
+	return {}
