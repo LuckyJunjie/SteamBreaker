@@ -28,13 +28,28 @@ var max_health: int = 100
 # Reference to BountyManager
 var bounty_manager_ref: Node = null
 
+# ---- 战斗模式 UI ----
+var BattleActionPanel: Panel = null
+var BattleActionButtons: VBoxContainer = null
+var DamagePopupLayer: Node2D = null
+var is_in_battle_mode: bool = false
+var battle_manager_ref: Node = null
+var selected_weapon_index: int = -1
+var selected_target_ship: ShipCombatData = null
+var current_weapons: Array[WeaponData] = []
+var current_items: Array[Dictionary] = []
+
 func _ready():
     print("[HUD] Initialized")
     _setup_ui()
     _setup_bounty_tracker()
     _setup_companion_panel()
+    _setup_battle_action_panel()
+    _setup_damage_popup_layer()
     _connect_bounty_signals()
     _connect_companion_signals()
+    _connect_battle_signals()
+    _detect_battle_mode()
 
 func _setup_ui():
     var vbox: VBoxContainer = VBoxContainer.new()
@@ -668,3 +683,124 @@ func _on_sail_pressed() -> void:
 func show_navigation_panel(visible: bool) -> void:
     if _nav_panel:
         _nav_panel.visible = visible
+
+## ============================================
+## 战斗模式 UI（新增）
+## ============================================
+
+func _detect_battle_mode() -> void:
+	# 检查当前场景是否是战斗场景
+	var tree = get_tree()
+	if not tree:
+		return
+	var root = tree.root
+	if not root:
+		return
+	var battle = root.find_child("Battle", false, false)
+	if battle:
+		is_in_battle_mode = true
+		battle_manager_ref = battle
+		print("[HUD] Battle mode detected")
+		if battle.has_method("get_player_ship"):
+			var ship: ShipCombatData = battle.get_player_ship()
+			if ship:
+				current_weapons = ship.weapons
+				print("[HUD] Loaded %d weapons from player ship" % current_weapons.size())
+
+func _setup_battle_action_panel() -> void:
+	BattleActionPanel = Panel.new()
+	BattleActionPanel.name = "BattleActionPanel"
+	BattleActionPanel.set_anchors_preset(Control.PRESET_CENTER)
+	BattleActionPanel.custom_minimum_size = Vector2(400, 300)
+	BattleActionPanel.visible = false
+	add_child(BattleActionPanel)
+
+	var bg = ColorRect.new()
+	bg.color = Color(0.05, 0.05, 0.1, 0.95)
+	bg.set_anchors_preset(Control.PRESET_FULL_RECT)
+	BattleActionPanel.add_child(bg)
+
+	var title = Label.new()
+	title.text = "⚔️ 行动选择"
+	title.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	title.add_theme_color_override("font_color", Color(0.9, 0.8, 0.4))
+	title.position = Vector2(0, 10)
+	title.size = Vector2(400, 40)
+	BattleActionPanel.add_child(title)
+
+	BattleActionButtons = VBoxContainer.new()
+	BattleActionButtons.position = Vector2(50, 60)
+	BattleActionButtons.size = Vector2(300, 220)
+	BattleActionPanel.add_child(BattleActionButtons)
+
+	_add_battle_action_button("🔫 攻击", Callable(self, "_on_battle_attack"))
+	_add_battle_action_button("🔧 修理", Callable(self, "_on_battle_repair"))
+	_add_battle_action_button("🛡️ 防御", Callable(self, "_on_battle_defend"))
+	_add_battle_action_button("⏭️ 跳过", Callable(self, "_on_battle_skip"))
+
+func _add_battle_action_button(label: String, callback: Callable) -> void:
+	if not BattleActionButtons:
+		return
+	var btn = Button.new()
+	btn.text = label
+	btn.custom_minimum_size = Vector2(300, 50)
+	btn.pressed.connect(callback)
+	BattleActionButtons.add_child(btn)
+
+func _setup_damage_popup_layer() -> void:
+	DamagePopupLayer = Node2D.new()
+	DamagePopupLayer.name = "DamagePopupLayer"
+	add_child(DamagePopupLayer)
+
+func _connect_battle_signals() -> void:
+	var tree = get_tree()
+	if not tree:
+		return
+	var root = tree.root
+	if not root:
+		return
+	var battle = root.find_child("Battle", false, false)
+	if battle and battle.has_signal("show_battle_action_panel"):
+		battle.connect("show_battle_action_panel", _on_show_battle_action_panel)
+	if battle and battle.has_signal("show_damage_popup"):
+		battle.connect("show_damage_popup", _on_show_damage_popup)
+
+func _on_show_battle_action_panel(visible: bool) -> void:
+	if BattleActionPanel:
+		BattleActionPanel.visible = visible
+
+func _on_show_damage_popup(ship_id: String, damage: float, is_crit: bool) -> void:
+	if not DamagePopupLayer:
+		return
+	var ship_label = Label.new()
+	ship_label.text = ("%.0f" % damage) + (" CRIT!" if is_crit else "")
+	ship_label.add_theme_color_override("font_color", Color(1.0, 0.2, 0.2) if is_crit else Color(1.0, 0.8, 0.2))
+	ship_label.position = Vector2(400 + randf() * 100, 200 + randf() * 100)
+	DamagePopupLayer.add_child(ship_label)
+	var tween = create_tween()
+	tween.tween_property(ship_label, "position:y", ship_label.position.y - 60, 1.0)
+	tween.tween_callback(ship_label.queue_free)
+
+func _on_battle_attack() -> void:
+	print("[HUD] Battle: Attack selected")
+	if BattleActionPanel:
+		BattleActionPanel.visible = false
+	if battle_manager_ref and battle_manager_ref.has_method("request_attack"):
+		battle_manager_ref.request_attack(selected_weapon_index, "", "hull")
+
+func _on_battle_repair() -> void:
+	print("[HUD] Battle: Repair selected")
+	if BattleActionPanel:
+		BattleActionPanel.visible = false
+
+func _on_battle_defend() -> void:
+	print("[HUD] Battle: Defend selected")
+	if BattleActionPanel:
+		BattleActionPanel.visible = false
+
+func _on_battle_skip() -> void:
+	print("[HUD] Battle: Skip turn")
+	if BattleActionPanel:
+		BattleActionPanel.visible = false
+	if battle_manager_ref and battle_manager_ref.has_method("advance_turn"):
+		battle_manager_ref.advance_turn()

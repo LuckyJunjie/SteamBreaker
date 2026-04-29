@@ -161,3 +161,35 @@ func summon_ghost_minion() -> void:
 func execute_party_skill() -> Dictionary:
 	print("[BattleManager] Executing party skill")
 	return {}
+
+## ─── 战斗UI调用入口 ────────────────────────────────────────
+
+## 请求攻击（由 HUD 行动面板调用）
+func request_attack(weapon_index: int, target_id: String, part: String = "hull") -> void:
+	print("[BattleManager] Attack requested: weapon=%d target=%s" % [weapon_index, target_id])
+	var ship = get_player_ship()
+	if not ship or weapon_index >= ship.weapons.size():
+		return
+	var weapon: WeaponData = ship.weapons[weapon_index]
+	var target: ShipCombatData = null
+	if target_id != "":
+		target = get_enemy_by_id(target_id)
+	else:
+		var enemies = get_enemy_ships()
+		target = enemies[0] if not enemies.is_empty() else null
+	if not target:
+		return
+	var dmg = weapon.damage
+	add_damage_event({
+		"source_id": ship.ship_id,
+		"target_id": target.ship_id,
+		"damage": dmg,
+		"weapon": weapon,
+		"part": part,
+		"critical": false
+	})
+
+## 请求跳过回合
+func request_skip_turn() -> void:
+	print("[BattleManager] Skip turn requested")
+	advance_turn()
