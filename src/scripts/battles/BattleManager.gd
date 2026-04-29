@@ -12,6 +12,9 @@ var _damage_events: Array[Dictionary] = []
 # 待处理的抛射体列表
 var _pending_projectiles: Array[Dictionary] = []
 
+var _battle_location: String = ""
+var _bounty_manager_ref: Node = null
+
 signal phase_changed(phase: Phase)
 signal turn_ended()
 
@@ -93,6 +96,19 @@ func GetShipsInRange(origin: Vector2, min_range: float, max_range: float) -> Arr
 		if dist >= min_range and dist <= max_range:
 			result.append(ship)
 	return result
+
+func get_battle_location() -> String:
+	return _battle_location
+
+func set_battle_location(loc: String) -> void:
+	_battle_location = loc
+
+func get_bounty_manager() -> Node:
+	if _bounty_manager_ref:
+		return _bounty_manager_ref
+	# 查找场景中的 BountyManager
+	_bounty_manager_ref = get_tree().get_first_node_in_group("bounty_manager")
+	return _bounty_manager_ref
 
 func CheckGameOver() -> bool:
 	var player_ships: int = 0

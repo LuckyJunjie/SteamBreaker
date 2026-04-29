@@ -8,7 +8,7 @@ signal bounty_abandoned(bounty_id: String)
 signal bounty_completed(bounty_id: String, rewards: Dictionary)
 signal bounty_updated()
 
-const BOUNTY_RESOURCE_PATH = "res://src/resources/bounties/"
+const BOUNTY_RESOURCE_PATH = "res://resources/bounties/"
 const SAVE_PATH = "user://bounty_progress.save"
 
 var _all_bounties: Dictionary = {}       # bounty_id -> Bounty resource
@@ -19,6 +19,7 @@ var _player_inventory: Array[String] = []
 
 func _ready() -> void:
 	print("[BountyManager] Initialized")
+	add_to_group("bounty_manager")
 	_load_bounty_definitions()
 	_load_progress()
 

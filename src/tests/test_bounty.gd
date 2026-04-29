@@ -131,13 +131,13 @@ func test_bounty_kill_match_logic():
 
 
 func test_bounty_resource_files_exist():
-    var bounty_iron = load("res://src/resources/bounties/bounty_irontooth_shark.tres")
+    var bounty_iron = load("res://resources/bounties/bounty_irontooth_shark.tres")
     assert_not_null(bounty_iron,
-        "bounty_irontooth_shark.tres should exist at res://src/resources/bounties/")
+        "bounty_irontooth_shark.tres should exist at res://resources/bounties/")
     
-    var bounty_ghost = load("res://src/resources/bounties/bounty_ghost_queen.tres")
+    var bounty_ghost = load("res://resources/bounties/bounty_ghost_queen.tres")
     assert_not_null(bounty_ghost,
-        "bounty_ghost_queen.tres should exist at res://src/resources/bounties/")
+        "bounty_ghost_queen.tres should exist at res://resources/bounties/")
 
 
 func test_bounty_resource_has_required_fields():
