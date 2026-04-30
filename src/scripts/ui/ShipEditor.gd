@@ -826,6 +826,9 @@ func _on_confirm_pressed() -> void:
     loadout_changed.emit(_preview_loadout)
     _show_message("改装完成！")
 
+    # Auto-save after ship upgrade
+    SaveManager.trigger_auto_save("ship_upgrade") if SaveManager and SaveManager.has_method("trigger_auto_save") else None
+
 
 func _on_cancel_pressed() -> void:
     print("[ShipEditor] Cancelled")
