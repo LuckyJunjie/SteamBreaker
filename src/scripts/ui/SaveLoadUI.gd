@@ -274,12 +274,12 @@ func _handle_load(slot: int) -> void:
         file.close()
         
         var data: SaveData = SaveData.from_json_string(json_str)
-        if data:
+        if data and data.player_name != "":
             _show_status("读档成功: 槽位 %d" % slot)
             hide()
             load_selected.emit(slot)
         else:
-            _show_status("读档失败: 解析错误")
+            _show_status("读档失败: 存档文件已损坏")
 
 func _on_new_game_pressed() -> void:
     new_game_requested.emit()

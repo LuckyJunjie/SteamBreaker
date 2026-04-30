@@ -207,7 +207,22 @@ func to_json_string() -> String:
 
 static func from_json_string(json: String) -> SaveData:
     var data := SaveData.new()
+    if json == null or json.is_empty():
+        push_error("[SaveData] from_json_string: empty or null JSON string")
+        return data
+    
     var parsed = JSON.parse_string(json)
-    if parsed and typeof(parsed) == TYPE_DICTIONARY:
-        data.from_dict(parsed)
+    if parsed == null:
+        push_error("[SaveData] from_json_string: JSON parsing failed for input: ", json)
+        return data
+    
+    if typeof(parsed) != TYPE_DICTIONARY:
+        push_error("[SaveData] from_json_string: parsed result is not a Dictionary (type=%d)" % typeof(parsed))
+        return data
+    
+    if parsed.is_empty():
+        push_error("[SaveData] from_json_string: parsed dictionary is empty")
+        return data
+    
+    data.from_dict(parsed)
     return data

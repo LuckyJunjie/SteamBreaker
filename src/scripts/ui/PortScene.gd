@@ -469,6 +469,9 @@ func _on_recruit_companion(comp) -> void:
         comp.set("is_recruited", true)
     if _game_manager and _game_manager.has_method("recruit_companion"):
         _game_manager.recruit_companion(comp)
+    # Auto-save after companion recruitment
+    if SaveManager and SaveManager.has_method("trigger_auto_save"):
+        SaveManager.trigger_auto_save("companion_recruited")
     # 刷新面板
     _close_active_panel()
 
@@ -757,6 +760,9 @@ func _on_back_pressed() -> void:
         _close_active_panel()
     else:
         print("[PortScene] Exit port")
+        # Auto-save before departing port
+        if SaveManager and SaveManager.has_method("trigger_auto_save"):
+            SaveManager.trigger_auto_save("depart_from_port")
         exit_port.emit()
 
 

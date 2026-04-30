@@ -28,6 +28,10 @@ func enter() -> void:
     if tm and tm.has_method("on_battle_end"):
         tm.on_battle_end(winner, loot)
 
+    # 关键节点自动存档：战斗胜利时触发
+    if winner == 1 and SaveManager and SaveManager.has_method("trigger_auto_save"):
+        SaveManager.trigger_auto_save("battle_victory")
+
 func _play_battle_end_animation() -> void:
     var tm: Node = get_turn_manager()
     if tm and tm.has_method("play_battle_end_animation"):

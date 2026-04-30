@@ -562,6 +562,8 @@ func _update_stats() -> void:
 # === 按钮回调 ===
 func _on_confirm_pressed() -> void:
     print("[ShipEditor] Confirmed. Loadout: ", _preview_loadout)
+    if SaveManager and SaveManager.has_method("trigger_auto_save"):
+        SaveManager.trigger_auto_save("ship_upgrade")
     editor_confirmed.emit(_preview_loadout)
 
 
