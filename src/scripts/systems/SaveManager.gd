@@ -98,9 +98,14 @@ func trigger_auto_save(reason: String) -> void:
 
 ## Load game from slot / 从槽位加载存档
 func load(slot: int) -> Variant :
-    if slot < 0 or slot >= MAX_SAVE_SLOTS:
+    if slot != AUTO_SAVE_SLOT and (slot < 0 or slot >= MAX_SAVE_SLOTS):
         push_error("[SaveManager] Invalid slot: %d" % slot)
         load_completed.emit(slot, false, "无效的存档槽位")
+        return null
+    
+    if slot == AUTO_SAVE_SLOT and not _ensure_auto_save_path():
+        push_error("[SaveManager] Auto-save directory unavailable")
+        load_completed.emit(slot, false, "自动存档不可用")
         return null
     
     var path: String = _get_save_path(slot)
@@ -246,10 +251,24 @@ func is_auto_save_enabled() -> bool:
 func _get_save_dir_path() -> String:
     return "user://saves"
 
+func _ensure_auto_save_path() -> bool:
+    var dir := DirAccess.open("user://")
+    if dir:
+        if not dir.dir_exists("saves"):
+            dir.make_dir("saves")
+        if not dir.dir_exists("auto"):
+            dir.make_dir("auto")
+        return true
+    return false
+
 func _get_file_name(slot: int) -> String:
+    if slot == AUTO_SAVE_SLOT:
+        return "auto_save.json"
     return "slot_%d.json" % slot
 
 func _get_save_path(slot: int) -> String:
+    if slot == AUTO_SAVE_SLOT:
+        return "user://saves/auto/auto_save.json"
     return "user://saves/slot_%d.json" % slot
 
 func _get_slot_info(slot: int) -> Dictionary:
