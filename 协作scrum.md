@@ -66,13 +66,26 @@
 
 ---
 
-## Sprint 14 — 原型演示准备（2026-04-30 10:48 启动）
+## Sprint 14 — 原型演示准备（2026-04-30 10:48 完成）
 
 | Task | Agent | 状态 | 产出 |
 |------|-------|------|------|
 | save-interfaces | athena | ✅→Jarvis补完 | commit 00df0ae，ShipFactory/BattleManager存档接口 |
 | story-integration | apollo | ✅ | commit 8f17cad，StoryManager+赏金联动 |
 | proto-demo | hermes | ✅ | commit 36b0d8c，HTML导出脚本 |
+
+### Godot 编译错误修复（Jarvis 直接处理）
+| 错误 | 修复 |
+|------|------|
+| class_name冲突autoload | 移除GameManager/CompanionManager/BountyManager/StoryManager的class_name |
+| ShipLoadout.duplicate()覆盖native方法 | 重命名为duplicate_loadout() |
+| Resource.get()不接受default参数 | 改用直接属性访问 |
+| ShipFactory tab缩进 | 全部转为4空格 |
+| BountyManager bounty.has()不存在 | 改用属性直接访问 |
+| StoryManager Variant类型推断 | 显式类型声明 |
+| TitleScreen FONT_STYLE_BOLD不存在 | 移除该行 |
+
+**Godot 验证结果**: 全部autoload初始化成功，无编译/运行时错误 ✅
 
 ---
 
