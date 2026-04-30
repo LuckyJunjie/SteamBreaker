@@ -21,3 +21,161 @@ offset_top = 30.0
 offset_right = 160.0
 offset_bottom = 65.0
 text = "← 返回港口"
+
+[node name="BG" type="ColorRect" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+color = Color(0.05, 0.08, 0.05, 0.97)
+
+[node name="Title" type="Label" parent="."]
+layout_mode = 1
+anchors_preset = 10
+anchor_right = 1.0
+offset_top = 30.0
+offset_bottom = 80.0
+grow_horizontal = 2
+text = "💣 炮术射击练习"
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="HUD" type="HBoxContainer" parent="."]
+layout_mode = 1
+anchors_preset = 10
+anchor_right = 1.0
+offset_top = 30.0
+offset_bottom = 80.0
+grow_horizontal = 2
+
+[node name="TimeLabel" type="Label" parent="HUD"]
+layout_mode = 2
+text = "时间: 30"
+custom_minimum_size.x = 120.0
+
+[node name="ScoreLabel" type="Label" parent="HUD"]
+layout_mode = 2
+size_flags_horizontal = 3
+text = "得分: 0"
+
+[node name="AccuracyLabel" type="Label" parent="HUD"]
+layout_mode = 2
+text = "命中: 0/0"
+custom_minimum_size.x = 120.0
+
+[node name="Arena" type="Control" parent="."]
+layout_mode = 1
+anchors_preset = 10
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = 50.0
+offset_top = 90.0
+offset_right = -50.0
+offset_bottom = -80.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="ArenaBG" type="ColorRect" parent="Arena"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+color = Color(0.08, 0.12, 0.08, 0.9)
+
+[node name="TargetContainer" type="Node2D" parent="Arena"]
+
+[node name="Target" type="PanelContainer" parent="Arena/TargetContainer"]
+visible = false
+custom_minimum_size = Vector2(80, 80)
+
+[node name="TargetLabel" type="Label" parent="Arena/TargetContainer/Target"]
+layout_mode = 2
+text = "🎯"
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="Ring0" type="PanelContainer" parent="Arena/TargetContainer"]
+custom_minimum_size = Vector2(20, 20)
+
+[node name="Ring1" type="PanelContainer" parent="Arena/TargetContainer"]
+custom_minimum_size = Vector2(40, 40)
+
+[node name="Ring2" type="PanelContainer" parent="Arena/TargetContainer"]
+custom_minimum_size = Vector2(60, 60)
+
+[node name="Ring3" type="PanelContainer" parent="Arena/TargetContainer"]
+custom_minimum_size = Vector2(80, 80)
+
+[node name="Ring4" type="PanelContainer" parent="Arena/TargetContainer"]
+custom_minimum_size = Vector2(100, 100)
+
+[node name="HitContainer" type="Node2D" parent="Arena"]
+
+[node name="ControlRow" type="HBoxContainer" parent="."]
+layout_mode = 1
+anchors_preset = 10
+anchor_right = 1.0
+offset_left = 50.0
+offset_right = -50.0
+offset_bottom = 60.0
+grow_horizontal = 2
+alignment = 1
+
+[node name="StartBtn" type="Button" parent="ControlRow"]
+layout_mode = 2
+text = "🚀 开始练习"
+custom_minimum_size = Vector2(160, 50)
+
+[node name="StartBtn2" type="Button" parent="ControlRow"]
+layout_mode = 2
+text = "❌ 结束练习"
+custom_minimum_size = Vector2(160, 50)
+disabled = true
+
+[node name="StatusLabel" type="Label" parent="."]
+layout_mode = 1
+anchors_preset = 10
+anchor_right = 1.0
+offset_top = 620.0
+offset_bottom = 650.0
+grow_horizontal = 2
+text = "点击「开始练习」瞄准移动靶"
+horizontal_alignment = 1
+theme_override_colors/font_color = Color(0.5, 0.5, 0.5, 1.0)
+
+[node name="ResultPanel" type="PanelContainer" parent="."]
+visible = false
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -220.0
+offset_top = -120.0
+offset_right = 220.0
+offset_bottom = 120.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="ResultLabel" type="Label" parent="ResultPanel"]
+layout_mode = 2
+text = ""
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="GoldChangeLabel" type="Label" parent="ResultPanel"]
+layout_mode = 2
+offset_top = 50.0
+text = ""
+horizontal_alignment = 1
+
+[node name="TierLabel" type="Label" parent="ResultPanel"]
+layout_mode = 2
+offset_top = 90.0
+text = ""
+horizontal_alignment = 1

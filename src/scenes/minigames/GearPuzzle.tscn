@@ -21,3 +21,163 @@ offset_top = 30.0
 offset_right = 160.0
 offset_bottom = 65.0
 text = "← 返回港口"
+
+[node name="BG" type="ColorRect" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+color = Color(0.06, 0.08, 0.1, 0.97)
+
+[node name="Title" type="Label" parent="."]
+layout_mode = 1
+anchors_preset = 10
+anchor_right = 1.0
+offset_top = 30.0
+offset_bottom = 80.0
+grow_horizontal = 2
+text = "⚙️ 齿轮拼图"
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="DescLabel" type="Label" parent="."]
+layout_mode = 1
+anchors_preset = 10
+anchor_right = 1.0
+offset_top = 78.0
+offset_bottom = 108.0
+grow_horizontal = 2
+text = "点击齿轮旋转，相邻齿轮会联动。让所有齿轮归位！"
+horizontal_alignment = 1
+theme_override_colors/font_color = Color(0.5, 0.6, 0.55, 1.0)
+
+[node name="MovesLabel" type="Label" parent="."]
+layout_mode = 1
+anchors_preset = 10
+anchor_right = 1.0
+offset_top = 108.0
+offset_bottom = 138.0
+grow_horizontal = 2
+text = "剩余步数: 15"
+horizontal_alignment = 1
+theme_override_colors/font_color = Color(0.7, 0.65, 0.4, 1.0)
+
+[node name="GearGrid" type="GridContainer" parent="."]
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -150.0
+offset_top = -150.0
+offset_right = 150.0
+offset_bottom = 150.0
+grow_horizontal = 2
+grow_vertical = 2
+columns = 3
+
+[node name="Gear0" type="Button" parent="GearGrid"]
+layout_mode = 2
+custom_minimum_size = Vector2(80, 80)
+text = "⚙️"
+
+[node name="Gear1" type="Button" parent="GearGrid"]
+layout_mode = 2
+custom_minimum_size = Vector2(80, 80)
+text = "⚙️"
+
+[node name="Gear2" type="Button" parent="GearGrid"]
+layout_mode = 2
+custom_minimum_size = Vector2(80, 80)
+text = "⚙️"
+
+[node name="Gear3" type="Button" parent="GearGrid"]
+layout_mode = 2
+custom_minimum_size = Vector2(80, 80)
+text = "⚙️"
+
+[node name="Gear4" type="Button" parent="GearGrid"]
+layout_mode = 2
+custom_minimum_size = Vector2(80, 80)
+text = "⚙️"
+
+[node name="Gear5" type="Button" parent="GearGrid"]
+layout_mode = 2
+custom_minimum_size = Vector2(80, 80)
+text = "⚙️"
+
+[node name="Gear6" type="Button" parent="GearGrid"]
+layout_mode = 2
+custom_minimum_size = Vector2(80, 80)
+text = "⚙️"
+
+[node name="Gear7" type="Button" parent="GearGrid"]
+layout_mode = 2
+custom_minimum_size = Vector2(80, 80)
+text = "⚙️"
+
+[node name="Gear8" type="Button" parent="GearGrid"]
+layout_mode = 2
+custom_minimum_size = Vector2(80, 80)
+text = "⚙️"
+
+[node name="ControlsRow" type="HBoxContainer" parent="."]
+layout_mode = 1
+anchors_preset = 10
+anchor_right = 1.0
+offset_top = 430.0
+offset_bottom = 480.0
+grow_horizontal = 2
+alignment = 1
+
+[node name="StartBtn" type="Button" parent="ControlsRow"]
+layout_mode = 2
+text = "🔄 开始拼图"
+custom_minimum_size = Vector2(160, 50)
+
+[node name="FinishBtn" type="Button" parent="ControlsRow"]
+layout_mode = 2
+text = "✅ 确认答案"
+custom_minimum_size = Vector2(160, 50)
+disabled = true
+
+[node name="StatusLabel" type="Label" parent="."]
+layout_mode = 1
+anchors_preset = 10
+anchor_right = 1.0
+offset_top = 490.0
+offset_bottom = 520.0
+grow_horizontal = 2
+text = "点击「开始拼图」按钮"
+horizontal_alignment = 1
+theme_override_colors/font_color = Color(0.5, 0.5, 0.5, 1.0)
+
+[node name="ResultPanel" type="PanelContainer" parent="."]
+visible = false
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -200.0
+offset_top = -80.0
+offset_right = 200.0
+offset_bottom = 80.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="ResultLabel" type="Label" parent="ResultPanel"]
+layout_mode = 2
+text = ""
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="GoldChangeLabel" type="Label" parent="ResultPanel"]
+layout_mode = 2
+offset_top = 50.0
+text = ""
+horizontal_alignment = 1

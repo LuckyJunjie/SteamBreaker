@@ -1,87 +1,246 @@
-extends Node
+extends Control
 class_name GearPuzzle
 
 ## 齿轮拼图 / Gear Puzzle
-## 机械师公会小游戏：旋转齿轮使所有齿轮联动
+## 酒馆小游戏：旋转齿轮使所有齿轮联动
 ## 玩家通过点击旋转特定齿轮，目标是让所有齿轮都转动起来
-## 步数限制内完成可获得"古代零件"（兑换部件蓝图碎片）
 
 signal puzzle_started(grid_size: Vector2i)
-signal gear_rotated(gear_index: int, direction: int)  # direction: 1=顺时针, -1=逆时针
+signal gear_rotated(gear_index: int, direction: int)
 signal puzzle_solved(moves_used: int, reward_item: String)
 signal puzzle_failed(reason: String)
 signal tick_update(moves_remaining: int)
+signal minigame_finished(result: Dictionary)
 
 const GRID_WIDTH: int = 3
 const GRID_HEIGHT: int = 3
 const MAX_MOVES: int = 15
-const TOOTH_COUNT: int = 8  # 每个齿轮的齿数
 
-# 齿轮位置（2D网格索引）
-var _gears: Array[Dictionary] = []  # [{pos: Vector2i, rotation: float, is_active: bool}, ...]
+var _gears: Array[Dictionary] = []
 var _moves_used: int = 0
 var _moves_remaining: int = MAX_MOVES
 var _is_solved: bool = false
 var _is_active: bool = false
 
+# Gear emoji states
+const _gear_faces := ["⚙️", "⚙️", "⚙️", "⚙️"]
+
+# UI references
+var _gear_buttons: Array[Button] = []
+var _start_btn: Button = null
+var _finish_btn: Button = null
+var _moves_lbl: Label = null
+var _status_lbl: Label = null
+var _result_panel: PanelContainer = null
+
 # ============================================
-# Public API / 公开接口
+# Lifecycle / 生命周期
 # ============================================
 
-## 开始拼图（可指定网格大小）
-## cols: 列数，rows: 行数，默认 3x3
+func _ready() -> void:
+    print("[GearPuzzle] _ready")
+    _find_ui_nodes()
+    _connect_ui_signals()
+    _set_gear_buttons_enabled(false)
+    _finish_btn.disabled = true
+
+func _find_ui_nodes() -> void:
+    var grid = find_child("GearGrid", false, false) as GridContainer
+    if grid:
+        for child in grid.get_children():
+            if child is Button:
+                _gear_buttons.append(child)
+    
+    var controls = find_child("ControlsRow", false, false)
+    if controls:
+        var btns = controls.get_children()
+        if btns.size() >= 2:
+            _start_btn = btns[0] as Button
+            _finish_btn = btns[1] as Button
+    
+    _moves_lbl = find_child("MovesLabel", false, false) as Label
+    _status_lbl = find_child("StatusLabel", false, false) as Label
+    _result_panel = find_child("ResultPanel", false, false) as PanelContainer
+    
+    print("[GearPuzzle] UI: gear_btns=%d, start=%s, finish=%s" % [
+        _gear_buttons.size(), _start_btn != null, _finish_btn != null])
+
+func _connect_ui_signals() -> void:
+    var back_btn = find_child("BackBtn", false, false) as Button
+    if back_btn:
+        back_btn.pressed.connect(_on_back_pressed)
+    
+    for i in range(_gear_buttons.size()):
+        if _gear_buttons[i]:
+            _gear_buttons[i].pressed.connect(_on_gear_clicked.bind(i))
+    
+    if _start_btn:
+        _start_btn.pressed.connect(_on_start_pressed)
+    
+    if _finish_btn:
+        _finish_btn.pressed.connect(_on_finish_pressed)
+
+func _on_back_pressed() -> void:
+    print("[GearPuzzle] Back pressed")
+    var result := {"gold_change": 0, "cancelled": true}
+    minigame_finished.emit(result)
+    queue_free()
+
+# ============================================
+# Game Flow / 游戏流程
+# ============================================
+
+func _on_start_pressed() -> void:
+    print("[GearPuzzle] Start pressed")
+    start_puzzle()
+    _set_gear_buttons_enabled(true)
+    _finish_btn.disabled = false
+    _start_btn.disabled = true
+    _update_moves_display()
+    _update_status("点击齿轮旋转，让所有齿轮归位！")
+
+func _on_finish_pressed() -> void:
+    print("[GearPuzzle] Finish pressed")
+    _finish_puzzle()
+
+func _on_gear_clicked(index: int) -> void:
+    if not _is_active or _is_solved:
+        return
+    if _moves_remaining <= 0:
+        _update_status("步数用尽！")
+        return
+    
+    # 顺时针旋转
+    rotate_cw(index)
+    _animate_gear(index)
+    _update_gear_display()
+    _update_moves_display()
+    
+    if check_solved():
+        _is_solved = true
+        _set_gear_buttons_enabled(false)
+        _finish_btn.disabled = true
+        _update_status("🎉 解谜成功！")
+        await get_tree().create_timer(1.0).timeout
+        _finish_puzzle()
+
+func _finish_puzzle() -> void:
+    _set_gear_buttons_enabled(false)
+    _finish_btn.disabled = true
+    
+    var result = finish()
+    _show_result(result)
+
+func _show_result(result: Dictionary) -> void:
+    if _result_panel:
+        _result_panel.visible = true
+    
+    var result_lbl = _result_panel.get_node_or_null("ResultLabel") as Label
+    var gold_lbl = _result_panel.get_node_or_null("GoldChangeLabel") as Label
+    
+    var solved: bool = result.get("solved", false)
+    if result_lbl:
+        if solved:
+            result_lbl.text = "✅ 解谜成功！\n用了 %d 步" % result.get("moves_used", 0)
+        else:
+            result_lbl.text = "❌ 未解开谜题\n齿轮未完全归位"
+    
+    if gold_lbl:
+        var gold_change: int = result.get("gold_change", 0)
+        if gold_change > 0:
+            gold_lbl.text = "🎉 +%d 金！" % gold_change
+            gold_lbl.add_theme_color_override("font_color", Color(1.0, 0.85, 0.2))
+        else:
+            gold_lbl.text = "💸 没有奖励"
+            gold_lbl.add_theme_color_override("font_color", Color(0.6, 0.6, 0.6))
+    
+    await get_tree().create_timer(3.0).timeout
+    minigame_finished.emit(result)
+    queue_free()
+
+# ============================================
+# Puzzle Logic / 拼图逻辑（保持 API 兼容）
+# ============================================
+
 func start_puzzle(cols: int = GRID_WIDTH, rows: int = GRID_HEIGHT) -> void:
     _is_active = true
     _is_solved = false
     _moves_used = 0
     _moves_remaining = MAX_MOVES
     
-    # 初始化齿轮
     _gears.clear()
     for y in range(rows):
         for x in range(cols):
             _gears.append({
                 "pos": Vector2i(x, y),
-                "rotation": randi() % 4 * 90.0,  # 随机初始旋转角度（0/90/180/270）
+                "rotation": randi() % 4 * 90.0,
                 "is_active": false,
                 "index": _gears.size(),
             })
     
-    # 设置中心齿轮为初始活跃齿轮
     var center_idx: int = (rows * cols) / 2
     if center_idx < _gears.size():
         _gears[center_idx]["is_active"] = true
     
-    # 随机激活几个齿轮
     var extra_active: int = randi() % 2 + 1
     for i in range(extra_active):
         var idx: int = randi() % _gears.size()
         _gears[idx]["is_active"] = true
     
     puzzle_started.emit(Vector2i(cols, rows))
-    print("[GearPuzzle] Puzzle started: %dx%d grid, %d gears" % [cols, rows, _gears.size()])
+    print("[GearPuzzle] Puzzle started: %dx%d grid" % [cols, rows])
+    _update_gear_display()
 
-## 点击指定齿轮，使其顺时针旋转90°
-## gear_index: 齿轮索引
-## 返回: 是否成功旋转
 func rotate_cw(gear_index: int) -> bool:
     return _rotate_gear(gear_index, 1)
 
-## 点击指定齿轮，使其逆时针旋转90°
-## gear_index: 齿轮索引
-## 返回: 是否成功旋转
 func rotate_ccw(gear_index: int) -> bool:
     return _rotate_gear(gear_index, -1)
 
-## 旋转齿轮（统一入口）
-## gear_index: 齿轮索引
-## direction: 1=顺时针, -1=逆时针
-## 返回: 是否成功旋转
 func rotate_gear(gear_index: int, direction: int) -> bool:
     return _rotate_gear(gear_index, direction)
 
-## 获取所有齿轮状态
-## 返回: Array[Dictionary] 每个齿轮的 {pos, rotation, is_active, index}
+func _rotate_gear(gear_index: int, direction: int) -> bool:
+    if not _is_active or _is_solved:
+        return false
+    if gear_index < 0 or gear_index >= _gears.size():
+        return false
+    if _moves_remaining <= 0:
+        puzzle_failed.emit("No moves remaining")
+        _is_active = false
+        return false
+    
+    var gear: Dictionary = _gears[gear_index]
+    gear["rotation"] += direction * 90.0
+    _moves_used += 1
+    _moves_remaining -= 1
+    
+    _update_adjacent_gears(gear_index)
+    
+    gear_rotated.emit(gear_index, direction)
+    tick_update.emit(_moves_remaining)
+    
+    if _moves_remaining <= 0 and not check_solved():
+        _is_active = false
+        puzzle_failed.emit("Out of moves")
+        print("[GearPuzzle] Out of moves!")
+    
+    return true
+
+func _update_adjacent_gears(gear_index: int) -> void:
+    var gear: Dictionary = _gears[gear_index]
+    var pos: Vector2i = gear["pos"]
+    var dirs: Array[Vector2i] = [
+        Vector2i(0, -1), Vector2i(0, 1), Vector2i(-1, 0), Vector2i(1, 0),
+    ]
+    
+    for dir in dirs:
+        var neighbor_pos: Vector2i = pos + dir
+        for i in range(_gears.size()):
+            if _gears[i]["pos"] == neighbor_pos:
+                if not _gears[i]["is_active"]:
+                    _gears[i]["is_active"] = true
+
 func get_gears() -> Array[Dictionary]:
     var result: Array[Dictionary] = []
     for g in _gears:
@@ -93,7 +252,6 @@ func get_gears() -> Array[Dictionary]:
         })
     return result
 
-## 获取网格尺寸
 func get_grid_size() -> Vector2i:
     if _gears.is_empty():
         return Vector2i(GRID_WIDTH, GRID_HEIGHT)
@@ -104,21 +262,16 @@ func get_grid_size() -> Vector2i:
         max_y = maxi(max_y, g["pos"].y)
     return Vector2i(max_x + 1, max_y + 1)
 
-## 获取剩余步数
 func get_moves_remaining() -> int:
     return _moves_remaining
 
-## 获取已用步数
 func get_moves_used() -> int:
     return _moves_used
 
-## 检查是否全部齿轮联动（全部 is_active = true 且 rotation % 360 == 0）
 func check_solved() -> bool:
     if _gears.is_empty():
         return false
     for g in _gears:
-        # 检查是否旋转到位（rotation 应该是 360 的整数倍，即 0, 360, 720...）
-        # 这里简化为判断 rotation % 360 == 0
         var normalized: float = fmod(g["rotation"], 360.0)
         if normalized < 0:
             normalized += 360.0
@@ -126,8 +279,6 @@ func check_solved() -> bool:
             return false
     return true
 
-## 完成拼图并返回结果
-## 返回: Dictionary { solved, moves_used, reward_item, gold_change }
 func finish() -> Dictionary:
     var solved: bool = check_solved()
     var reward_item: String = ""
@@ -137,7 +288,7 @@ func finish() -> Dictionary:
         _is_solved = true
         _is_active = false
         reward_item = "ancient_gear_part"
-        gold_change = 50  # 谜题奖励金币
+        gold_change = 50
         
         var game_state := _get_game_state()
         if game_state:
@@ -157,11 +308,9 @@ func finish() -> Dictionary:
         "gold_change": gold_change,
     }
 
-## 是否在谜题中
 func is_active() -> bool:
     return _is_active
 
-## 获取单个齿轮信息
 func get_gear(index: int) -> Dictionary:
     if index < 0 or index >= _gears.size():
         return {}
@@ -173,60 +322,47 @@ func get_gear(index: int) -> Dictionary:
     }
 
 # ============================================
-# Private Methods / 私有方法
+# UI Updates / UI 更新
 # ============================================
 
-func _rotate_gear(gear_index: int, direction: int) -> bool:
-    if not _is_active or _is_solved:
-        return false
-    if gear_index < 0 or gear_index >= _gears.size():
-        return false
-    if _moves_remaining <= 0:
-        puzzle_failed.emit("No moves remaining")
-        _is_active = false
-        return false
-    
-    var gear: Dictionary = _gears[gear_index]
-    gear["rotation"] += direction * 90.0
-    _moves_used += 1
-    _moves_remaining -= 1
-    
-    # 更新相邻齿轮的联动状态
-    _update_adjacent_gears(gear_index)
-    
-    gear_rotated.emit(gear_index, direction)
-    tick_update.emit(_moves_remaining)
-    print("[GearPuzzle] Gear %d rotated %s (moves left: %d)" % [
-        gear_index, "CW" if direction > 0 else "CCW", _moves_remaining])
-    
-    # 检查是否用完步数
-    if _moves_remaining <= 0 and not check_solved():
-        _is_active = false
-        puzzle_failed.emit("Out of moves")
-        print("[GearPuzzle] Out of moves!")
-    
-    return true
+func _update_gear_display() -> void:
+    var faces := ["⚙️", "🔩", "⚡", "⚙️"]
+    for i in range(mini(_gear_buttons.size(), _gears.size())):
+        var gear = _gears[i]
+        var normalized = fmod(gear["rotation"], 360.0)
+        if normalized < 0:
+            normalized += 360.0
+        
+        var face_idx = int(normalized / 90.0) % 4
+        _gear_buttons[i].text = faces[face_idx]
+        
+        # 高亮活跃齿轮
+        if gear["is_active"]:
+            _gear_buttons[i].add_theme_color_override("font_color", Color(0.9, 0.7, 0.3))
+        else:
+            _gear_buttons[i].remove_theme_color_override("font_color")
 
-## 当一个齿轮旋转时，更新相邻齿轮的活跃状态（模拟齿轮联动）
-func _update_adjacent_gears(gear_index: int) -> void:
-    var gear: Dictionary = _gears[gear_index]
-    var pos: Vector2i = gear["pos"]
-    var dirs: Array[Vector2i] = [
-        Vector2i(0, -1),  # 上
-        Vector2i(0, 1),  # 下
-        Vector2i(-1, 0), # 左
-        Vector2i(1, 0),  # 右
-    ]
-    
-    for dir in dirs:
-        var neighbor_pos: Vector2i = pos + dir
-        # 找到相邻位置的齿轮
-        for i in range(_gears.size()):
-            if _gears[i]["pos"] == neighbor_pos:
-                # 齿轮联动：相邻的齿轮也变活跃
-                if not _gears[i]["is_active"]:
-                    _gears[i]["is_active"] = true
-                    print("[GearPuzzle] Gear %d activated by adjacency to %d" % [i, gear_index])
+func _animate_gear(index: int) -> void:
+    var tween = create_tween()
+    tween.tween_property(_gear_buttons[index], "scale", Vector2(1.2, 1.2), 0.1)
+    tween.tween_property(_gear_buttons[index], "scale", Vector2(1.0, 1.0), 0.1)
+
+func _update_moves_display() -> void:
+    if _moves_lbl:
+        _moves_lbl.text = "剩余步数: %d" % _moves_remaining
+
+func _update_status(text: String) -> void:
+    if _status_lbl:
+        _status_lbl.text = text
+
+func _set_gear_buttons_enabled(enabled: bool) -> void:
+    for btn in _gear_buttons:
+        if btn:
+            btn.disabled = not enabled
+
+# ============================================
+# Utility / 工具
+# ============================================
 
 func _get_game_state() -> Node:
     var root := get_tree().root
