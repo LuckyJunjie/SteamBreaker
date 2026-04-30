@@ -30,13 +30,15 @@
 
 ---
 
-## Sprint 17 — 收尾与整合（2026-04-30 14:10 启动）
+## Sprint 17 — 收尾与整合（2026-04-30 14:10 完成）
 
 | Task | Agent | 状态 | 产出 |
 |------|-------|------|------|
-| companion-skill-autoload | apollo | 🔄 执行中 | CompanionSkill注册+DialogueBox连接 |
-| world-flow-fix | athena | 🔄 执行中 | WorldMap→Port路径+JSON格式统一 |
-| project-audit | hermes | 🔄 执行中 | 项目统计+README更新 |
+| companion-skill-autoload | apollo | ✅ | CompanionSkill autoload + DialogueSystem |
+| world-flow-fix | athena | ✅ | DialogueManager JSON格式转换 |
+| project-audit | hermes | ✅ | README更新 + MIT LICENSE |
+
+**Sprint 17 修复**: class_name冲突(CompanionSkill) + 路径(res://src/) + weapons.count()→size()
 
 ---
 
