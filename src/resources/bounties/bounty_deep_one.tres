@@ -1,0 +1,21 @@
+[gd_resource type="Resource" script_class="Bounty" load_steps=1 format=3]
+
+[ext_resource type="Script" path="res://scripts/resources/bounty.gd" id="1"]
+
+[resource]
+script = ExtResource("1")
+bounty_id = "bounty_deep_one"
+name = "深渊潜伏者「深渊者」"
+rank = "sea"
+reward_gold = 15000
+reward_items = ["material_abyssal_eye", "item_deep_one_core"]
+required_story_flag = "chapter_3_unlocked"
+spawn_location = "abyssal_trench"
+encounter_conditions = {"time": "any", "weather": "fog"}
+dialogue = {
+	"pre_battle": "深海黑暗中浮现出一只巨大的眼睛——传说中「深渊者」！它的深海光环让你的水手们举步维艰！",
+	"in_battle": "深渊减速光环正在降低你的回避率！",
+	"post_battle": "深渊者沉入黑暗深处……留下了它的深海之眼和深渊核心碎片！"
+}
+special_mechanics = {"deep_slow_aura": true, "reduce_player_evasion": true, "abyssal_darkness": true}
+is_defeated = false

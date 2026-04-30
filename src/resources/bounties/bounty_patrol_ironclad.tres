@@ -1,0 +1,21 @@
+[gd_resource type="Resource" script_class="Bounty" load_steps=1 format=3]
+
+[ext_resource type="Script" path="res://scripts/resources/bounty.gd" id="1"]
+
+[resource]
+script = ExtResource("1")
+bounty_id = "bounty_patrol_ironclad"
+name = "帝国巡逻铁甲舰"
+rank = "sea"
+reward_gold = 5000
+reward_items = ["material_steel_plate", "item_24lb_cannon_blueprint"]
+required_story_flag = "chapter_1_unlocked"
+spawn_location = "industrial_port"
+encounter_conditions = {"time": "any", "weather": "clear"}
+dialogue = {
+	"pre_battle": "帝国巡逻铁甲舰！这是帝国的钢铁长城——24磅卡隆炮已经瞄准了你的船头！",
+	"in_battle": "铁甲舰的炮窗打开，炮击即将来临！",
+	"post_battle": "铁甲舰沉没了，你从残骸中打捞出钢板和火炮图纸。"
+}
+special_mechanics = {"high_armor": true, "medium_range_cannon": true, "armor_24lb": 60}
+is_defeated = false

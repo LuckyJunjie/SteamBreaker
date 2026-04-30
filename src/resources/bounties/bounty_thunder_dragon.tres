@@ -1,0 +1,21 @@
+[gd_resource type="Resource" script_class="Bounty" load_steps=1 format=3]
+
+[ext_resource type="Script" path="res://scripts/resources/bounty.gd" id="1"]
+
+[resource]
+script = ExtResource("1")
+bounty_id = "bounty_thunder_dragon"
+name = "风暴之主「雷电龙」"
+rank = "sea"
+reward_gold = 12000
+reward_items = ["material_dragon_scale", "item_thunder_cannon_blueprint"]
+required_story_flag = "chapter_2_unlocked"
+spawn_location = "storm_ridge"
+encounter_conditions = {"time": "any", "weather": "storm"}
+dialogue = {
+	"pre_battle": "雷云中一条巨龙的身影若隐若现——风暴之主「雷电龙」！它被风暴召唤而来，准备将你撕成碎片！",
+	"in_battle": "雷电龙的雷击使你的船只机动性大幅下降！",
+	"post_battle": "雷电龙坠入风暴深渊，它的龙鳞和雷火炮图纸成为了你的战利品！"
+}
+special_mechanics = {"thunder_attack": true, "reduce_enemy_maneuver": true, "storm_aura": true}
+is_defeated = false
