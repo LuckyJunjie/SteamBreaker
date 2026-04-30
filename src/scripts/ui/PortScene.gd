@@ -420,6 +420,34 @@ func _create_tavern_panel() -> Control:
     sep1.add_theme_color_override("font_color", Color(0.6, 0.6, 0.6))
     content.add_child(sep1)
 
+    # === 小游戏区 ===
+    content.add_child(_make_spacer(8))
+
+    var minigame_sep = Label.new()
+    minigame_sep.text = "—— 小游戏 ——"
+    minigame_sep.add_theme_color_override("font_color", Color(0.6, 0.6, 0.6))
+    content.add_child(minigame_sep)
+
+    var minigame_row = HBoxContainer.new()
+    minigame_row.custom_minimum_size.y = 50
+    minigame_row.alignment = BoxContainer.ALIGNMENT_CENTER
+
+    var games: Array[Dictionary] = [
+        {"id": "boiler_dice", "icon": "🎲", "name": "骰子挑战"},
+        {"id": "cannon_practice", "icon": "💣", "name": "炮术挑战"},
+        {"id": "gear_puzzle", "icon": "⚙️", "name": "齿轮挑战"},
+        {"id": "seabird_race", "icon": "🐦", "name": "海鸟竞猜"},
+    ]
+
+    for game in games:
+        var btn = Button.new()
+        btn.text = "%s %s" % [game["icon"], game["name"]]
+        btn.custom_minimum_size = Vector2(150, 44)
+        btn.pressed.connect(_on_minigame_pressed.bind(game["id"]))
+        minigame_row.add_child(btn)
+
+    content.add_child(minigame_row)
+
     # 酒馆可招募
     var avail_lbl = Label.new()
     avail_lbl.text = "酒馆中的人物:"
@@ -844,6 +872,102 @@ func _connect_signals() -> void:
         _back_btn.pressed.connect(_on_back_pressed)
     # 连接离港信号到 GameManager
     exit_port.connect(_on_exit_port_requested)
+
+# === 小游戏处理 ===
+
+func _on_minigame_pressed(game_id: String) -> void:
+    print("[PortScene] Minigame pressed: ", game_id)
+
+    var scene_path := ""
+    match game_id:
+        "boiler_dice":
+            scene_path = "res://scenes/minigames/BoilerDice.tscn"
+        "cannon_practice":
+            scene_path = "res://scenes/minigames/CannonPractice.tscn"
+        "gear_puzzle":
+            scene_path = "res://scenes/minigames/GearPuzzle.tscn"
+        "seabird_race":
+            scene_path = "res://scenes/minigames/SeabirdRace.tscn"
+        _:
+            push_error("[PortScene] Unknown minigame: " + game_id)
+            return
+
+    if not ResourceLoader.exists(scene_path):
+        push_error("[PortScene] Minigame scene not found: " + scene_path)
+        return
+
+    # 关闭当前面板
+    _close_active_panel()
+
+    # 加载并实例化小游戏场景
+    var scene_res = load(scene_path)
+    var instance = scene_res.instantiate()
+
+    # 连接返回按钮
+    var back_btn = instance.find_child("BackBtn", false, false)
+    if back_btn:
+        back_btn.pressed.connect(_on_minigame_finished.bind(game_id, {}))
+
+    # 连接小游戏完成信号（如果场景发射了信号）
+    if instance.has_signal("minigame_finished"):
+        instance.minigame_finished.connect(_on_minigame_finished.bind(game_id))
+
+    # 添加到根节点
+    get_tree().root.add_child(instance)
+    print("[PortScene] Minigame loaded: ", scene_path)
+
+
+func _on_minigame_finished(game_id: String, result: Dictionary) -> void:
+    print("[PortScene] Minigame finished: ", game_id, " result: ", result)
+
+    match game_id:
+        "boiler_dice":
+            var reward: int = result.get("gold_change", 0)
+            if _game_manager and _game_manager.has_method("add_gold"):
+                _game_manager.add_gold(reward)
+            print("[PortScene] BoilerDice reward: ", reward)
+        "cannon_practice":
+            var gold_bonus: int = result.get("gold_bonus", 0)
+            if gold_bonus > 0 and _game_manager and _game_manager.has_method("add_gold"):
+                _game_manager.add_gold(gold_bonus)
+            print("[PortScene] CannonPractice gold bonus: ", gold_bonus)
+        "gear_puzzle":
+            var solved: bool = result.get("solved", false)
+            if solved:
+                var gold_change: int = result.get("gold_change", 0)
+                if _game_manager and _game_manager.has_method("add_gold"):
+                    _game_manager.add_gold(gold_change)
+                print("[PortScene] GearPuzzle solved! gold: ", gold_change)
+        "seabird_race":
+            var gold_change: int = result.get("gold_change", 0)
+            if gold_change > 0 and _game_manager and _game_manager.has_method("add_gold"):
+                _game_manager.add_gold(gold_change)
+            print("[PortScene] SeabirdRace gold change: ", gold_change)
+
+    _return_to_port()
+
+
+func _return_to_port() -> void:
+    """返回港口场景"""
+    print("[PortScene] Returning to port...")
+
+    # 关闭小游戏场景（如果在根节点下）
+    var minigame_nodes: Array = []
+    var scene_paths = [
+        "res://scenes/minigames/BoilerDice.tscn",
+        "res://scenes/minigames/CannonPractice.tscn",
+        "res://scenes/minigames/GearPuzzle.tscn",
+        "res://scenes/minigames/SeabirdRace.tscn"
+    ]
+    for path in scene_paths:
+        var name = path.get_file().replace(".tscn", "")
+        if get_tree().root.has_node(name):
+            minigame_nodes.append(get_tree().root.get_node(name))
+
+    for node in minigame_nodes:
+        node.queue_free()
+
+    _show_port_overview()
 
 func _on_exit_port_requested() -> void:
     print("[PortScene] Exit port requested, departing...")
