@@ -25,7 +25,7 @@
 |------|-------|------|------|
 | ship-editor-polish | apollo | 🔄 执行中 | 装备拖拽+预览+确认购买流程 |
 | battle-ai-polish | einstein | 🔄 执行中 | 敌方AI决策+行动延迟动画 |
-| save-persistence | athena | 🔄 执行中 | SaveManager文件I/O+断点续存 |
+| save-persistence | athena | ✅ 完成 | commit c73604d，自动存档5个触发点 |
 | companion-integration | einstein | 🔄 执行中 | 伙伴羁绊UI+战斗外技能触发 |
 
 ### Subagent Session
