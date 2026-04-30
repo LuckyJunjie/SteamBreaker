@@ -110,14 +110,8 @@ func _recursive_find(node: Node, name: String) -> Node:
 
 
 func _load_game_manager() -> void:
-    await get_tree().process_frame
-    var world = get_tree().root.find_child("World", false, false)
-    if world:
-        _game_manager = world
-        print("[PortScene] GameManager (World) found")
-    elif has_node("/root/GameState"):
-        _game_manager = get_node("/root/GameState")
-        print("[PortScene] Using GameState as fallback")
+    _game_manager = GameManager  # Use autoload
+    print("[PortScene] GameManager (autoload) connected")
 
 
 # 处理输入
@@ -209,9 +203,8 @@ func _open_ship_editor() -> void:
     var editor_scene = load("res://scenes/ui/ShipEditor.tscn")
     if editor_scene:
         var instance = editor_scene.instantiate()
-        # 传入当前船只配置
-        if _game_manager and _game_manager.has_method("get_current_loadout"):
-            instance.set_loadout(_game_manager.get_current_loadout())
+        # 传入当前船只配置（使用ShipFactory autoload）
+        instance.set_loadout(ShipFactory.get_current_loadout())
         # 监听配置变更
         if instance.has_signal("loadout_changed"):
             instance.loadout_changed.connect(_on_ship_loadout_changed)
@@ -221,8 +214,7 @@ func _open_ship_editor() -> void:
 
 
 func _on_ship_loadout_changed(loadout: ShipLoadout) -> void:
-    if _game_manager and _game_manager.has_method("apply_loadout"):
-        _game_manager.apply_loadout(loadout)
+    ShipFactory.apply_loadout(loadout)
         print("[PortScene] Ship loadout updated: ", loadout.ship_name if loadout else "?")
 
 

@@ -818,10 +818,8 @@ func _on_confirm_pressed() -> void:
     elif _current_loadout:
         _current_loadout = _preview_loadout.duplicate()
 
-    # 同时通知 ShipFactory
-    var ship_factory = get_tree().root.find_child("ShipFactory", false, false)
-    if ship_factory and ship_factory.has_method("apply_loadout"):
-        ship_factory.apply_loadout(_preview_loadout)
+    # 同时通知 ShipFactory（使用autoload）
+    ShipFactory.apply_loadout(_preview_loadout)
 
     print("[ShipEditor] Confirmed! Cost diff: %d, remaining gold: %d" % [_cost_diff, _player_gold])
     editor_confirmed.emit(_preview_loadout)

@@ -6,45 +6,63 @@ var winner: int = -1
 var loot: Dictionary = {}
 
 func _init(sm: BattleStateMachine) -> void:
-    super._init(sm)
-    name = "BATTLE_END"
+	super._init(sm)
+	name = "BATTLE_END"
 
 func enter() -> void:
-    print("[BattleEnd] 战斗结束")
+	print("[BattleEnd] 战斗结束")
 
-    var tm: Node = get_turn_manager()
-    if tm and tm.has_method("get_battle_result"):
-        var result: Dictionary = tm.get_battle_result()
-        winner = result.get("winner", -1)
-        loot = result.get("loot", {})
+	var tm: Node = get_turn_manager()
+	if tm and tm.has_method("get_battle_result"):
+		var result: Dictionary = tm.get_battle_result()
+		winner = result.get("winner", -1)
+		loot = result.get("loot", {})
 
-    # 播放结束动画
-    _play_battle_end_animation()
+	# 播放结束动画
+	_play_battle_end_animation()
 
-    # 显示结算UI
-    _show_battle_end_ui()
+	# 显示结算UI
+	_show_battle_end_ui()
 
-    # 通知战斗管理器
-    if tm and tm.has_method("on_battle_end"):
-        tm.on_battle_end(winner, loot)
+	# 通知战斗管理器
+	if tm and tm.has_method("on_battle_end"):
+		tm.on_battle_end(winner, loot)
 
-    # 关键节点自动存档：战斗胜利时触发
-    if winner == 1 and SaveManager and SaveManager.has_method("trigger_auto_save"):
-        SaveManager.trigger_auto_save("battle_victory")
+	# 关键节点自动存档：战斗胜利时触发
+	if winner == 1 and SaveManager and SaveManager.has_method("trigger_auto_save"):
+		SaveManager.trigger_auto_save("battle_victory")
 
 func _play_battle_end_animation() -> void:
-    var tm: Node = get_turn_manager()
-    if tm and tm.has_method("play_battle_end_animation"):
-        tm.play_battle_end_animation(winner)
+	var tm: Node = get_turn_manager()
+	if tm and tm.has_method("play_battle_end_animation"):
+		tm.play_battle_end_animation(winner)
 
 func _show_battle_end_ui() -> void:
-    var tm: Node = get_turn_manager()
-    if tm and tm.has_method("show_battle_end_ui"):
-        tm.show_battle_end_ui(winner, loot)
+	var tm: Node = get_turn_manager()
+	if tm and tm.has_method("show_battle_end_ui"):
+		tm.show_battle_end_ui(winner, loot)
+
+	# 延迟返回世界地图（3秒后自动返回）
+	var timer := Timer.new()
+	timer.one_shot = true
+	timer.wait_time = 3.0
+	timer.timeout.connect(_return_to_world_map)
+	tm.get_tree().root.add_child(timer)
+	timer.start()
+
+func _return_to_world_map() -> void:
+	print("[BattleEnd] 返回世界地图")
+	var tree := get_tree()
+	if tree:
+		var gs = tree.root.find_child("GameState", false, false)
+		if gs and gs.has("ZoneType"):
+			gs.current_zone = gs.ZoneType.SEA
+		if tree.change_scene_to_file("res://scenes/worlds/WorldMap.tscn") != OK:
+			push_error("[BattleEnd] Failed to return to WorldMap")
 
 func update(delta: float) -> void:
-    pass
+	pass
 
 func exit() -> void:
-    winner = -1
-    loot.clear()
+	winner = -1
+	loot.clear()

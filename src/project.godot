@@ -21,6 +21,10 @@ config/icon="res://icon.svg"
 GameState="*res://scripts/autoload/GameState.gd"
 ResourceCache="*res://scripts/autoload/ResourceCache.gd"
 SaveManager="*res://scripts/systems/SaveManager.gd"
+GameManager="*res://scripts/systems/GameManager.gd"
+ShipFactory="*res://scripts/systems/ShipFactory.gd"
+CompanionManager="*res://scripts/systems/CompanionManager.gd"
+BountyManager="*res://scripts/systems/BountyManager.gd"
 
 [display]
 
