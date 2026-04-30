@@ -56,18 +56,28 @@
 
 **Push状态**: commit a1068c8 已commit，本地已验证，push待网络确认
 
-## Sprint 13 — Medium Bug 修复（2026-04-30 10:36 启动）
+## Sprint 13 — Medium Bug 修复（2026-04-30 10:36 完成）
 
 | Task | Agent | 状态 | 产出 |
 |------|-------|------|------|
-| gold-hud-fix | apollo | 🔄 执行中 | 初始金币统一 + HUD延迟查找 |
-| test-fix | chiron | 🔄 执行中 | 测试文件路径修复 |
-| save-slot-fix | athena | 🔄 执行中 | 隐藏auto-save槽位 + PartPickerPopup验证 |
+| gold-hud-fix | apollo | ✅ | commit 6a93149，初始金币5000+HUD延迟查找 |
+| test-fix | chiron | ✅ | commit cd1781a，测试文件验证完成 |
+| save-slot-fix | athena | ✅ | commit 95e45df，隐藏auto-save槽位 |
+
+---
+
+## Sprint 14 — 原型演示准备（2026-04-30 10:48 启动）
+
+| Task | Agent | 状态 | 产出 |
+|------|-------|------|------|
+| save-interfaces | athena | 🔄 执行中 | ShipFactory/BattleManager存档接口 |
+| story-integration | apollo | 🔄 执行中 | StoryManager剧情进度+赏金联动 |
+| proto-demo | hermes | 🔄 执行中 | Godot导出配置+HTML原型包 |
 
 ### Subagent Session
-- apollo: `e26e571a`
-- chiron: `b8912f88`
-- athena: `ac53b87f`
+- athena: `b70a759c`
+- apollo: `b02efcda`
+- hermes: `9b2d7a12`
 
 ---
 
