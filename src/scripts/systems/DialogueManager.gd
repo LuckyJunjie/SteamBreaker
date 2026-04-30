@@ -1,4 +1,3 @@
-class_name DialogueManager
 extends Node
 
 ## 对话系统管理器

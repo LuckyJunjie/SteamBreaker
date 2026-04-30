@@ -24,11 +24,11 @@ var _shop_items: Array = [
 
 # 帝国商店商品（仅帝国债券购买）
 var _empire_shop_items: Array = [
-    {"id": "bp_thunder_cannon",  "name": "雷火炮图纸",     "price": 200, "desc": "风暴岭特殊武器",    "icon": "⚡"},
-    {"id": "bp_deep_one_armor",  "name": "深渊甲图纸",     "price": 300, "desc": "深渊海沟特殊护甲",  "icon": "🛡️"},
-    {"id": "bp_ironclad_hull",   "name": "铁甲舰船体图纸", "price": 250, "desc": "帝国巡逻舰技术",    "icon": "🚢"},
-    {"id": "item_empire_compass", "name": "帝国罗盘",       "price": 150, "desc": "永久显示赏金位置",  "icon": "🧭"},
-    {"id": "item_royal_medal",   "name": "皇室勋章",        "price": 100, "desc": "所有商人9折",      "icon": "🎖️"}
+    {"id": "bp_thunder_cannon",   "name": "雷火炮图纸",     "price": 200, "desc": "风暴岭特殊武器",    "icon": "⚡"},
+    {"id": "bp_deep_one_armor",   "name": "深渊甲图纸",     "price": 300, "desc": "深渊海沟特殊护甲",  "icon": "🛡️"},
+    {"id": "bp_ironclad_hull",    "name": "铁甲舰船体图纸", "price": 250, "desc": "帝国巡逻舰技术",    "icon": "🚢"},
+    {"id": "empire_compass",      "name": "帝国罗盘",       "price": 150, "desc": "永久显示赏金位置",  "icon": "🧭"},
+    {"id": "royal_medal",         "name": "皇室勋章",        "price": 100, "desc": "所有商人9折",      "icon": "🎖️"}
 ]
 
 var _player_gold: int = 0
@@ -53,16 +53,44 @@ func _ready() -> void:
 
 
 func _find_nodes() -> void:
-    _title_lbl = get_node_or_null(["TitleLabel", "ShopTitle", "VBox/Title"])
-    _gold_lbl = get_node_or_null(["GoldLabel", "PlayerGold"])
-    _bonds_lbl = get_node_or_null(["BondsLabel", "EmpireBondsLabel"])
-    _tab_container = get_node_or_null(["ShopTabs", "TabContainer"])
-    _items_list = get_node_or_null(["ItemsList", "ItemsContainer", "ScrollContainer/ListVBox"])
-    _empire_items_list = get_node_or_null(["EmpireItemsList", "EmpireItemsContainer"])
-    _close_btn = get_node_or_null(["CloseBtn", "CloseButton"])
+    # Title / currency
+    _title_lbl = _find_node_robust(["TitleLabel", "ShopTitle", "VBox/TitleArea/TitleLabel"])
+    _gold_lbl = _find_node_robust(["GoldLabel", "VBox/CurrencyBar/GoldLabel"])
+    _bonds_lbl = _find_node_robust(["BondsLabel", "VBox/CurrencyBar/BondsSection/BondsLabel"])
     
+    # Tab container
+    _tab_container = _find_node_robust(["TabContainer", "VBox/TabContainer"])
+    
+    # General shop list
+    _items_list = _find_node_robust([
+        "ListVBox",
+        "VBox/TabContainer/GeneralShop/ScrollContainer/ListVBox"
+    ])
+    
+    # Empire shop list
+    _empire_items_list = _find_node_robust([
+        "EmpireItemsContainer",
+        "VBox/TabContainer/EmpireShop/EmpireItemsScroll/EmpireItemsContainer"
+    ])
+    
+    # Close button
+    _close_btn = _find_node_robust(["CloseBtn", "VBox/BottomBar/CloseBtn"])
     if _close_btn:
         _close_btn.pressed.connect(_on_close_pressed)
+
+
+func _find_node_robust(paths: Array[String]) -> Node:
+    for p in paths:
+        var n = get_node_or_null(p)
+        if n:
+            return n
+    # fallback: search by name
+    for p in paths:
+        var base_name = p.split("/")[-1]
+        var found = find_child(base_name, true, false)
+        if found:
+            return found
+    return null
 
 
 func _load_player_data() -> void:
@@ -74,12 +102,11 @@ func _load_player_data() -> void:
 func _populate_items() -> void:
     # 普通商店
     if not _items_list:
-        print("[ShopUI] Warning: ItemsList node not found, creating dynamically")
-        _create_shop_layout()
+        print("[ShopUI] Warning: ItemsList node not found")
         return
     
     # 清除旧列表
-    foreach_child(_items_list, func(c): c.queue_free())
+    _clear_children(_items_list)
     
     # 标题行
     var header = HBoxContainer.new()
@@ -95,7 +122,7 @@ func _populate_items() -> void:
     
     # 帝国商店
     if _empire_items_list:
-        foreach_child(_empire_items_list, func(c): c.queue_free())
+        _clear_children(_empire_items_list)
         var empire_header = HBoxContainer.new()
         var ename_h = Label.new(); ename_h.text = "商品"; ename_h.size_flags_horizontal = Control.SIZE_EXPAND_FILL
         var eprice_h = Label.new(); eprice_h.text = "债券"; eprice_h.custom_minimum_size.x = 100
@@ -113,7 +140,12 @@ func _populate_items() -> void:
         _bonds_lbl.text = "帝国债券: %d %s" % [_player_bonds, EMPIRE_CURRENCY_SYMBOL]
 
 
-func _add_item_row(item: Dictionary) -> void:
+func _clear_children(node: Node) -> void:
+    for child in node.get_children():
+        child.queue_free()
+
+
+func _add_item_row(item: Dictionary, _is_empire: bool = false) -> void:
     var row = HBoxContainer.new()
     row.custom_minimum_size.y = 40
     
@@ -149,7 +181,8 @@ func _add_item_row(item: Dictionary) -> void:
         buy_btn.pressed.connect(_on_buy_pressed.bind(item))
     row.add_child(buy_btn)
     
-    _items_list.add_child(row)
+    if _items_list:
+        _items_list.add_child(row)
 
 
 func _add_empire_item_row(item: Dictionary) -> void:
@@ -192,15 +225,32 @@ func _add_empire_item_row(item: Dictionary) -> void:
         _empire_items_list.add_child(row)
 
 
-func _create_shop_layout() -> void:
-    # 如果场景中没有预设布局，动态创建
-    var vbox = VBoxContainer.new()
-    vbox.set_anchors_preset(Control.PRESET_FULL_RECT)
-    vbox.add_theme_constant_override("separation", 10)
-    add_child(vbox)
-    _items_list = vbox
-    
-    _populate_items()
+# 帝国商店Tab专用方法
+func _open_empire_shop() -> void:
+    _show_empire_items_list()
+    var bonds = 0
+    if GameState and GameState.has_method("get_empire_bonds"):
+        bonds = GameState.get_empire_bonds()
+    elif GameState:
+        bonds = GameState.empire_bonds
+    _update_bonds_display(bonds)
+
+
+func _show_empire_items_list() -> void:
+    if _tab_container:
+        # 切换到帝国商店Tab
+        for i in range(_tab_container.get_tab_count()):
+            if _tab_container.get_tab_title(i) == "帝国商店":
+                _tab_container.current_tab = i
+                break
+    if _empire_items_list:
+        _populate_items()
+
+
+func _update_bonds_display(bonds: int) -> void:
+    _player_bonds = bonds
+    if _bonds_lbl:
+        _bonds_lbl.text = "帝国债券: %d %s" % [bonds, EMPIRE_CURRENCY_SYMBOL]
 
 
 func _on_buy_pressed(item: Dictionary) -> void:
@@ -244,10 +294,5 @@ func _on_empire_buy_pressed(item: Dictionary) -> void:
 func _on_close_pressed() -> void:
     print("[ShopUI] Closed")
     shop_closed.emit()
-    get_tree().quit()
-
-
-# 辅助函数
-func foreach_child(node: Node, fn: Callable) -> void:
-    for child in node.get_children():
-        fn.call(child)
+    # 正常应该只是隐藏，不用quit
+    self.visible = false

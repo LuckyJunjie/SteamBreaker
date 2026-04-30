@@ -1,0 +1,84 @@
+[gd_scene load_steps=2 format=3 uid="uid://shop_ui_scene"]
+
+[ext_resource type="Script" path="res://scripts/ui/ShopUI.gd" id="1_shop"]
+
+[node name="ShopUI" type="Control"]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+script = ExtResource("1_shop")
+
+[node name="VBox" type="VBoxContainer" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="TitleArea" type="HBoxContainer" parent="VBox"]
+layout_mode = 2
+
+[node name="TitleLabel" type="Label" parent="VBox/TitleArea"]
+layout_mode = 2
+text = "⚓ 港口商店"
+horizontal_alignment = 1
+
+[node name="CurrencyBar" type="HBoxContainer" parent="VBox"]
+layout_mode = 2
+
+[node name="GoldLabel" type="Label" parent="VBox/CurrencyBar"]
+layout_mode = 2
+text = "持有金币: 0 金克朗"
+
+[node name="Spacer" type="Control" parent="VBox/CurrencyBar"]
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="BondsSection" type="HBoxContainer" parent="VBox/CurrencyBar"]
+
+[node name="BondsLabel" type="Label" parent="VBox/CurrencyBar/BondsSection"]
+layout_mode = 2
+text = "帝国债券: 0 债券"
+
+[node name="TabContainer" type="TabContainer" parent="VBox"]
+layout_mode = 2
+size_flags_vertical = 3
+
+[node name="GeneralShop" type="TabMenuItem" parent="VBox/TabContainer"]
+text = "杂货商店"
+
+[node name="ScrollContainer" type="ScrollContainer" parent="VBox/TabContainer/GeneralShop"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="ListVBox" type="VBoxContainer" parent="VBox/TabContainer/GeneralShop/ScrollContainer"]
+layout_mode = 1
+
+[node name="EmpireShop" type="TabMenuItem" parent="VBox/TabContainer"]
+text = "帝国商店"
+
+[node name="EmpireItemsScroll" type="ScrollContainer" parent="VBox/TabContainer/EmpireShop"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="EmpireItemsContainer" type="VBoxContainer" parent="VBox/TabContainer/EmpireShop/EmpireItemsScroll"]
+layout_mode = 1
+
+[node name="BottomBar" type="HBoxContainer" parent="VBox"]
+layout_mode = 2
+
+[node name="CloseBtn" type="Button" parent="VBox/BottomBar"]
+layout_mode = 2
+text = "关闭商店"

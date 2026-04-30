@@ -70,6 +70,18 @@ func _setup_ui():
     HealthLabel.add_theme_font_size_override("font_size", 16)
     vbox.add_child(HealthLabel)
 
+    var spacer = Control.new()
+    spacer.size_flags_vertical = Control.SIZE_EXPAND
+    vbox.add_child(spacer)
+
+    var bottom_bar = HBoxContainer.new()
+    vbox.add_child(bottom_bar)
+
+    var inventory_btn = Button.new()
+    inventory_btn.text = "🎒 背包"
+    inventory_btn.pressed.connect(_open_inventory)
+    bottom_bar.add_child(inventory_btn)
+
 func _setup_bounty_tracker() -> void:
     BountyTrackerPanel = Panel.new()
     BountyTrackerPanel.set_anchors_preset(Control.PRESET_TOP_RIGHT)
@@ -170,8 +182,8 @@ func _connect_companion_signals() -> void:
         companion_skill_system.skill_used.connect(_on_skill_used)
         companion_skill_system.skill_cooldown_ready.connect(_on_skill_cooldown_ready)
 
-    dialogue_manager = _find_autoload("DialogueManager")
-    bond_event_manager = _find_autoload("BondEventManager")
+    dialogue_manager = _find_autoload("DialogueSystem")
+    bond_event_manager = _find_autoload("BondEventSystem")
 
 func _find_autoload(name: String) -> Node:
     var tree := get_tree()
@@ -392,7 +404,7 @@ func _on_skill_cooldown_ready(companion_id: String, skill_id: String) -> void:
 ## 显示对话气泡（伙伴对话时调用）
 func show_dialogue_box(companion: Companion, dialogue_id: String) -> void:
     if dialogue_manager == null:
-        dialogue_manager = _find_autoload("DialogueManager")
+        dialogue_manager = _find_autoload("DialogueSystem")
     if dialogue_manager == null:
         return
 
@@ -588,6 +600,14 @@ func open_bounty_board() -> void:
         board_ui.show_board()
     else:
         print("[HUD] BountyBoardUI not found")
+
+func _open_inventory() -> void:
+    var inv_path = "/root/InventoryPanel"
+    if has_node(inv_path):
+        var panel = get_node(inv_path)
+        panel.visible = true
+    else:
+        print("[HUD] InventoryPanel not found in scene tree")
 
 # ============================================================
 # World Navigation / 世界导航控件

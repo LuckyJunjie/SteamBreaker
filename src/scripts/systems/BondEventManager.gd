@@ -1,4 +1,3 @@
-class_name BondEventManager
 extends Node
 
 ## 羁绊事件管理器

@@ -123,7 +123,7 @@ func set_companion_manager(manager: CompanionManager) -> void:
     refresh()
 
 ## 设置对话管理器引用
-func set_dialogue_manager(dm: DialogueManager) -> void:
+func set_dialogue_manager(dm: Node) -> void:
     if _dialogue_manager:
         _dialogue_manager.dialogue_started.disconnect(_on_dialogue_started)
         _dialogue_manager.dialogue_option_selected.disconnect(_on_dialogue_option_selected)

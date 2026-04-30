@@ -28,6 +28,8 @@ BountyManager="*res://scripts/systems/BountyManager.gd"
 StoryManager="*res://scripts/systems/StoryManager.gd"
 ItemDatabase="*res://scripts/systems/ItemDatabase.gd"
 InventoryManager="*res://scripts/systems/InventoryManager.gd"
+DialogueSystem="*res://scripts/systems/DialogueManager.gd"
+BondEventSystem="*res://scripts/systems/BondEventManager.gd"
 
 [display]
 
