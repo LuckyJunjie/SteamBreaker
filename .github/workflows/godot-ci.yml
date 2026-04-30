@@ -1,0 +1,20 @@
+name: Godot CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Export Godot
+        uses: firebelley/godot-export@v5
+        with:
+          godot_version: 4.5.1
+          export_format: html
+          export_path: build/index.html

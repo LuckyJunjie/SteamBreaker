@@ -4,6 +4,7 @@
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![Godot](https://img.shields.io/badge/Engine-Godot%204.x-blue.svg)](https://godotengine.org)
+[![Godot CI](https://github.com/LuckyJunjie/SteamBreaker/actions/workflows/godot-ci.yml/badge.svg)](https://github.com/LuckyJunjie/SteamBreaker/actions)
 
 ---
 
