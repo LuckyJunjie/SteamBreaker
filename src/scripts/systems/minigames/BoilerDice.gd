@@ -18,6 +18,16 @@ var _current_bet: int = 0
 var _dice_values: Array[int] = [0, 0, 0]
 var _kept_indices: Array[int] = []  # 保留的骰子索引
 var _rolls_remaining: int = 2        # 剩余再掷次数
+var _game_in_progress: bool = false
+
+# UI节点引用
+var _dice_labels: Array[Label] = []
+var _roll_btn: Button = null
+var _finish_btn: Button = null
+var _status_lbl: Label = null
+var _result_panel: PanelContainer = null
+var _result_lbl: Label = null
+var _gold_change_lbl: Label = null
 
 # ============================================
 # Public API / 公开接口

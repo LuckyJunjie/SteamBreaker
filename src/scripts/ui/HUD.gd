@@ -39,6 +39,11 @@ var selected_target_ship: ShipCombatData = null
 var current_weapons: Array[WeaponData] = []
 var current_items: Array[Dictionary] = []
 
+## 战斗速度选项
+var animation_speed_multiplier: float = 1.0
+var BattleSpeedBtn: Button = null
+var _status_effect_icons: Dictionary = {}  # ship_id -> {effect_type -> icon_container}
+
 func _ready():
     print("[HUD] Initialized")
     _setup_ui()
@@ -725,6 +730,7 @@ func _detect_battle_mode() -> void:
 		is_in_battle_mode = true
 		battle_manager_ref = battle
 		_connect_battle_signals()
+		setup_battle_speed_button()
 		print("[HUD] BattleManager resolved via deferred lookup")
 	else:
 		# Fallback to scene-based detection
@@ -732,6 +738,7 @@ func _detect_battle_mode() -> void:
 		if scene_battle:
 			is_in_battle_mode = true
 			battle_manager_ref = scene_battle
+			setup_battle_speed_button()
 			print("[HUD] Battle mode detected (scene fallback)")
 
 func _setup_battle_action_panel() -> void:
@@ -831,3 +838,127 @@ func _on_battle_skip() -> void:
 		BattleActionPanel.visible = false
 	if battle_manager_ref and battle_manager_ref.has_method("advance_turn"):
 		battle_manager_ref.advance_turn()
+
+## ============================================
+## 战斗速度选项
+## ============================================
+
+func _toggle_battle_speed() -> void:
+	animation_speed_multiplier = 2.0 if animation_speed_multiplier == 1.0 else 1.0
+	if BattleSpeedBtn:
+		BattleSpeedBtn.text = "⏩ x%.0f" % animation_speed_multiplier
+	print("[HUD] Battle speed: x%.0f" % animation_speed_multiplier)
+
+func setup_battle_speed_button() -> void:
+	if BattleSpeedBtn:
+		return
+	BattleSpeedBtn = Button.new()
+	BattleSpeedBtn.name = "BattleSpeedBtn"
+	BattleSpeedBtn.text = "⏩ x1"
+	BattleSpeedBtn.custom_minimum_size = Vector2(70, 36)
+	BattleSpeedBtn.pressed.connect(_toggle_battle_speed)
+	BattleSpeedBtn.anchor_left = 1.0
+	BattleSpeedBtn.anchor_right = 1.0
+	BattleSpeedBtn.offset_left = -96.0
+	BattleSpeedBtn.offset_top = 22.0
+	BattleSpeedBtn.offset_right = -22.0
+	BattleSpeedBtn.offset_bottom = 58.0
+	add_child(BattleSpeedBtn)
+	print("[HUD] Battle speed button created")
+
+## ============================================
+## 状态效果剩余回合显示
+## ============================================
+
+## 更新船只的状态效果图标（由BattleManager每回合调用）
+func update_status_effects_ui(ship: ShipCombatData) -> void:
+	if not is_in_battle_mode:
+		return
+	var ship_id: String = ship.ship_id
+	# 清除旧图标
+	if _status_effect_icons.has(ship_id):
+		for container: Node in _status_effect_icons[ship_id].values():
+			if is_instance_valid(container):
+				container.queue_free()
+		_status_effect_icons[ship_id].clear()
+
+	var container_dict: Dictionary = {}
+	for eff_type: int in ship.status_effects.keys():
+		var eff: StatusEffect = ship.status_effects[eff_type]
+		var icon: Panel = _create_status_icon(ship_id, eff)
+		if icon:
+			container_dict[eff_type] = icon
+	_status_effect_icons[ship_id] = container_dict
+
+func _create_status_icon(ship_id: String, eff: StatusEffect) -> Panel:
+	var icon: Panel = Panel.new()
+	icon.custom_minimum_size = Vector2(32, 32)
+	var icon_style := StyleBoxFlat.new()
+	icon_style.bg_color = Color(0.15, 0.15, 0.2, 0.85)
+	icon_style.set_corner_radius_all(4)
+	icon_style.set_border_width_all(1)
+	icon_style.border_color = _get_status_color(eff.type)
+	icon.add_theme_stylebox_override("panel", icon_style)
+	add_child(icon)
+
+	# 状态图标（emoji）
+	var icon_lbl: Label = Label.new()
+	icon_lbl.text = _get_status_emoji(eff.type)
+	icon_lbl.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	icon_lbl.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
+	icon.add_child(icon_lbl)
+
+	# 剩余回合数小标签（右下角显示 "x3"）
+	var turns_lbl: Label = Label.new()
+	turns_lbl.text = "x%d" % eff.duration_remaining
+	turns_lbl.add_theme_font_size_override("font_size", 9)
+	turns_lbl.add_theme_color_override("font_color", Color(1.0, 0.85, 0.3))
+	turns_lbl.set_anchors_preset(Control.PRESET_BOTTOM_RIGHT)
+	turns_lbl.offset_left = 16.0
+	turns_lbl.offset_top = 18.0
+	icon.add_child(turns_lbl)
+
+	# 悬浮提示
+	icon.tooltip_text = "%s（剩余 %d 回合）" % [eff.get_display_name(), eff.duration_remaining]
+
+	# 定位（放在屏幕下方中央，按索引排列）
+	var ship_index: int = _get_ship_index(ship_id)
+	var x_pos: int = 300 + ship_index * 80
+	icon.set_anchors_preset(Control.PRESET_BOTTOM_WIDE)
+	icon.offset_left = x_pos
+	icon.offset_top = -20
+	icon.offset_right = x_pos + 32
+	icon.offset_bottom = 20
+	icon.z_index = 15
+	return icon
+
+func _get_status_emoji(type: StatusEffect.StatusType) -> String:
+	match type:
+		StatusEffect.StatusType.FIRE:      return "🔥"
+		StatusEffect.StatusType.FLOOD:     return "💧"
+		StatusEffect.StatusType.SLOW:      return "🐌"
+		StatusEffect.StatusType.DISORIENT: return "🌀"
+		StatusEffect.StatusType.STEALTH:   return "👻"
+		StatusEffect.StatusType.OVERHEAT:  return "♨️"
+		StatusEffect.StatusType.PARALYSIS: return "⚡"
+	return "❓"
+
+func _get_status_color(type: StatusEffect.StatusType) -> Color:
+	match type:
+		StatusEffect.StatusType.FIRE:      return Color(0.9, 0.3, 0.1)
+		StatusEffect.StatusType.FLOOD:     return Color(0.2, 0.4, 0.9)
+		StatusEffect.StatusType.SLOW:      return Color(0.4, 0.7, 0.2)
+		StatusEffect.StatusType.DISORIENT: return Color(0.7, 0.3, 0.9)
+		StatusEffect.StatusType.STEALTH:   return Color(0.5, 0.5, 0.7)
+		StatusEffect.StatusType.OVERHEAT:  return Color(0.9, 0.6, 0.1)
+		StatusEffect.StatusType.PARALYSIS: return Color(0.9, 0.9, 0.1)
+	return Color(0.6, 0.6, 0.6)
+
+var _ship_index_map: Dictionary = {}
+
+func _get_ship_index(ship_id: String) -> int:
+	if _ship_index_map.has(ship_id):
+		return _ship_index_map[ship_id]
+	var idx: int = _ship_index_map.size()
+	_ship_index_map[ship_id] = idx
+	return idx
