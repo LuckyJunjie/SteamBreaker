@@ -95,7 +95,7 @@ func test_ship_loadout_duplicate():
     loadout1.ship_name = "原舰"
     loadout1.current_hp = 75
     
-    var loadout2 = loadout1.duplicate()
+    var loadout2 = loadout1.duplicate_loadout()
     
     assert_eq(loadout2.ship_name, "原舰")
     assert_eq(loadout2.current_hp, 75)

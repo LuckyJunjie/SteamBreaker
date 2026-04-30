@@ -1,5 +1,4 @@
 extends Node
-class_name StoryManager
 
 ## Steam Breaker 主线剧情管理器
 ## 管理章节进度、剧情事件触发、派系声望

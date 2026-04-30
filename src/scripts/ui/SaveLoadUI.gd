@@ -321,7 +321,7 @@ func _collect_current_state() -> SaveData:
     # Get ship loadout
     var ship_factory: Node = root.find_child("ShipFactory", true, false)
     if ship_factory and ship_factory.has("current_loadout"):
-        data.ship_loadout = ship_factory.current_loadout.duplicate()
+        data.ship_loadout = ship_factory.current_loadout.duplicate_loadout()
     
     return data
 

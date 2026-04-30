@@ -58,8 +58,7 @@ func _setup_ui() -> void:
 	_title_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	_title_label.add_theme_color_override("font_color", Color(0.92, 0.78, 0.35))
 	_title_label.add_theme_font_size_override("font_size", 56)
-	_title_label.add_theme_font_style_override("font_style", TextServer.FONT_STYLE_BOLD)
-	vbox.add_child(_title_label)
+		vbox.add_child(_title_label)
 
 	# 副标题
 	_subtitle_label = Label.new()

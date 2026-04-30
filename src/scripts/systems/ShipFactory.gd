@@ -35,7 +35,7 @@ func get_current_loadout() -> ShipLoadout:
 func apply_loadout(loadout: ShipLoadout) -> void:
     if loadout == null:
         return
-    current_loadout = loadout.duplicate()
+    current_loadout = loadout.duplicate_loadout()
     print("[ShipFactory] Loadout applied: %s (HP=%d/%d)" % [
         current_loadout.ship_name,
         current_loadout.current_hp,
@@ -43,8 +43,8 @@ func apply_loadout(loadout: ShipLoadout) -> void:
 
 ## ─── 存档接口 ──────────────────────────────────────────────
 func get_save_data() -> Dictionary:
-	return {
-		"current_loadout": current_loadout.duplicate() if current_loadout else null,
+    return {
+		"current_loadout": current_loadout.duplicate_loadout() if current_loadout else null,
 		"ship_name": current_loadout.ship_name if current_loadout else "蒸汽破浪号",
 	}
 

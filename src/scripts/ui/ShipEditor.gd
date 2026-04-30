@@ -227,7 +227,7 @@ func _ready() -> void:
     _scan_available_parts()
     _load_player_gold()
     if _current_loadout:
-        _preview_loadout = _current_loadout.duplicate()
+        _preview_loadout = _current_loadout.duplicate_loadout()
         _refresh_ui()
         _update_cost_diff()
 
@@ -292,7 +292,7 @@ func _load_player_gold() -> void:
 func set_loadout(loadout: ShipLoadout) -> void:
     _current_loadout = loadout
     if loadout:
-        _preview_loadout = loadout.duplicate()
+        _preview_loadout = loadout.duplicate_loadout()
     else:
         _preview_loadout = ShipLoadout.new()
     _refresh_ui()
@@ -816,7 +816,7 @@ func _on_confirm_pressed() -> void:
     if GameState and GameState.player_ship:
         GameState.player_ship.apply_loadout(_preview_loadout)
     elif _current_loadout:
-        _current_loadout = _preview_loadout.duplicate()
+        _current_loadout = _preview_loadout.duplicate_loadout()
 
     # 同时通知 ShipFactory（使用autoload）
     ShipFactory.apply_loadout(_preview_loadout)

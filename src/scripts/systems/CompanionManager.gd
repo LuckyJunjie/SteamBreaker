@@ -1,5 +1,4 @@
 extends Node
-class_name CompanionManager
 
 ## Steam Breaker Companion Manager
 ## 伙伴管理系统
@@ -82,9 +81,9 @@ func recruit_companion(companion_id: String) -> bool:
 		return false
 	
 	var state := CompanionState.new(companion_id)
-	state.affection = comp_res.get("affection", 0)
-	state.story_flags = comp_res.get("story_flags", {}).duplicate(true)
-	state.skill_ids = comp_res.get("skill_ids", []).duplicate()
+	state.affection = comp_res.get("affection") if comp_res else 0
+	state.story_flags = (comp_res.get("story_flags") if comp_res else {}).duplicate(true)
+	state.skill_ids = (comp_res.get("skill_ids") if comp_res else []).duplicate()
 	state.is_recruited = true
 	
 	_recruited_companions[companion_id] = state
@@ -168,8 +167,8 @@ func give_gift(companion_id: String, item_id: String) -> int:
 	if not comp_res:
 		return 0
 	
-	var likes: Array = comp_res.get("likes", [])
-	var dislikes: Array = comp_res.get("dislikes", [])
+	var likes: Array = comp_res.get("likes") if comp_res else []
+	var dislikes: Array = comp_res.get("dislikes") if comp_res else []
 	
 	var change: int = 0
 	if item_id in likes:
@@ -188,14 +187,14 @@ func is_item_liked(companion_id: String, item_id: String) -> bool:
 	var comp_res: Resource = ResourceCache.get_companion(companion_id)
 	if not comp_res:
 		return false
-	return item_id in comp_res.get("likes", [])
+	return item_id in (comp_res.get("likes") if comp_res else [])
 
 ## Check if item is disliked by companion
 func is_item_disliked(companion_id: String, item_id: String) -> bool:
 	var comp_res: Resource = ResourceCache.get_companion(companion_id)
 	if not comp_res:
 		return false
-	return item_id in comp_res.get("dislikes", [])
+	return item_id in (comp_res.get("dislikes") if comp_res else [])
 
 # ============================================
 # Story Flags / 剧情标志
@@ -374,13 +373,13 @@ func get_companion_display_info(companion_id: String) -> Dictionary:
 	var comp_res: Resource = ResourceCache.get_companion(companion_id)
 	return {
 		"companion_id": companion_id,
-		"name": comp_res.get("name", companion_id) if comp_res else companion_id,
-		"species": comp_res.get("species", "") if comp_res else "",
+		"name": comp_res.get("name") if comp_res else companion_id if comp_res else companion_id,
+		"species": comp_res.get("species") if comp_res else "" if comp_res else "",
 		"portrait": comp_res.get("portrait") if comp_res else null,
 		"affection": state.affection,
 		"bond_level": state.get_bond_level(),
 		"bond_level_name": state.get_bond_level_name(),
-		"personality": comp_res.get("personality", "") if comp_res else "",
+		"personality": comp_res.get("personality") if comp_res else "" if comp_res else "",
 		"is_recruited": state.is_recruited,
 	}
 

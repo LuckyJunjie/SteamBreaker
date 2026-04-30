@@ -1,5 +1,4 @@
 extends Node
-class_name BountyManager
 
 ## 赏金系统管理器 - 管理所有赏金数据、接取、追踪、击杀判定与奖励发放
 
@@ -241,7 +240,7 @@ func _load_progress() -> void:
 	
 	var result := JSON.parse_string(json_str)
 	if result and typeof(result) == TYPE_DICTIONARY:
-		var data: Dictionary = result
+		var data: Dictionary = result as Dictionary
 		_active_bounties = data.get("active_bounties", [])
 		_completed_bounties = data.get("completed_bounties", {})
 		_player_gold = data.get("player_gold", 0)

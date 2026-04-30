@@ -328,7 +328,7 @@ func _collect_game_state() -> Variant :
     if ship_factory:
         # Try to get current_loadout from ShipFactory
         if ship_factory.has_method("get_current_loadout") and ship_factory.get_current_loadout():
-            data.ship_loadout = ship_factory.get_current_loadout().duplicate()
+            data.ship_loadout = ship_factory.get_current_loadout().duplicate_loadout()
             print("[SaveManager] Collected ship loadout: %s" % data.ship_loadout.ship_name)
         # Fallback: collect from GameState player_ship reference
         elif game_state and game_state.player_ship:
