@@ -223,8 +223,25 @@ func _start_new_game() -> void:
 		gm.current_state = gm.PlayState.WORLD_MAP
 		print("[TitleScreen] GameManager reset for new game")
 
+	# 初始化剧情节点标志
+	_init_story_flags()
+
 	# 切换到 World 场景
 	_change_to_world()
+
+func _init_story_flags() -> void:
+	if has_node("/root/StoryManager"):
+		var sm = get_node("/root/StoryManager")
+		sm.reset_progress()
+		sm.set_flag("prologue_complete", false)
+		sm.set_flag("chapter_1_complete", false)
+		sm.set_flag("first_bounty_complete", false)
+		sm.set_flag("companion_keerli_bond_2", false)
+		sm.set_flag("companion_tiechan_bond_2", false)
+		sm.set_flag("companion_shenlan_bond_2", false)
+		sm.set_flag("companion_beisuo_bond_2", false)
+		sm.set_flag("companion_linhuo_bond_2", false)
+		print("[TitleScreen] Story flags initialized")
 
 func _load_and_continue() -> void:
 	if not has_node("/root/SaveManager"):

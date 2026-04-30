@@ -60,18 +60,24 @@ func determine_ending() -> EndingType:
     print("[EndingManager] Calculating ending...")
     _cache_node_references()
     
+    var determined := check_ending_conditions()
+    current_ending = determined
+    _generate_slideshow(determined)
+    ending_determined.emit(determined)
+    
+    return determined
+
+## 检查结局条件并返回结局类型
+func check_ending_conditions() -> EndingType:
     var gold: int = _get_player_gold()
-    var highest_affection: int = 0
+    var highest_bond: int = 0
     var highest_companion: String = ""
     var defeated_epic_bounties: int = _get_defeated_epic_bounties_count()
     
-    # 1. 计算伙伴好感度
-    if _companion_manager and _companion_manager.has_method("get_companion_affection"):
-        for companion_id in ["tiechan", "shenlan", "keerli"]:
-            var affection: int = _companion_manager.get_companion_affection(companion_id)
-            if affection > highest_affection:
-                highest_affection = affection
-                highest_companion = companion_id
+    # 1. 获取最高羁绊等级
+    if _companion_manager and _companion_manager.has_method("get_max_bond_level"):
+        highest_bond = _companion_manager.get_max_bond_level()
+        highest_companion = _companion_manager.get_highest_bond_companion_id() if _companion_manager.has_method("get_highest_bond_companion_id") else ""
     
     # 2. 检查是否有伙伴死亡（悲剧线索）
     var any_companion_dead: bool = _check_any_companion_dead()
@@ -97,12 +103,12 @@ func determine_ending() -> EndingType:
         _narrative_text = "十万金币的财富让你成为沿海最富有的船主。\n铁锈湾的酒馆里，人们还在传唱你的故事。"
         print("[EndingManager] Ending: WEALTHY (gold >= %d)" % WEALTH_THRESHOLD)
     
-    # 伙伴结局
-    elif highest_affection >= AFFECTION_THRESHOLD and highest_companion != "":
+    # 伙伴结局（羁绊等级 >= 2）
+    elif highest_bond >= 2 and highest_companion != "":
         ending = EndingType.COMPANION_ENDING
         _selected_companion_id = highest_companion
-        _narrative_text = _get_companion_ending_narrative(highest_companion, highest_affection)
-        print("[EndingManager] Ending: COMPANION (%s, affection=%d)" % [highest_companion, highest_affection])
+        _narrative_text = _get_companion_ending_narrative(highest_companion, highest_bond)
+        print("[EndingManager] Ending: COMPANION (%s, bond_level=%d)" % [highest_companion, highest_bond])
     
     # 普通隐退（兜底）
     else:
@@ -110,11 +116,22 @@ func determine_ending() -> EndingType:
         _narrative_text = "你选择放下武器，回到铁锈湾的岸边。\n日落时分，远处传来汽笛的鸣响。"
         print("[EndingManager] Ending: NORMAL_RETIREMENT")
     
-    current_ending = ending
-    _generate_slideshow(ending)
-    ending_determined.emit(ending)
-    
     return ending
+
+## 触发结局显示
+func trigger_ending(type: EndingType) -> void:
+    if type == EndingType.UNKNOWN:
+        type = check_ending_conditions()
+    
+    current_ending = type
+    _generate_slideshow(type)
+    
+    # 发送信号
+    ending_determined.emit(type)
+    print("[EndingManager] Ending triggered: %s" % get_ending_name())
+    
+    # 显示结局画面
+    _show_ending_screen(type)
 
 ## 获取结局名称
 func get_ending_name() -> String:
@@ -321,6 +338,21 @@ func _add_tragic_slides() -> void:
         "text": "有些人永远无法回来了。\n但你活下去，带着他们的记忆，继续前进。",
         "location": "铁锈湾"
     })
+
+## 显示结局画面
+func _show_ending_screen(type: EndingType) -> void:
+    # 加载并显示结局场景
+    var ending_scene = preload("res://scenes/ui/EndingScreen.tscn")
+    if ending_scene:
+        var instance = ending_scene.instantiate()
+        # 设置结局数据
+        if instance.has_method("setup"):
+            instance.setup(type, _narrative_text)
+        # 添加到场景树
+        get_tree().root.add_child(instance)
+        print("[EndingManager] Ending screen shown")
+    else:
+        print("[EndingManager] WARNING: EndingScreen.tscn not found, using fallback")
 
 func _add_normal_slides() -> void:
     slideshow_slides.append({

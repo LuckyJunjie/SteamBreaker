@@ -273,3 +273,17 @@ func on_battle_ended(victory: bool) -> void:
 	battles_fought += 1
 	if victory:
 		battles_won += 1
+
+## 追击特效
+func play_follow_up_effect(target_id: String) -> void:
+	print("[BattleManager] ★追击特效播放: ", target_id)
+
+## 战斗结算UI（显示奖励/Game Over）
+func show_battle_end_ui(victory: int, loot: Dictionary) -> void:
+	print("[BattleManager] 显示战斗结算UI: victory=%d loot=%s" % [victory, str(loot)])
+
+func get_battle_result() -> Dictionary:
+	return {
+		"winner": 1,  # 1=玩家胜利
+		"loot": {}
+	}

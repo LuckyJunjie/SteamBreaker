@@ -135,3 +135,12 @@ static func get_mobility_cost(from_ring: int, to_ring: int) -> int:
         1: return 20
         2: return 40
     return 80
+
+## 追击判定（弱点命中后触发追击）
+## 弱点部位：boiler（锅炉）/ helm（操舵室）
+static func check_follow_up_attack(damaged_part: String) -> bool:
+    return damaged_part in ["boiler", "helm"]
+
+## 追击伤害计算（为基础伤害的50%，不消耗行动）
+static func calc_follow_up_damage(base_damage: float) -> float:
+    return base_damage * 0.5

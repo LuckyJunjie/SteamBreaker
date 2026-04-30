@@ -146,6 +146,23 @@ func get_bond_level(companion_id: String) -> int:
 		return _recruited_companions[companion_id].get_bond_level()
 	return 0
 
+func get_max_bond_level() -> int:
+	var max_level := 0
+	for companion_id in _recruited_companions.keys():
+		var state: CompanionState = _recruited_companions[companion_id]
+		max_level = maxi(max_level, state.get_bond_level())
+	return max_level
+
+func get_highest_bond_companion_id() -> String:
+	var max_level := 0
+	var best_id := ""
+	for companion_id in _recruited_companions.keys():
+		var state: CompanionState = _recruited_companions[companion_id]
+		if state.get_bond_level() > max_level:
+			max_level = state.get_bond_level()
+			best_id = companion_id
+	return best_id
+
 func get_bond_level_name(companion_id: String) -> String:
 	if _recruited_companions.has(companion_id):
 		return _recruited_companions[companion_id].get_bond_level_name()
