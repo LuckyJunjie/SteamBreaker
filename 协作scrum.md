@@ -20,16 +20,23 @@
 
 ---
 
-## Sprint 16 — UI完善与存档验证（2026-04-30 13:50 启动）
-
-**目标**: HUD完善 + 帝国债券UI + 对话资源修复 + 存档验证
+## Sprint 16 — UI完善与存档验证（2026-04-30 13:50 完成）
 
 | Task | Agent | 状态 | 产出 |
 |------|-------|------|------|
-| hud-empire-ui | apollo | 🔄 执行中 | 帝国债券显示 + 商店Tab |
-| dialogue-resources | chiron | 🔄 执行中 | 对话JSON修复 |
-| save-flow-test | athena | 🔄 执行中 | 存档端到端测试 |
-| empire-items-ui | einstein | 🔄 执行中 | 帝国商店物品Tab |
+| hud-empire-ui | apollo | ✅ | HUD背包按钮+DialogueSystem+帝国债券UI |
+| dialogue-json | chiron | ✅ | DialogueManager路径修复+铁砧/深蓝对话树 |
+| save-flow | athena | ✅ | ShipEditor auto_save+存档字段验证 |
+
+---
+
+## Sprint 17 — 收尾与整合（2026-04-30 14:10 启动）
+
+| Task | Agent | 状态 | 产出 |
+|------|-------|------|------|
+| companion-skill-autoload | apollo | 🔄 执行中 | CompanionSkill注册+DialogueBox连接 |
+| world-flow-fix | athena | 🔄 执行中 | WorldMap→Port路径+JSON格式统一 |
+| project-audit | hermes | 🔄 执行中 | 项目统计+README更新 |
 
 ---
 
