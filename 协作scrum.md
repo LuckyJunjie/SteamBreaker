@@ -34,6 +34,34 @@
 - athena: `5ff348a6-8910-4606-8afc-de71816ef6f6`
 - einstein (companion): `ec138900-249b-46c9-8e5d-b0e7b4e955af`
 
+## Sprint 12 — 集成与收尾（2026-04-30 10:15 启动）
+
+**目标**: 端到端流程可演示 + 小游戏接入 + 对话集成 + CI配置
+
+| Task | Agent | 状态 | 产出 |
+|------|-------|------|------|
+| integration-test | chiron | 🔄 执行中 | Critical/Medium bug清单 + 修复建议 |
+| minigame-port | apollo | 🔄 执行中 | 4个小游戏接入港口酒馆 |
+| dialogue-integration | athena | 🔄 执行中 | DialogueBox + 伙伴对话树 |
+| git-sync | hermes | 🔄 执行中 | GitHub push + CI工作流 |
+
+### Subagent Session
+- chiron: `0cbe62af-77ac-4806-9c22-48aad2ad36b2`
+- apollo: `8d3d34b8-2d64-4639-806c-b86259359463`
+- athena: `8c47d7c5-d2b1-4cc0-bf27-943e384e81c1`
+- hermes: `4e5404c2-a090-4480-b4f3-cd485f7781ba`
+
+---
+
+## Sprint 11 完成汇总
+
+| Agent | 任务 | 结果 |
+|-------|------|------|
+| apollo | ShipEditor拖拽+购买 | ✅ 全面重写 |
+| einstein | 战斗AI+动画 | ✅ AI决策+延迟动画 |
+| athena | 存档断点续存 | ✅ 自动存档5个触发点 |
+| einstein | 伙伴羁绊UI | ✅ 面板+礼物+对话 |
+
 ---
 
 ## Sprint 10 — 战斗初始化链路修复（2026-04-29 18:18 完成）
