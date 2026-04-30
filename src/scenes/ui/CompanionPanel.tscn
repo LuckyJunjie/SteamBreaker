@@ -1,0 +1,212 @@
+[gd_scene load_steps=5 format=3 uid="uid://companion_panel_01"]
+
+[ext_resource type="Script" path="res://scripts/ui/CompanionPanel.gd" id="1_companion_panel"]
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_panel_bg"]
+bg_color = Color(0.08, 0.1, 0.16, 0.97)
+border_width_left = 2
+border_width_right = 2
+border_width_top = 2
+border_width_bottom = 2
+border_color = Color(0.35, 0.3, 0.18, 0.8)
+corner_radius_top_left = 10
+corner_radius_top_right = 10
+corner_radius_bottom_right = 10
+corner_radius_bottom_left = 10
+content_margin_left = 16
+content_margin_right = 16
+content_margin_top = 12
+content_margin_bottom = 12
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_details_bg"]
+bg_color = Color(0.1, 0.12, 0.18, 0.95)
+border_width_left = 1
+border_width_right = 1
+border_width_top = 1
+border_width_bottom = 1
+border_color = Color(0.3, 0.28, 0.2, 0.6)
+corner_radius_top_left = 6
+corner_radius_top_right = 6
+corner_radius_bottom_right = 6
+corner_radius_bottom_left = 6
+content_margin_left = 12
+content_margin_right = 12
+content_margin_top = 10
+content_margin_bottom = 10
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_btn_normal"]
+bg_color = Color(0.2, 0.22, 0.28, 0.9)
+border_width_left = 1
+border_width_right = 1
+border_width_top = 1
+border_width_bottom = 1
+border_color = Color(0.4, 0.38, 0.25, 0.7)
+corner_radius_top_left = 4
+corner_radius_top_right = 4
+corner_radius_bottom_right = 4
+corner_radius_bottom_left = 4
+content_margin_left = 10
+content_margin_right = 10
+content_margin_top = 6
+content_margin_bottom = 6
+
+[node name="CompanionPanel" type="Control"]
+layout_mode = 3
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -420.0
+offset_top = -300.0
+offset_right = 420.0
+offset_bottom = 300.0
+grow_horizontal = 2
+grow_vertical = 2
+script = ExtResource("1_companion_panel")
+
+[node name="BG" type="ColorRect" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+color = Color(0.08, 0.1, 0.16, 0.97)
+
+[node name="MainPanel" type="PanelContainer" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = 16.0
+offset_top = 16.0
+offset_right = -16.0
+offset_bottom = -16.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_panel_bg")
+
+[node name="MainVBox" type="VBoxContainer" parent="MainPanel"]
+layout_mode = 2
+
+[node name="HeaderRow" type="HBoxContainer" parent="MainPanel/MainVBox"]
+layout_mode = 2
+
+[node name="TitleLabel" type="Label" parent="MainPanel/MainVBox/HeaderRow"]
+layout_mode = 2
+size_flags_horizontal = 3
+text = "⚓ 伙伴羁绊"
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="CloseButton" type="Button" parent="MainPanel/MainVBox/HeaderRow"]
+unique_name_in_owner = true
+layout_mode = 2
+text = "×"
+
+[node name="HSeparator0" type="HSeparator" parent="MainPanel/MainVBox"]
+layout_mode = 2
+
+[node name="ContentRow" type="HBoxContainer" parent="MainPanel/MainVBox"]
+layout_mode = 2
+size_flags_vertical = 3
+
+[node name="CompanionListPanel" type="PanelContainer" parent="MainPanel/MainVBox/ContentRow"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_styles/panel = SubResource("StyleBoxFlat_details_bg")
+
+[node name="CompanionListScroll" type="ScrollContainer" parent="MainPanel/MainVBox/ContentRow/CompanionListPanel"]
+layout_mode = 2
+
+[node name="CompanionListContainer" type="VBoxContainer" parent="MainPanel/MainVBox/ContentRow/CompanionListPanel/CompanionListScroll"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="DetailsContainer" type="PanelContainer" parent="MainPanel/MainVBox/ContentRow"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_stretch_ratio = 1.5
+theme_override_styles/panel = SubResource("StyleBoxFlat_details_bg")
+
+[node name="DetailsVBox" type="VBoxContainer" parent="MainPanel/MainVBox/ContentRow/DetailsContainer"]
+layout_mode = 2
+
+[node name="NameLabel" type="Label" parent="MainPanel/MainVBox/ContentRow/DetailsContainer/DetailsVBox"]
+unique_name_in_owner = true
+layout_mode = 2
+text = "伙伴名字"
+horizontal_alignment = 1
+
+[node name="SpeciesLabel" type="Label" parent="MainPanel/MainVBox/ContentRow/DetailsContainer/DetailsVBox"]
+unique_name_in_owner = true
+layout_mode = 2
+text = "👤 种族"
+horizontal_alignment = 1
+
+[node name="BondLevelLabel" type="Label" parent="MainPanel/MainVBox/ContentRow/DetailsContainer/DetailsVBox"]
+unique_name_in_owner = true
+layout_mode = 2
+text = "羁绊等级: 陌生 (0/4)"
+horizontal_alignment = 1
+
+[node name="AffectionRow" type="HBoxContainer" parent="MainPanel/MainVBox/ContentRow/DetailsContainer/DetailsVBox"]
+layout_mode = 2
+
+[node name="AffectionTitle" type="Label" parent="MainPanel/MainVBox/ContentRow/DetailsContainer/DetailsVBox/AffectionRow"]
+layout_mode = 2
+text = "好感度"
+
+[node name="AffectionBar" type="ProgressBar" parent="MainPanel/MainVBox/ContentRow/DetailsContainer/DetailsVBox"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+max_value = 100.0
+show_percentage = false
+
+[node name="AffectionLabel" type="Label" parent="MainPanel/MainVBox/ContentRow/DetailsContainer/DetailsVBox"]
+unique_name_in_owner = true
+layout_mode = 2
+text = "好感度: 0/100"
+horizontal_alignment = 1
+
+[node name="SkillsTitle" type="Label" parent="MainPanel/MainVBox/ContentRow/DetailsContainer/DetailsVBox"]
+layout_mode = 2
+text = "—— 已解锁技能 ——"
+
+[node name="SkillsScroll" type="ScrollContainer" parent="MainPanel/MainVBox/ContentRow/DetailsContainer/DetailsVBox"]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
+
+[node name="SkillsContainer" type="VBoxContainer" parent="MainPanel/MainVBox/ContentRow/DetailsContainer/DetailsVBox/SkillsScroll"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="Spacer" type="Control" parent="MainPanel/MainVBox/ContentRow/DetailsContainer/DetailsVBox"]
+layout_mode = 2
+size_flags_vertical = 3
+custom_minimum_size = Vector2(0, 10)
+
+[node name="ButtonRow" type="HBoxContainer" parent="MainPanel/MainVBox/ContentRow/DetailsContainer/DetailsVBox"]
+layout_mode = 2
+alignment = 2
+
+[node name="DialogueButton" type="Button" parent="MainPanel/MainVBox/ContentRow/DetailsContainer/DetailsVBox/ButtonRow"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+text = "💬 对话"
+theme_override_styles/normal = SubResource("StyleBoxFlat_btn_normal")
+
+[node name="GiftButton" type="Button" parent="MainPanel/MainVBox/ContentRow/DetailsContainer/DetailsVBox/ButtonRow"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+text = "💝 赠送礼物"
+theme_override_styles/normal = SubResource("StyleBoxFlat_btn_normal")

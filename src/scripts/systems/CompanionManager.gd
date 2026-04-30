@@ -17,6 +17,7 @@ var _story_flags: Dictionary = {}            # companion_id -> story_flags dict
 signal companion_recruited(companion_id: String)
 signal companion_affection_changed(companion_id: String, old_val: int, new_val: int)
 signal companion_bond_level_up(companion_id: String, new_level: int)
+signal companion_skill_triggered(companion_id: String, skill_id: String, context: String, effect_data: Dictionary)
 
 # ============================================
 # Inner Class: CompanionState / 内部类：伙伴状态
@@ -232,6 +233,135 @@ func get_unlocked_skill_ids(companion_id: String) -> Array[String]:
 		if level > i:
 			unlocked.append(state.skill_ids[i])
 	return unlocked
+
+# ============================================
+# Out-of-Battle Skills / 战斗外技能
+# ============================================
+
+## 战斗外技能触发
+## context: "sailing" | "port" | "exploration"
+## 返回: { triggered: bool, companion_id, skill_id, effect_data, message }
+func trigger_out_of_battle_skill(skill_id: String, context: String = "sailing") -> Dictionary:
+	var result: Dictionary = {
+		"triggered": false,
+		"skill_id": skill_id,
+		"context": context,
+		"companion_id": "",
+		"effect_data": {},
+		"message": ""
+	}
+
+	# 查找拥有该技能的伙伴
+	var owner_id: String = ""
+	for comp_id in _recruited_companions.keys():
+		var unlocked: Array[String] = get_unlocked_skill_ids(comp_id)
+		if skill_id in unlocked:
+			owner_id = comp_id
+			break
+
+	if owner_id == "":
+		print("[CompanionManager] trigger_out_of_battle_skill: skill '%s' not unlocked by any companion" % skill_id)
+		result["message"] = "技能未解锁"
+		return result
+
+	# 根据技能类型和场景获取效果
+	var effect: Dictionary = _get_out_of_battle_effect(skill_id, context)
+	if effect.is_empty():
+		print("[CompanionManager] trigger_out_of_battle_skill: no %s effect for skill '%s'" % [context, skill_id])
+		result["message"] = "该技能在当前场景无效"
+		return result
+
+	result["triggered"] = true
+	result["companion_id"] = owner_id
+	result["effect_data"] = effect
+	result["message"] = effect.get("message", "")
+
+	companion_skill_triggered.emit(owner_id, skill_id, context, effect)
+	print("[CompanionManager] Out-of-battle skill triggered: %s (%s) by %s → %s" % [
+		skill_id, context, owner_id, result["message"]
+	])
+
+	return result
+
+
+func _get_out_of_battle_effect(skill_id: String, context: String) -> Dictionary:
+	var all_effects: Dictionary = _build_out_of_battle_effects_map()
+	if not all_effects.has(skill_id):
+		return {}
+	var ctx_effects: Dictionary = all_effects[skill_id]
+	return ctx_effects.get(context, {})
+
+
+func _build_out_of_battle_effects_map() -> Dictionary:
+	return {
+		"skill_snipe_helm": {
+			"sailing": {
+				"message": "珂尔莉发现前方有隐蔽暗礁，及时调整航线！",
+				"effect_type": "avoid_damage",
+				"value": 50
+			},
+			"port": {
+				"message": "珂尔莉在港口打听消息，获得商店情报。",
+				"effect_type": "shop_discount",
+				"value": 10
+			}
+		},
+		"skill_eagle_eye": {
+			"sailing": {
+				"message": "珂尔莉的锐眼发现了隐藏的漂浮物！",
+				"effect_type": "discover_hidden",
+				"value": 1
+			},
+			"exploration": {
+				"message": "珂尔莉发现了一处隐蔽的洞穴入口！",
+				"effect_type": "reveal_area",
+				"value": 1
+			}
+		},
+		"skill_overdrive": {
+			"port": {
+				"message": "铁砧改造了引擎，航行速度提升！",
+				"effect_type": "speed_boost",
+				"value": 20
+			},
+			"sailing": {
+				"message": "铁砧紧急修复了受损管道！",
+				"effect_type": "durability_restore",
+				"value": 30
+			}
+		},
+		"skill_reinforce_hull": {
+			"sailing": {
+				"message": "铁砧提醒：注意前方礁石带！",
+				"effect_type": "durability_warning",
+				"value": 1
+			}
+		},
+		"skill_whale_call": {
+			"sailing": {
+				"message": "深蓝引导鲸群护航，减少了遭遇海盗的概率！",
+				"effect_type": "reduce_pirate_encounter",
+				"value": 30
+			},
+			"exploration": {
+				"message": "深蓝感知到深海中有古老的沉船残骸！",
+				"effect_type": "treasure_hunt",
+				"value": 1
+			}
+		},
+		"skill_deepsonar": {
+			"sailing": {
+				"message": "深蓝的声呐探测到附近的洋流变化。",
+				"effect_type": "current_warning",
+				"value": 1
+			},
+			"exploration": {
+				"message": "深蓝探测到前方有隐藏的洞穴系统！",
+				"effect_type": "reveal_area",
+				"value": 1
+			}
+		}
+	}
 
 # ============================================
 # Companion Info / 伙伴信息

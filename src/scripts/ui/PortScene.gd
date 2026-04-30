@@ -8,6 +8,7 @@ signal open_tavern()
 signal open_bounty_board()
 signal open_shop()
 signal exit_port()
+signal companion_dialogue_requested(companion_id: String)
 
 # 港口配置
 const PORT_NAME = "铁锈湾"
@@ -232,6 +233,11 @@ func _open_tavern() -> void:
     _show_panel(panel, "Tavern")
 
 
+func _on_tavern_pressed() -> void:
+    """酒馆入口按钮回调（供外部按钮调用）"""
+    _open_tavern()
+
+
 func _open_bounty_board() -> void:
     print("[PortScene] Opening BountyBoard...")
     open_bounty_board.emit()
@@ -334,13 +340,13 @@ func _create_tavern_panel() -> Control:
     var panel = Control.new()
     panel.set_anchors_preset(Control.PRESET_FULL_RECT)
     panel.name = "TavernPanel"
-    
+
     # 背景
     var bg = ColorRect.new()
     bg.color = Color(0.08, 0.1, 0.15, 0.97)
     bg.set_anchors_preset(Control.PRESET_FULL_RECT)
     panel.add_child(bg)
-    
+
     # 标题
     var title = Label.new()
     title.text = "🍺 酒馆「沉锚」"
@@ -349,66 +355,98 @@ func _create_tavern_panel() -> Control:
     title.size = Vector2(900, 50)
     title.add_theme_color_override("font_color", Color(0.9, 0.7, 0.4))
     panel.add_child(title)
-    
+
     # 返回按钮
     var back_btn = Button.new()
     back_btn.text = "← 返回港口"
     back_btn.position = Vector2(30, 30)
     back_btn.pressed.connect(_close_active_panel)
     panel.add_child(back_btn)
-    
+
+    # 羁绊面板快捷按钮
+    var bond_btn = Button.new()
+    bond_btn.text = "⚓ 伙伴羁绊"
+    bond_btn.position = Vector2(720, 30)
+    bond_btn.pressed.connect(_open_companion_panel.bind(panel))
+    panel.add_child(bond_btn)
+
     # 招募内容
     var content = VBoxContainer.new()
     content.position = Vector2(100, 100)
     content.size = Vector2(700, 450)
     panel.add_child(content)
-    
+
+    # === 已招募伙伴对话区 ===
+    var recruited_lbl = Label.new()
+    recruited_lbl.text = "—— 已招募伙伴 ——"
+    recruited_lbl.add_theme_color_override("font_color", Color(0.7, 0.7, 0.5))
+    content.add_child(recruited_lbl)
+
+    var recruited = _get_recruited_companions()
+    if recruited.is_empty():
+        var empty_lbl = Label.new()
+        empty_lbl.text = "（酒馆里冷冷清清，先招募些伙伴吧）"
+        empty_lbl.add_theme_color_override("font_color", Color(0.45, 0.45, 0.45))
+        content.add_child(empty_lbl)
+    else:
+        for comp in recruited:
+            var row = HBoxContainer.new()
+            row.custom_minimum_size.y = 44
+
+            var icon_lbl = Label.new()
+            icon_lbl.text = "👤"
+            icon_lbl.custom_minimum_size.x = 40
+            row.add_child(icon_lbl)
+
+            var name_lbl = Label.new()
+            name_lbl.text = "%s [%s]" % [comp.name if "name" in comp else comp.get("name", "?"), comp.species if "species" in comp else comp.get("species", "")]
+            name_lbl.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+            row.add_child(name_lbl)
+
+            # 对话按钮
+            var talk_btn = Button.new()
+            talk_btn.text = "💬 对话"
+            talk_btn.pressed.connect(_on_talk_to_companion.bind(comp))
+            row.add_child(talk_btn)
+
+            content.add_child(row)
+
+    # 空行
+    content.add_child(_make_spacer(16))
+
     # 分割线
     var sep1 = Label.new()
     sep1.text = "—— 伙伴招募 ——"
     sep1.add_theme_color_override("font_color", Color(0.6, 0.6, 0.6))
     content.add_child(sep1)
-    
-    # 已招募伙伴
-    var recruited = _get_recruited_companions()
-    var recruited_lbl = Label.new()
-    if recruited.is_empty():
-        recruited_lbl.text = "已招募: 尚无伙伴"
-        recruited_lbl.add_theme_color_override("font_color", Color(0.5, 0.5, 0.5))
-    else:
-        var names = recruited.map(func(c): return c.name).join(", ")
-        recruited_lbl.text = "已招募: " + names
-    content.add_child(recruited_lbl)
-    
-    # 空行
-    content.add_child(_make_spacer(10))
-    
+
     # 酒馆可招募
     var avail_lbl = Label.new()
     avail_lbl.text = "酒馆中的人物:"
     avail_lbl.add_theme_color_override("font_color", Color(0.7, 0.7, 0.5))
     content.add_child(avail_lbl)
-    
+
     var companions = _load_available_companions()
     for comp in companions:
         var row = HBoxContainer.new()
-        
+        row.custom_minimum_size.y = 36
+
         var icon_lbl = Label.new()
         icon_lbl.text = "👤"
         icon_lbl.custom_minimum_size.x = 40
         row.add_child(icon_lbl)
-        
+
         var name_lbl = Label.new()
-        name_lbl.text = "%s [%s]" % [comp.name, comp.species]
+        name_lbl.text = "%s [%s]" % [comp.name if "name" in comp else "?", comp.species if "species" in comp else ""]
         name_lbl.size_flags_horizontal = Control.SIZE_EXPAND_FILL
         row.add_child(name_lbl)
-        
+
         var desc_lbl = Label.new()
         desc_lbl.text = comp.personality if "personality" in comp else ""
         desc_lbl.modulate = Color(0.6, 0.6, 0.6)
         desc_lbl.custom_minimum_size.x = 200
         row.add_child(desc_lbl)
-        
+
         var recruit_btn = Button.new()
         var is_recruited = comp.get("is_recruited", false)
         if is_recruited:
@@ -418,9 +456,9 @@ func _create_tavern_panel() -> Control:
             recruit_btn.text = "招募"
             recruit_btn.pressed.connect(_on_recruit_companion.bind(comp))
         row.add_child(recruit_btn)
-        
+
         content.add_child(row)
-    
+
     return panel
 
 
@@ -469,11 +507,71 @@ func _on_recruit_companion(comp) -> void:
         comp.set("is_recruited", true)
     if _game_manager and _game_manager.has_method("recruit_companion"):
         _game_manager.recruit_companion(comp)
-    # Auto-save after companion recruitment
-    if SaveManager and SaveManager.has_method("trigger_auto_save"):
-        SaveManager.trigger_auto_save("companion_recruited")
     # 刷新面板
     _close_active_panel()
+
+
+func _on_talk_to_companion(comp) -> void:
+    """与已招募伙伴对话"""
+    var comp_id: String = ""
+    if comp is Dictionary:
+        comp_id = comp.get("companion_id", "")
+    elif comp != null and "companion_id" in comp:
+        comp_id = comp.companion_id
+
+    print("[PortScene] Talk to companion: ", comp_id)
+    companion_dialogue_requested.emit(comp_id)
+
+    # 通过 GameManager 获取 DialogueManager 并开始对话
+    if _game_manager and _game_manager.has_method("start_companion_dialogue"):
+        _game_manager.start_companion_dialogue(comp_id)
+    else:
+        _show_simple_dialogue(comp_id)
+
+
+func _show_simple_dialogue(companion_id: String) -> void:
+    """简化版对话：当 DialogueManager 不可用时"""
+    if not _game_manager:
+        return
+    var comp_info: Dictionary = {}
+    if _game_manager.has_method("get_companion_display_info"):
+        comp_info = _game_manager.get_companion_display_info(companion_id)
+    var name = comp_info.get("name", companion_id)
+    var mood = comp_info.get("mood", "neutral")
+    print("[PortScene] Dialogue with %s (mood: %s)" % [name, mood])
+
+
+func _open_companion_panel(from_panel: Control = null) -> void:
+    """打开伙伴羁绊面板"""
+    print("[PortScene] Opening CompanionPanel...")
+
+    var scene_path = "res://scenes/ui/CompanionPanel.tscn"
+    if not ResourceLoader.exists(scene_path):
+        push_error("[PortScene] CompanionPanel.tscn not found at: " + scene_path)
+        return
+
+    var panel_scene = load(scene_path)
+    var comp_panel = panel_scene.instantiate()
+
+    # 设置伙伴管理器
+    if _game_manager and _game_manager.has_method("get_companion_manager"):
+        var cm = _game_manager.get_companion_manager()
+        comp_panel.set_companion_manager(cm)
+
+    # 连接对话请求信号
+    comp_panel.dialogue_requested.connect(_on_companion_dialogue_requested)
+
+    # 关闭当前面板并显示
+    if from_panel:
+        from_panel.queue_free()
+    _show_panel(comp_panel, "CompanionPanel")
+
+
+func _on_companion_dialogue_requested(companion_id: String) -> void:
+    """伙伴面板请求对话"""
+    print("[PortScene] CompanionPanel requested dialogue: ", companion_id)
+    if _game_manager and _game_manager.has_method("start_companion_dialogue"):
+        _game_manager.start_companion_dialogue(companion_id)
 
 
 # === 赏金公告板面板创建 ===

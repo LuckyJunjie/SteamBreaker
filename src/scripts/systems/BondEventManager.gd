@@ -99,6 +99,34 @@ var _claimed_rewards: Dictionary = {}
 
 ## ---------- 核心API ----------
 
+## 手动触发羁绊事件（对话选项/礼物等场景调用）
+func trigger_bond_event(companion: Companion, event_type: String, event_data: Dictionary = {}) -> Dictionary:
+    """
+    外部调用入口：触发伙伴羁绊事件。
+    event_type: "dialogue_option" | "gift_given" | "quest_complete" | "manual"
+    返回事件结果字典。
+    """
+    var result: Dictionary = {"processed": false, "event_type": event_type}
+
+    match event_type:
+        "gift_given":
+            var affection_delta: int = event_data.get("affection_delta", 0)
+            result = update_affection(companion, affection_delta)
+            result["event_type"] = "gift_given"
+        "dialogue_option":
+            var option_delta: int = event_data.get("affection_delta", 0)
+            result = update_affection(companion, option_delta)
+            result["event_type"] = "dialogue_option"
+        "quest_complete":
+            var quest_id: String = event_data.get("quest_id", "")
+            result = complete_quest(companion, quest_id)
+        "manual":
+            result["processed"] = true
+            result["message"] = "Manual event acknowledged"
+
+    return result
+
+
 ## 更新好感度，自动检测阈值和触发事件
 func update_affection(companion: Companion, delta: int) -> Dictionary:
     var old_level: int = companion.get_bond_level()
