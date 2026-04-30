@@ -32,8 +32,12 @@ const GIFT_DEFINITIONS: Dictionary = {
 }
 
 var _companion_manager = null
+var _dialogue_manager = null
+var _dialogue_box = null
+var _bond_event_manager = null
 var _selected_companion_id: String = ""
 var _companion_buttons: Array[Button] = []
+var _current_dialogue_id: String = ""
 
 # UI节点引用
 var _list_container: VBoxContainer = null
@@ -117,6 +121,29 @@ func set_companion_manager(manager: CompanionManager) -> void:
         _companion_manager.companion_affection_changed.connect(_on_affection_changed)
         _companion_manager.companion_bond_level_up.connect(_on_bond_level_up)
     refresh()
+
+## 设置对话管理器引用
+func set_dialogue_manager(dm: DialogueManager) -> void:
+    if _dialogue_manager:
+        _dialogue_manager.dialogue_started.disconnect(_on_dialogue_started)
+        _dialogue_manager.dialogue_option_selected.disconnect(_on_dialogue_option_selected)
+        _dialogue_manager.dialogue_ended.disconnect(_on_dialogue_finished)
+    _dialogue_manager = dm
+    if _dialogue_manager:
+        _dialogue_manager.dialogue_started.connect(_on_dialogue_started)
+        _dialogue_manager.dialogue_option_selected.connect(_on_dialogue_option_selected)
+        _dialogue_manager.dialogue_ended.connect(_on_dialogue_finished)
+
+## 设置对话框UI引用
+func set_dialogue_box(box: DialogueBox) -> void:
+    _dialogue_box = box
+    if _dialogue_box:
+        _dialogue_box.option_selected.connect(_on_dialogue_option_selected_ui)
+        _dialogue_box.dialogue_ended.connect(_on_dialogue_ui_ended)
+
+## 设置羁绊事件管理器引用
+func set_bond_event_manager(bem: BondEventManager) -> void:
+    _bond_event_manager = bem
 
 
 ## 刷新伙伴列表显示
@@ -401,8 +428,31 @@ func _show_affection_feedback(delta: int) -> void:
 func _on_dialogue_pressed() -> void:
     if _selected_companion_id == "":
         return
-    dialogue_requested.emit(_selected_companion_id)
-    print("[CompanionPanel] Dialogue requested for: ", _selected_companion_id)
+    if not _dialogue_manager:
+        print("[CompanionPanel] No DialogueManager set, emitting fallback signal")
+        dialogue_requested.emit(_selected_companion_id)
+        return
+
+    # 获取 CompanionState
+    var companion_state = _get_companion_state(_selected_companion_id)
+    if not companion_state:
+        print("[CompanionPanel] Could not find CompanionState for: ", _selected_companion_id)
+        return
+
+    # 尝试 bond_talk_{companion_id} 对话，否则用默认对话
+    var dialogue_id: String = "bond_talk_" + _selected_companion_id
+    var data: Dictionary = _dialogue_manager.start_dialogue(companion_state, dialogue_id)
+    _current_dialogue_id = data.get("dialogue_id", dialogue_id)
+
+    print("[CompanionPanel] Started dialogue: ", _current_dialogue_id, " for: ", _selected_companion_id)
+
+
+func _get_companion_state(companion_id: String):
+    if not _companion_manager:
+        return null
+    if _companion_manager.has_method("get_companion_state"):
+        return _companion_manager.get_companion_state(companion_id)
+    return null
 
 
 ## 信号回调
@@ -439,6 +489,101 @@ func _play_select_sound() -> void:
 
 func _play_gift_sound() -> void:
     pass
+
+
+## ---------- 对话系统集成 ----------
+
+func _on_dialogue_started(companion_id: String, dialogue_id: String) -> void:
+    if not _dialogue_manager or not _dialogue_box:
+        return
+    var data: Dictionary = _dialogue_manager.get_current_dialogue()
+    var options: Array = data.get("options", [])
+
+    var portrait_color = _get_companion_portrait_color(companion_id)
+    _dialogue_box.show_dialogue(
+        data.get("speaker_name", "?"),
+        data.get("text", ""),
+        data.get("mood", "neutral"),
+        options,
+        portrait_color
+    )
+
+
+func _on_dialogue_option_selected(companion_id: String, option_index: int, option_text: String) -> void:
+    # 选项被选中后，继续推进下一段对话
+    if not _dialogue_manager or not _dialogue_box:
+        return
+
+    var result: Dictionary = _dialogue_manager.select_option(option_index)
+    if result.get("ended"):
+        return
+
+    var next_data: Dictionary = result.get("next", {})
+    if next_data.is_empty() or not _dialogue_manager.has_active_dialogue():
+        return
+
+    var options: Array = next_data.get("options", [])
+    var portrait_color = _get_companion_portrait_color(companion_id)
+    _dialogue_box.show_dialogue(
+        next_data.get("speaker_name", "?"),
+        next_data.get("text", ""),
+        next_data.get("mood", "neutral"),
+        options,
+        portrait_color
+    )
+
+
+func _on_dialogue_option_selected_ui(option_index: int, option_text: String) -> void:
+    if not _dialogue_manager:
+        return
+    var result: Dictionary = _dialogue_manager.select_option(option_index)
+    if result.get("ended"):
+        return
+
+    var next_data: Dictionary = result.get("next", {})
+    if next_data.is_empty() or not _dialogue_manager.has_active_dialogue():
+        return
+
+    var cid: String = _dialogue_manager.get_current_dialogue().get("companion_id", "")
+    var portrait_color = _get_companion_portrait_color(cid)
+    var options: Array = next_data.get("options", [])
+    _dialogue_box.show_dialogue(
+        next_data.get("speaker_name", "?"),
+        next_data.get("text", ""),
+        next_data.get("mood", "neutral"),
+        options,
+        portrait_color
+    )
+
+
+func _on_dialogue_finished(companion_id: String, dialogue_id: String, affection_delta: int) -> void:
+    # 对话结束，触发羁绊事件检查
+    if _bond_event_manager and affection_delta != 0:
+        var companion_state = _get_companion_state(companion_id)
+        if companion_state:
+            var event_result: Dictionary = _bond_event_manager.trigger_bond_event(
+                companion_state, "dialogue_option", {"affection_delta": affection_delta}
+            )
+            if event_result.get("level_changed"):
+                print("[CompanionPanel] Bond level up for ", companion_id, ": ", event_result)
+    refresh()
+
+
+func _on_dialogue_ui_ended() -> void:
+    # DialogueBox 已关闭，做清理工作
+    print("[CompanionPanel] Dialogue UI ended")
+    refresh()
+
+
+func _get_companion_portrait_color(companion_id: String) -> Color:
+    match companion_id:
+        "companion_keerli":
+            return Color(0.4, 0.6, 0.9)  # 蓝色 - 天空
+        "companion_tiechan":
+            return Color(0.8, 0.5, 0.2)  # 橙褐色 - 机械
+        "companion_shenlan":
+            return Color(0.2, 0.7, 0.8)  # 蓝绿色 - 海洋
+    return Color(0.4, 0.4, 0.5)
 
 
 ## 被动触发：战斗外伙伴技能（航行/港口中触发）

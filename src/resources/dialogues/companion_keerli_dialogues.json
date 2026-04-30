@@ -1,0 +1,12 @@
+{
+    "bond_talk_keerli_sample": [
+        {
+            "speaker": "珂尔莉",
+            "text": "……有事？",
+            "options": [
+                {"text": "想找你聊聊。", "next": "bond_talk_keerli_1", "affection": 1},
+                {"text": "关于天空的事。", "next": "bond_talk_keerli_2", "affection": 1}
+            ]
+        }
+    ]
+}
