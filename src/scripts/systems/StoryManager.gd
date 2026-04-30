@@ -272,9 +272,9 @@ func _load_progress() -> void:
     var json_str := file.get_as_text()
     file.close()
     
-    var result := JSON.parse_string(json_str)
+    var result: Variant = JSON.parse_string(json_str)
     if result and typeof(result) == TYPE_DICTIONARY:
-        apply_save_data(result)
+        apply_save_data(result as Dictionary)
         print("[StoryManager] Progress loaded")
     else:
         print("[StoryManager] Invalid save file format")

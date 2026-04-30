@@ -36,7 +36,7 @@ func _load_bounty_definitions() -> void:
 		if file_name.ends_with(".tres"):
 			var path := BOUNTY_RESOURCE_PATH + file_name
 			var bounty = load(path)
-			if bounty and bounty.has("bounty_id"):
+			if bounty and bounty.get("bounty_id") != null:
 				_all_bounties[bounty.bounty_id] = bounty
 				print("[BountyManager] Loaded bounty: ", bounty.bounty_id)
 		file_name = dir.get_next()
@@ -73,7 +73,7 @@ func _is_bounty_available(bounty) -> bool:
 	if bounty.bounty_id in _active_bounties:
 		return false
 	# 检查剧情条件（通过故事标志）
-	if bounty.has("required_story_flag") and bounty.required_story_flag != "":
+	if bounty.get("required_story_flag") != null and bounty.required_story_flag != "":
 		if not _check_story_flag(bounty.required_story_flag):
 			return false
 	return true
@@ -125,7 +125,7 @@ func check_bounty_kill(defeated_ship_id: String, spawn_location: String) -> bool
 			continue
 		
 		# 检查生成位置是否匹配
-		if bounty.has("spawn_location") and bounty.spawn_location == spawn_location:
+		if bounty.get("spawn_location") != null and bounty.spawn_location == spawn_location:
 			# 检查特殊机制匹配（通过被击败的敌船ID）
 			if _match_bounty_target(bounty, defeated_ship_id):
 				_complete_bounty(bounty)
@@ -160,11 +160,11 @@ func _complete_bounty(bounty) -> void:
 	_completed_bounties[bounty.bounty_id] = record
 	
 	# 发放金币奖励
-	var gold_reward: int = bounty.reward_gold if bounty.has("reward_gold") else 0
+	var gold_reward: int = bounty.reward_gold
 	_player_gold += gold_reward
 	
 	# 发放物品奖励
-	var items_reward: Array = bounty.reward_items if bounty.has("reward_items") else []
+	var items_reward: Array = bounty.reward_items if bounty.reward_items else []
 	for item_id in items_reward:
 		_player_inventory.append(item_id)
 	
@@ -198,7 +198,7 @@ func get_bounty_tracker_hints() -> Array[Dictionary]:
 	var hints: Array[Dictionary] = []
 	for bounty_id in _active_bounties:
 		var bounty = _all_bounties[bounty_id]
-		if bounty and bounty.has("spawn_location"):
+		if bounty and bounty.get("spawn_location") != null:
 			hints.append({
 				"bounty_id": bounty_id,
 				"name": bounty.name,
@@ -238,9 +238,9 @@ func _load_progress() -> void:
 	var json_str := file.get_as_text()
 	file.close()
 	
-	var result := JSON.parse_string(json_str)
+	var result: Variant = JSON.parse_string(json_str)
 	if result and typeof(result) == TYPE_DICTIONARY:
-		var data: Dictionary = result as Dictionary
+		var data: Dictionary = result as Dictionary  # type: ignore
 		_active_bounties = data.get("active_bounties", [])
 		_completed_bounties = data.get("completed_bounties", {})
 		_player_gold = data.get("player_gold", 0)

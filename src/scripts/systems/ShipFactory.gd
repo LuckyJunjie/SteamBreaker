@@ -44,12 +44,12 @@ func apply_loadout(loadout: ShipLoadout) -> void:
 ## ─── 存档接口 ──────────────────────────────────────────────
 func get_save_data() -> Dictionary:
     return {
-		"current_loadout": current_loadout.duplicate_loadout() if current_loadout else null,
-		"ship_name": current_loadout.ship_name if current_loadout else "蒸汽破浪号",
-	}
+        "current_loadout": current_loadout.duplicate_loadout() if current_loadout else null,
+        "ship_name": current_loadout.ship_name if current_loadout else "蒸汽破浪号",
+    }
 
 func apply_save_data(data: Dictionary) -> void:
-	if data.has("current_loadout") and data.current_loadout:
-		apply_loadout(data.current_loadout)
-	if data.has("ship_name") and current_loadout:
-		current_loadout.ship_name = data.ship_name
+    if data.has("current_loadout") and data.current_loadout:
+        apply_loadout(data.current_loadout)
+    if data.has("ship_name") and current_loadout:
+        current_loadout.ship_name = data.ship_name
