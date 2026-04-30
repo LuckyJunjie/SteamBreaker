@@ -56,6 +56,23 @@
 
 **Push状态**: commit a1068c8 已commit，本地已验证，push待网络确认
 
+## Sprint 15 — 内容扩充（2026-04-30 11:03 启动）
+
+**目标**: 新增伙伴+物品系统+赏金扩充
+
+| Task | Agent | 状态 | 产出 |
+|------|-------|------|------|
+| new-companions | apollo | 🔄 执行中 | 贝索船长+磷火资源+对话树 |
+| inventory-system | einstein | 🔄 执行中 | 物品系统+背包+归港烟玉 |
+| new-bounties | athena | 🔄 执行中 | 巡逻舰/雷电龙/深渊者+帝国债券 |
+
+### Subagent Session
+- apollo: `d1e9c2c9`
+- einstein: `41c3adb3`
+- athena: `b056d6ea`
+
+---
+
 ## Sprint 13 — Medium Bug 修复（2026-04-30 10:36 完成）
 
 | Task | Agent | 状态 | 产出 |
