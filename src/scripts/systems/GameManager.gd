@@ -1,5 +1,4 @@
 extends Node
-class_name GameManager
 ## GameManager.gd - 游戏主控制器
 ## 职责：管理当前港口/海域/游戏状态，场景切换，跨系统协调
 

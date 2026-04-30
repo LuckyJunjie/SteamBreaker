@@ -71,7 +71,7 @@ func get_turn_bonus() -> int:
     return 0
 
 # 复制当前配置（用于预览）
-func duplicate() -> ShipLoadout:
+func duplicate(copies_uid: bool = false) -> ShipLoadout:
     var copy: ShipLoadout = ShipLoadout.new()
     copy.ship_name = ship_name
     copy.hull = hull
