@@ -2,7 +2,7 @@ extends Control
 
 # === ShipEditor.gd ===
 # 船只改装界面控制器
-# 职责：显示船只配置、槽位选择、属性预览、安装/卸下部件
+# 职责：显示船只配置、槽位选择、属性预览、安装/卸下部件、购买确认
 
 const SLOT_TYPE_ORDER = ["hull", "boiler", "helm", "weapon", "secondary", "special"]
 const SLOT_TYPE_LABELS = {
@@ -14,9 +14,13 @@ const SLOT_TYPE_LABELS = {
     "special": "特殊装置",
 }
 
+# 拖拽预览尺寸
+const DRAG_PREVIEW_SIZE = 64
+
 signal loadout_changed(loadout: ShipLoadout)
 signal editor_confirmed(loadout: ShipLoadout)
 signal editor_cancelled()
+signal preview_updated(preview: ShipLoadout, diff: Dictionary)
 
 var _current_loadout: ShipLoadout = null
 var _preview_loadout: ShipLoadout = null
@@ -36,12 +40,44 @@ var _drag_slot_type: String = ""
 var _drag_ghost: Label = null
 var _drop_target_slot: String = ""
 
-# 拖拽预览数据
-const DRAG_PREVIEW_SIZE = 64
+# 差价计算（当前 vs 预览）
+var _cost_diff: int = 0
+var _player_gold: int = 0
 
-# === Godot Native Drag 兼容 ===
+# UI节点引用
+var _slots_vbox: VBoxContainer = null
+var _ship_name_label: Label = null
+var _ship_icon_label: Label = null
+var _weight_bar_fill: Panel = null
+var _weight_values_label: Label = null
+var _hp_preview: Label = null
+var _speed_preview: Label = null
+var _turn_preview: Label = null
+var _firepower_preview: Label = null
+var _load_preview: Label = null
+var _confirm_btn: Button = null
+var _cancel_btn: Button = null
+var _gold_label: Label = null
+var _cost_label: Label = null
+var _cost_diff_label: Label = null
+var _message_label: Label = null
+
+# 属性差值显示节点
+var _diff_hp: Label = null
+var _diff_speed: Label = null
+var _diff_turn: Label = null
+var _diff_firepower: Label = null
+var _diff_load: Label = null
+
+# 商店/装备列表（内联面板）
+var _shop_vbox: VBoxContainer = null
+
+
+# ============================================================
+# Godot Native Drag — 装备列表拖拽
+# ============================================================
+
 func _get_drag_data(pos: Vector2) -> Dictionary:
-    # 找到当前鼠标下的控件
     var control = _find_control_at_pos(pos)
     if not control:
         return {}
@@ -50,14 +86,24 @@ func _get_drag_data(pos: Vector2) -> Dictionary:
     var slot_type = control.get_meta("slot_type")
 
     if part:
+        # 跳过当前已安装的装备（不允许拖拽自身）
+        var current = _get_current_part_for_slot(slot_type)
+        if current == part:
+            return {}
+
+        _dragged_part = part
+        _drag_slot_type = slot_type
+
+        # 创建拖拽预览
         var preview = Control.new()
         preview.custom_minimum_size = Vector2(DRAG_PREVIEW_SIZE, 30)
         var bg = ColorRect.new()
-        bg.color = Color(0.2, 0.6, 1.0, 0.8)
+        bg.color = Color(0.2, 0.6, 1.0, 0.85)
         bg.set_anchors_preset(Control.PRESET_FULL_RECT)
         preview.add_child(bg)
         var lbl = Label.new()
         lbl.text = part.part_name
+        lbl.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
         lbl.set_anchors_preset(Control.PRESET_CENTER)
         preview.add_child(lbl)
         set_drag_preview(preview)
@@ -68,16 +114,20 @@ func _get_drag_data(pos: Vector2) -> Dictionary:
 
 
 func _find_control_at_pos(pos: Vector2) -> Control:
-    # pos is local to self; convert to global for rect hit-testing
+    # pos 是 local to self
     if not _slots_vbox:
         return null
-    var global_pos := get_global_transform().affine_inverse().xform(pos)
     for row in _slots_vbox.get_children():
-        if row is Control and row.get_global_rect().has_point(global_pos):
-            # 递归查找有part meta的子控件
+        if row is Control and row.get_global_rect().has_point(get_global_transform().xform(pos)):
             var found = _find_part_meta_in_children(row)
             if found:
                 return found
+    # 也检查商店面板
+    if _shop_vbox:
+        for child in _shop_vbox.get_children():
+            if child is Control and child.has_meta("part"):
+                if child.get_global_rect().has_point(get_global_transform().xform(pos)):
+                    return child
     return null
 
 
@@ -95,7 +145,6 @@ func _find_part_meta_in_children(node: Node) -> Control:
 func _can_drop_data(pos: Vector2, data: Dictionary) -> bool:
     if not data.has("part") or not data.has("slot_type"):
         return false
-    # 找到目标槽位
     var target_slot = _get_slot_at_pos(pos)
     if target_slot == "":
         return false
@@ -107,160 +156,80 @@ func _drop_data(pos: Vector2, data: Dictionary) -> void:
         return
 
     var slot_type = _get_slot_at_pos(pos)
-    if slot_type == data["slot_type"]:
-        _install_part_to_slot(data["part"], slot_type)
-        _refresh_ui()
-    else:
+    if slot_type == "" or slot_type != data["slot_type"]:
         _play_reject_feedback()
+        return
+
+    _install_part_to_slot(data["part"], slot_type)
+    _refresh_ui()
+    _update_cost_diff()
+    preview_updated.emit(_preview_loadout, _calc_diff())
 
 
 func _get_slot_at_pos(pos: Vector2) -> String:
-    # pos is local to self; convert to global for rect hit-testing
+    # pos 是 local to self
     if not _slots_vbox:
         return ""
-    var global_pos := get_global_transform().affine_inverse().xform(pos)
+    var global_pos = get_global_transform().xform(pos)
     for row in _slots_vbox.get_children():
         if row is Control and row.has_meta("slot_type") and row.get_global_rect().has_point(global_pos):
             return row.get_meta("slot_type")
     return ""
 
-# === 拖拽交互 (Godot Native) ===
-func _input(event: InputEvent) -> void:
-    # Godot native drag handles most of this via _get_drag_data, _can_drop_data, _drop_data
-    # 仅处理额外的视觉反馈
-    pass
+
+# ============================================================
+# 右键菜单 — 卸下装备
+# ============================================================
+
+func _gui_input(event: InputEvent) -> void:
+    if event is InputEventMouseButton:
+        if event.button_index == MOUSE_BUTTON_RIGHT and event.pressed:
+            var local_pos = event.position
+            var slot_type = _get_slot_at_pos(local_pos)
+            if slot_type != "":
+                var current = _get_current_part_for_slot(slot_type)
+                if current:
+                    _show_slot_context_menu(slot_type, current, get_global_mouse_position())
 
 
-func _start_drag(part: Resource, slot_type: String) -> void:
-    _dragged_part = part
-    _drag_slot_type = slot_type
-
-    # 创建拖拽预览
-    _drag_preview = Control.new()
-    _drag_preview.custom_minimum_size = Vector2(DRAG_PREVIEW_SIZE, DRAG_PREVIEW_SIZE)
-    var bg = ColorRect.new()
-    bg.color = Color(0.2, 0.6, 1.0, 0.8)
-    bg.set_anchors_preset(Control.PRESET_FULL_RECT)
-    _drag_preview.add_child(bg)
-
-    var lbl = Label.new()
-    lbl.text = part.part_name
-    lbl.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-    lbl.set_anchors_preset(Control.PRESET_CENTER)
-    lbl.position = Vector2(0, DRAG_PREVIEW_SIZE / 2 - 10)
-    _drag_preview.add_child(lbl)
-
-    get_tree().root.add_child(_drag_preview)
-    _drag_preview.z_index = 1000
-
-    # 创建幽灵预览（在槽位上）
-    _drag_ghost = Label.new()
-    _drag_ghost.text = "↔ " + part.part_name
-    _drag_ghost.add_theme_color_override("font_color", Color(0.2, 0.6, 1.0, 0.7))
-    _drag_ghost.background_color = Color(0, 0, 0, 0.5)
-    get_node("/root").add_child(_drag_ghost)
-    _drag_ghost.z_index = 999
-
-    print("[ShipEditor] Started drag: ", part.part_name, " slot:", slot_type)
+func _show_slot_context_menu(slot_type: String, current_part: Resource, screen_pos: Vector2) -> void:
+    var menu = PopupMenu.new()
+    menu.add_item("卸下 %s" % current_part.part_name, SLOT_ACTION_REMOVE)
+    menu.add_item("替换 %s" % current_part.part_name, SLOT_ACTION_REPLACE)
+    menu.id_pressed.connect(_on_slot_menu_id_pressed.bind(slot_type))
+    add_child(menu)
+    menu.position = screen_pos
+    menu.popup()
 
 
-func _update_drag_preview(mouse_pos: Vector2) -> void:
-    if _drag_preview:
-        _drag_preview.position = mouse_pos - Vector2(DRAG_PREVIEW_SIZE / 2, DRAG_PREVIEW_SIZE / 2)
-
-    # 检测当前悬停的槽位
-    _drop_target_slot = ""
-    if _slots_vbox:
-        for row in _slots_vbox.get_children():
-            if row is Control and row.get_global_rect().has_point(mouse_pos):
-                # 从row的元数据或子控件获取slot_type
-                if row.has_meta("slot_type"):
-                    _drop_target_slot = row.get_meta("slot_type")
-                break
-
-    # 更新幽灵预览
-    if _drag_ghost:
-        var slot_rect = _get_slot_rect(_drop_target_slot)
-        if slot_rect != Rect2(-1, -1, 0, 0):
-            _drag_ghost.position = slot_rect.position
-            _drag_ghost.visible = true
-        else:
-            _drag_ghost.visible = false
+enum SLOT_ACTION { SLOT_ACTION_REMOVE = 1, SLOT_ACTION_REPLACE = 2 }
 
 
-func _get_slot_rect(slot_type: String) -> Rect2:
-    if not _slots_vbox:
-        return Rect2(-1, -1, 0, 0)
-    var idx = SLOT_TYPE_ORDER.find(slot_type)
-    if idx < 0 or idx >= _slots_vbox.get_child_count():
-        return Rect2(-1, -1, 0, 0)
-    var row = _slots_vbox.get_child(idx)
-    if row:
-        return row.get_global_rect()
-    return Rect2(-1, -1, 0, 0)
+func _on_slot_menu_id_pressed(id: int, slot_type: String) -> void:
+    match id:
+        SLOT_ACTION.SLOT_ACTION_REMOVE:
+            _remove_part_from_slot(slot_type)
+            _refresh_ui()
+            _update_cost_diff()
+            preview_updated.emit(_preview_loadout, _calc_diff())
+        SLOT_ACTION.SLOT_ACTION_REPLACE:
+            _show_part_picker(slot_type)
 
 
-func _finish_drag(mouse_pos: Vector2) -> void:
-    if not _dragged_part:
-        return
-
-    print("[ShipEditor] Finish drag at slot: ", _drop_target_slot)
-
-    if _drop_target_slot != "" and _drop_target_slot == _drag_slot_type:
-        # 有效放置
-        _install_part_to_slot(_dragged_part, _drop_target_slot)
-        _refresh_ui()
-    else:
-        # 无效放置，回弹效果
-        _play_reject_feedback()
-
-    _cleanup_drag()
-
-
-func _play_reject_feedback() -> void:
-    # 简单的红色闪烁反馈
-    if _slots_vbox:
-        var tween = create_tween()
-        var original_color = Color(1, 0, 0, 0.1)
-        var flash_color = Color(1, 0, 0, 0.4)
-        for i in range(3):
-            tween.tween_property(_slots_vbox, "modulate", flash_color, 0.1)
-            tween.tween_property(_slots_vbox, "modulate", original_color, 0.1)
-        tween.play()
-
-
-func _cleanup_drag() -> void:
-    if _drag_preview:
-        _drag_preview.queue_free()
-        _drag_preview = null
-    if _drag_ghost:
-        _drag_ghost.queue_free()
-        _drag_ghost = null
-    _dragged_part = null
-    _drag_slot_type = ""
-    _drop_target_slot = ""
-
-# 槽位UI引用
-var _slots_vbox: VBoxContainer = null
-var _ship_name_label: Label = null
-var _ship_icon_label: Label = null
-var _weight_bar_fill: Panel = null
-var _weight_values_label: Label = null
-var _hp_preview: Label = null
-var _speed_preview: Label = null
-var _turn_preview: Label = null
-var _confirm_btn: Button = null
-var _cancel_btn: Button = null
-
+# ============================================================
+# 初始化
+# ============================================================
 
 func _ready() -> void:
     print("[ShipEditor] Ready")
     _find_nodes()
     _connect_signals()
     _scan_available_parts()
+    _load_player_gold()
     if _current_loadout:
         _preview_loadout = _current_loadout.duplicate()
         _refresh_ui()
+        _update_cost_diff()
 
 
 func _find_nodes() -> void:
@@ -275,6 +244,35 @@ func _find_nodes() -> void:
     _confirm_btn = $BottomPanel/StatsMargin/StatsHBox/ButtonsSection/ConfirmBtn
     _cancel_btn = $BottomPanel/StatsMargin/StatsHBox/ButtonsSection/CancelBtn
 
+    # 新增节点（通过路径或递归查找）
+    _gold_label = $BottomPanel/StatsMargin/StatsHBox/GoldSection/GoldLabel
+    _cost_label = $BottomPanel/StatsMargin/StatsHBox/GoldSection/CostLabel
+    _cost_diff_label = $BottomPanel/StatsMargin/StatsHBox/GoldSection/CostDiffLabel
+    _message_label = $BottomPanel/StatsMargin/StatsHBox/GoldSection/MessageLabel
+
+    _diff_hp = _find_child_recursive($HSplit, "DiffHP")
+    _diff_speed = _find_child_recursive($HSplit, "DiffSpeed")
+    _diff_turn = _find_child_recursive($HSplit, "DiffTurn")
+    _diff_firepower = _find_child_recursive($HSplit, "DiffFirepower")
+    _diff_load = _find_child_recursive($HSplit, "DiffLoad")
+    _firepower_preview = _find_child_recursive($BottomPanel, "FirepowerPreview")
+    _load_preview = _find_child_recursive($BottomPanel, "LoadPreview")
+    _shop_vbox = _find_child_recursive($HSplit, "ShopVBox")
+
+    print("[ShipEditor] Nodes found: slots=%s confirm=%s gold=%s" % [_slots_vbox, _confirm_btn, _gold_label])
+
+
+func _find_child_recursive(node: Node, name: String) -> Node:
+    if not node:
+        return null
+    if node.name == name:
+        return node
+    for child in node.get_children():
+        var found = _find_child_recursive(child, name)
+        if found:
+            return found
+    return null
+
 
 func _connect_signals() -> void:
     if _confirm_btn:
@@ -283,7 +281,14 @@ func _connect_signals() -> void:
         _cancel_btn.pressed.connect(_on_cancel_pressed)
 
 
-# 公开方法：设置当前船只配置
+func _load_player_gold() -> void:
+    _player_gold = GameState.gold if GameState else 0
+
+
+# ============================================================
+# 公开 API
+# ============================================================
+
 func set_loadout(loadout: ShipLoadout) -> void:
     _current_loadout = loadout
     if loadout:
@@ -291,13 +296,17 @@ func set_loadout(loadout: ShipLoadout) -> void:
     else:
         _preview_loadout = ShipLoadout.new()
     _refresh_ui()
+    _update_cost_diff()
 
 
 func get_loadout() -> ShipLoadout:
     return _preview_loadout
 
 
-# 扫描所有可用部件
+# ============================================================
+# 部件扫描
+# ============================================================
+
 func _scan_available_parts() -> void:
     var parts_dir = "res://resources/parts/"
     var dir = DirAccess.open(parts_dir)
@@ -314,29 +323,32 @@ func _scan_available_parts() -> void:
                 var pt: String = res.part_type
                 if pt in _all_parts:
                     _all_parts[pt].append(res)
-                    print("[ShipEditor] Loaded part: ", res.part_name, " (", pt, ")")
+                    print("[ShipEditor] Loaded part: ", res.part_name, " (", pt, ") price=", res.price)
         file_name = dir.get_next()
     dir.list_dir_end()
 
 
-# 刷新整个UI
+# ============================================================
+# UI 刷新
+# ============================================================
+
 func _refresh_ui() -> void:
     if not _preview_loadout:
         return
     _update_ship_preview()
     _update_slots_list()
     _update_stats()
+    _update_shop_list()
+    _update_diff_display()
     loadout_changed.emit(_preview_loadout)
 
 
-# 更新船只预览区
 func _update_ship_preview() -> void:
     if _ship_name_label:
         _ship_name_label.text = _preview_loadout.ship_name
-    # 根据船体类型显示不同图标
     var icon = "⚓"
     if _preview_loadout.hull:
-        var ht = _preview_loadout.hull.hull_type.to_lower()
+        var ht = _preview_loadout.hull.hull_type.to_lower() if "hull_type" in _preview_loadout.hull else ""
         if "scout" in ht or "侦察" in _preview_loadout.hull.part_name:
             icon = "🚤"
         elif "ironclad" in ht or "铁甲" in _preview_loadout.hull.part_name:
@@ -347,16 +359,13 @@ func _update_ship_preview() -> void:
         _ship_icon_label.text = icon
 
 
-# 更新槽位列表
 func _update_slots_list() -> void:
     if not _slots_vbox:
         return
 
-    # 清除旧槽位
     for child in _slots_vbox.get_children():
         child.queue_free()
 
-    # 生成槽位行
     for slot_type in SLOT_TYPE_LABELS:
         var parts_for_slot = _get_parts_for_slot(slot_type)
         var current_part = _get_current_part_for_slot(slot_type)
@@ -364,8 +373,6 @@ func _update_slots_list() -> void:
 
 
 func _get_parts_for_slot(slot_type: String) -> Array:
-    if slot_type in ["weapon", "secondary", "special"]:
-        return _all_parts.get(slot_type, [])
     return _all_parts.get(slot_type, [])
 
 
@@ -393,18 +400,16 @@ func _create_slot_row(slot_type: String, label: String, current_part: Resource, 
     row.custom_minimum_size.y = 44
     row.size_flags_horizontal = Control.SIZE_EXPAND_FILL
     row.set_meta("slot_type", slot_type)
-
-    # 启用拖拽接收
     row.gui_drag_highlight = true
 
-    # 槽位名称
+    # 槽位标签
     var lbl = Label.new()
     lbl.text = label
     lbl.custom_minimum_size.x = 80
     lbl.size_flags_horizontal = Control.SIZE_SHRINK_BEGIN
     row.add_child(lbl)
 
-    # 当前部件显示（可拖拽）
+    # 当前部件（可拖拽）
     var current_lbl = Label.new()
     if current_part:
         current_lbl.text = current_part.part_name + " [%.0fkg]" % current_part.weight
@@ -413,8 +418,10 @@ func _create_slot_row(slot_type: String, label: String, current_part: Resource, 
     else:
         current_lbl.text = "(空)"
         current_lbl.modulate = Color(0.6, 0.6, 0.6)
+        current_lbl.set_meta("slot_type", slot_type)
     current_lbl.size_flags_horizontal = Control.SIZE_EXPAND_FILL
     current_lbl.draggable = true
+    current_lbl.gui_event.connect(_on_current_part_gui_event.bind(slot_type, current_lbl))
     row.add_child(current_lbl)
 
     # 选择按钮
@@ -423,7 +430,7 @@ func _create_slot_row(slot_type: String, label: String, current_part: Resource, 
     select_btn.pressed.connect(_on_slot_select_pressed.bind(slot_type, current_part))
     row.add_child(select_btn)
 
-    # 卸下按钮（如果有部件）
+    # 卸下按钮（仅当有部件时）
     if current_part:
         var remove_btn = Button.new()
         remove_btn.text = "卸下"
@@ -433,8 +440,96 @@ func _create_slot_row(slot_type: String, label: String, current_part: Resource, 
     _slots_vbox.add_child(row)
 
 
+func _on_current_part_gui_event(event: InputEvent, slot_type: String, label: Label) -> void:
+    # 右键点击当前装备打开菜单
+    if event is InputEventMouseButton:
+        if event.button_index == MOUSE_BUTTON_RIGHT and event.pressed:
+            var part = label.get_meta("part") if label.has_meta("part") else null
+            if part:
+                _show_slot_context_menu(slot_type, part, get_global_mouse_position())
+
+
+# ============================================================
+# 商店/装备列表（内联面板）
+# ============================================================
+
+func _update_shop_list() -> void:
+    if not _shop_vbox:
+        return
+
+    for child in _shop_vbox.get_children():
+        child.queue_free()
+
+    var title = Label.new()
+    title.text = "可用装备"
+    title.add_theme_color_override("font_color", Color(0.8, 0.7, 0.5))
+    _shop_vbox.add_child(title)
+
+    for slot_type in SLOT_TYPE_LABELS:
+        var parts = _get_parts_for_slot(slot_type)
+        if parts.is_empty():
+            continue
+
+        var slot_header = Label.new()
+        slot_header.text = "—— %s ——" % SLOT_TYPE_LABELS[slot_type]
+        slot_header.add_theme_color_override("font_color", Color(0.5, 0.5, 0.5))
+        slot_header.custom_minimum_size.y = 20
+        _shop_vbox.add_child(slot_header)
+
+        for part in parts:
+            var row = _create_shop_part_row(part, slot_type)
+            _shop_vbox.add_child(row)
+
+
+func _create_shop_part_row(part: Resource, slot_type: String) -> HBoxContainer:
+    var row = HBoxContainer.new()
+    row.custom_minimum_size.y = 36
+    row.set_meta("part", part)
+    row.set_meta("slot_type", slot_type)
+    row.draggable = true
+
+    var name_lbl = Label.new()
+    name_lbl.text = part.part_name
+    name_lbl.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+    name_lbl.draggable = true
+    name_lbl.set_meta("part", part)
+    name_lbl.set_meta("slot_type", slot_type)
+    row.add_child(name_lbl)
+
+    var weight_lbl = Label.new()
+    weight_lbl.text = "%.0fkg" % part.weight
+    weight_lbl.custom_minimum_size.x = 60
+    weight_lbl.modulate = Color(0.6, 0.6, 0.6)
+    row.add_child(weight_lbl)
+
+    var price_lbl = Label.new()
+    var price: int = part.price if "price" in part else 0
+    price_lbl.text = "%d金" % price
+    price_lbl.custom_minimum_size.x = 80
+    price_lbl.modulate = Color(1.0, 0.85, 0.3)
+    row.add_child(price_lbl)
+
+    var install_btn = Button.new()
+    install_btn.text = "装上"
+    install_btn.pressed.connect(_on_shop_install_pressed.bind(part, slot_type))
+    row.add_child(install_btn)
+
+    return row
+
+
+func _on_shop_install_pressed(part: Resource, slot_type: String) -> void:
+    _install_part_to_slot(part, slot_type)
+    _refresh_ui()
+    _update_cost_diff()
+    preview_updated.emit(_preview_loadout, _calc_diff())
+
+
+# ============================================================
+# 部件安装 / 卸下
+# ============================================================
+
 func _on_slot_select_pressed(slot_type: String, current_part: Resource) -> void:
-    print("[ShipEditor] Select slot: ", slot_type, " current: ", current_part)
+    print("[ShipEditor] Select slot: ", slot_type)
     _show_part_picker(slot_type)
 
 
@@ -442,9 +537,10 @@ func _on_slot_remove_pressed(slot_type: String) -> void:
     print("[ShipEditor] Remove from slot: ", slot_type)
     _remove_part_from_slot(slot_type)
     _refresh_ui()
+    _update_cost_diff()
+    preview_updated.emit(_preview_loadout, _calc_diff())
 
 
-# 部件选择面板（内联实现，弹出式）
 func _show_part_picker(slot_type: String) -> void:
     var picker = PartPickerPopup.new()
     picker.part_type = slot_type
@@ -458,6 +554,8 @@ func _on_part_selected(part: Resource, slot_type: String) -> void:
     print("[ShipEditor] Part selected: ", part.part_name, " for slot: ", slot_type)
     _install_part_to_slot(part, slot_type)
     _refresh_ui()
+    _update_cost_diff()
+    preview_updated.emit(_preview_loadout, _calc_diff())
 
 
 func _install_part_to_slot(part: Resource, slot_type: String) -> void:
@@ -487,9 +585,8 @@ func _install_part_to_slot(part: Resource, slot_type: String) -> void:
             else:
                 _preview_loadout.special_devices[0] = part as ShipSpecial
 
-    # 验证重量超载警告
     if _preview_loadout.is_overloaded():
-        print("[ShipEditor] WARNING: Ship is overloaded! ", _preview_loadout.get_weight_ratio())
+        print("[ShipEditor] WARNING: Ship is overloaded! ratio=%.2f" % _preview_loadout.get_weight_ratio())
 
 
 func _remove_part_from_slot(slot_type: String) -> void:
@@ -514,38 +611,34 @@ func _remove_part_from_slot(slot_type: String) -> void:
                 _preview_loadout.special_devices[0] = null
 
 
-# 更新属性统计显示
+# ============================================================
+# 属性统计 & 差值高亮
+# ============================================================
+
 func _update_stats() -> void:
     if not _preview_loadout:
         return
 
     var total_weight = _preview_loadout.get_total_weight()
     var cargo_cap = _preview_loadout.get_cargo_capacity()
-    var ratio = cargo_cap / max(cargo_cap, 1.0)  # avoid div0
 
-    # 重量进度条
     if _weight_values_label:
         _weight_values_label.text = "%.0f / %.0f kg" % [total_weight, cargo_cap]
 
     if _weight_bar_fill:
         var fill_ratio = mini(total_weight / max(cargo_cap, 1.0), 1.5)
-        # 用anchor_right控制填充宽度
         _weight_bar_fill.anchor_right = clamp(fill_ratio, 0.0, 1.0)
-        # 超载时变红
         if _preview_loadout.is_overloaded():
             _weight_bar_fill.modulate = Color(1.0, 0.2, 0.2)
         else:
             _weight_bar_fill.modulate = Color(0.3, 0.8, 0.3)
 
-    # HP预览
+    # HP
     var max_hp = _preview_loadout.get_max_hp()
-    var hp_str = "耐久: %d" % max_hp
-    if _preview_loadout.current_hp > 0:
-        hp_str += " (当前: %d)" % _preview_loadout.current_hp
     if _hp_preview:
-        _hp_preview.text = hp_str
+        _hp_preview.text = "耐久: %d" % max_hp
 
-    # 航速预览
+    # 航速
     var speed_bonus = _preview_loadout.get_speed_bonus()
     var speed_str = "航速: +%d" % speed_bonus
     if _preview_loadout.is_overloaded():
@@ -553,18 +646,187 @@ func _update_stats() -> void:
     if _speed_preview:
         _speed_preview.text = speed_str
 
-    # 转向预览
+    # 转向
     var turn_bonus = _preview_loadout.get_turn_bonus()
     if _turn_preview:
         _turn_preview.text = "转向: +%d" % turn_bonus
 
+    # 火力
+    var firepower = _calc_firepower(_preview_loadout)
+    if _firepower_preview:
+        _firepower_preview.text = "火力: %d" % firepower
 
-# === 按钮回调 ===
+    # 载重
+    if _load_preview:
+        _load_preview.text = "载重: %.0f/%.0f" % [total_weight, cargo_cap]
+
+
+func _update_diff_display() -> void:
+    if not _current_loadout:
+        return
+
+    var diff = _calc_diff()
+
+    _set_diff_label(_diff_hp, diff.get("hp", 0))
+    _set_diff_label(_diff_speed, diff.get("speed", 0))
+    _set_diff_label(_diff_turn, diff.get("turn", 0))
+    _set_diff_label(_diff_firepower, diff.get("firepower", 0))
+    _set_diff_label(_diff_load, diff.get("load", 0.0))
+
+
+func _set_diff_label(lbl: Label, delta: Variant) -> void:
+    if not lbl:
+        return
+    if delta is float:
+        var d: float = delta as float
+        if absf(d) < 0.01:
+            lbl.text = ""
+            lbl.modulate = Color(1, 1, 1)
+        elif d > 0:
+            lbl.text = "+%.0fkg" % d
+            lbl.modulate = Color(1.0, 0.3, 0.3)  # 红色：更重
+        else:
+            lbl.text = "%.0fkg" % d
+            lbl.modulate = Color(0.3, 1.0, 0.4)  # 绿色：更轻
+    else:
+        var d: int = delta as int
+        if d == 0:
+            lbl.text = ""
+            lbl.modulate = Color(1, 1, 1)
+        elif d > 0:
+            lbl.text = "+%d" % d
+            lbl.modulate = Color(0.3, 1.0, 0.4)  # 绿色：提升
+        else:
+            lbl.text = "%d" % d
+            lbl.modulate = Color(1.0, 0.3, 0.3)  # 红色：下降
+
+
+# ============================================================
+# 差价计算
+# ============================================================
+
+func _calc_diff() -> Dictionary:
+    if not _current_loadout:
+        return {"hp": 0, "speed": 0, "turn": 0, "firepower": 0, "load": 0.0}
+
+    return {
+        "hp": _preview_loadout.get_max_hp() - _current_loadout.get_max_hp(),
+        "speed": _preview_loadout.get_speed_bonus() - _current_loadout.get_speed_bonus(),
+        "turn": _preview_loadout.get_turn_bonus() - _current_loadout.get_turn_bonus(),
+        "firepower": _calc_firepower(_preview_loadout) - _calc_firepower(_current_loadout),
+        "load": _preview_loadout.get_total_weight() - _current_loadout.get_total_weight(),
+    }
+
+
+func _calc_firepower(loadout: ShipLoadout) -> int:
+    var total: int = 0
+    for w in loadout.main_weapons:
+        if w and "firepower" in w:
+            total += w.firepower as int
+    for s in loadout.secondary_weapons:
+        if s and "firepower" in s:
+            total += (s.firepower as int) / 2
+    return total
+
+
+func _update_cost_diff() -> void:
+    _cost_diff = calculate_cost_diff()
+
+    if _cost_label:
+        if _cost_diff > 0:
+            _cost_label.text = "需支付: %d 金" % _cost_diff
+            _cost_label.add_theme_color_override("font_color", Color(1.0, 0.6, 0.2))
+        elif _cost_diff < 0:
+            _cost_label.text = "可回收: %d 金" % (-_cost_diff)
+            _cost_label.add_theme_color_override("font_color", Color(0.4, 1.0, 0.4))
+        else:
+            _cost_label.text = "无需费用"
+            _cost_label.add_theme_color_override("font_color", Color(0.6, 0.6, 0.6))
+
+    if _gold_label:
+        _gold_label.text = "持有: %d 金" % _player_gold
+
+    # 检查金币是否足够
+    var can_afford = _cost_diff <= _player_gold
+    if _message_label:
+        if _cost_diff > _player_gold:
+            _message_label.text = "⚠️ 金币不足！"
+            _message_label.add_theme_color_override("font_color", Color(1.0, 0.2, 0.2))
+        else:
+            _message_label.text = ""
+    if _confirm_btn:
+        _confirm_btn.disabled = not can_afford
+
+    # 差值颜色
+    if _cost_diff_label:
+        if _cost_diff > 0:
+            _cost_diff_label.text = "+%d" % _cost_diff
+            _cost_diff_label.add_theme_color_override("font_color", Color(1.0, 0.5, 0.2))
+        elif _cost_diff < 0:
+            _cost_diff_label.text = "%d" % _cost_diff
+            _cost_diff_label.add_theme_color_override("font_color", Color(0.3, 1.0, 0.4))
+        else:
+            _cost_diff_label.text = "±0"
+
+
+func calculate_cost_diff() -> int:
+    if not _current_loadout:
+        return 0
+    return _calc_total_parts_cost(_preview_loadout) - _calc_total_parts_cost(_current_loadout)
+
+
+func _calc_total_parts_cost(loadout: ShipLoadout) -> int:
+    var total: int = 0
+    if loadout.hull and "price" in loadout.hull:
+        total += loadout.hull.price as int
+    if loadout.boiler and "price" in loadout.boiler:
+        total += loadout.boiler.price as int
+    if loadout.helm and "price" in loadout.helm:
+        total += loadout.helm.price as int
+    for w in loadout.main_weapons:
+        if w and "price" in w:
+            total += w.price as int
+    for s in loadout.secondary_weapons:
+        if s and "price" in s:
+            total += s.price as int
+    for sp in loadout.special_devices:
+        if sp and "price" in sp:
+            total += sp.price as int
+    return total
+
+
+# ============================================================
+# 确认 / 取消
+# ============================================================
+
 func _on_confirm_pressed() -> void:
-    print("[ShipEditor] Confirmed. Loadout: ", _preview_loadout)
-    if SaveManager and SaveManager.has_method("trigger_auto_save"):
-        SaveManager.trigger_auto_save("ship_upgrade")
+    # 最终金币检查
+    if _cost_diff > _player_gold:
+        _show_message("金币不足，无法完成改装！")
+        return
+
+    # 扣除金币
+    if _cost_diff > 0:
+        if not GameState.spend_gold(_cost_diff):
+            _show_message("金币扣除失败！")
+            return
+        _player_gold = GameState.gold
+
+    # 应用改装到 GameState.player_ship
+    if GameState and GameState.player_ship:
+        GameState.player_ship.apply_loadout(_preview_loadout)
+    elif _current_loadout:
+        _current_loadout = _preview_loadout.duplicate()
+
+    # 同时通知 ShipFactory
+    var ship_factory = get_tree().root.find_child("ShipFactory", false, false)
+    if ship_factory and ship_factory.has_method("apply_loadout"):
+        ship_factory.apply_loadout(_preview_loadout)
+
+    print("[ShipEditor] Confirmed! Cost diff: %d, remaining gold: %d" % [_cost_diff, _player_gold])
     editor_confirmed.emit(_preview_loadout)
+    loadout_changed.emit(_preview_loadout)
+    _show_message("改装完成！")
 
 
 func _on_cancel_pressed() -> void:
@@ -572,7 +834,32 @@ func _on_cancel_pressed() -> void:
     editor_cancelled.emit()
 
 
-# === 内嵌弹窗：部件选择器 ===
+func _show_message(msg: String) -> void:
+    if _message_label:
+        _message_label.text = msg
+    else:
+        print("[ShipEditor] Message: ", msg)
+
+
+# ============================================================
+# 拒绝反馈
+# ============================================================
+
+func _play_reject_feedback() -> void:
+    if _slots_vbox:
+        var tween = create_tween()
+        var flash = Color(1, 0, 0, 0.4)
+        var normal = Color(1, 1, 1, 1)
+        for i in range(3):
+            tween.tween_property(_slots_vbox, "modulate", flash, 0.1)
+            tween.tween_property(_slots_vbox, "modulate", normal, 0.1)
+        tween.play()
+
+
+# ============================================================
+# 内嵌弹窗：部件选择器
+# ============================================================
+
 class PartPickerPopup extends PopupPanel:
     var part_type: String = ""
     var available_parts: Array = []
@@ -602,7 +889,8 @@ class PartPickerPopup extends PopupPanel:
 
         for part in available_parts:
             var btn = Button.new()
-            btn.text = "%s [%.0fkg] - %d金" % [part.part_name, part.weight, part.price]
+            var price: int = part.price if "price" in part else 0
+            btn.text = "%s [%.0fkg] - %d金" % [part.part_name, part.weight, price]
             btn.pressed.connect(_on_part_btn_pressed.bind(part))
             list.add_child(btn)
 

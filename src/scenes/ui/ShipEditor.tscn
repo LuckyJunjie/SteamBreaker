@@ -156,6 +156,50 @@ text = "航速: ---"
 layout_mode = 2
 text = "转向: ---"
 
+[node name="StatsSection" type="VBoxContainer" parent="BottomPanel/StatsMargin/StatsHBox"]
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="HPPreview" type="Label" parent="BottomPanel/StatsMargin/StatsHBox/StatsSection"]
+layout_mode = 2
+text = "耐久: ---"
+
+[node name="SpeedPreview" type="Label" parent="BottomPanel/StatsMargin/StatsHBox/StatsSection"]
+layout_mode = 2
+text = "航速: ---"
+
+[node name="TurnPreview" type="Label" parent="BottomPanel/StatsMargin/StatsHBox/StatsSection"]
+layout_mode = 2
+text = "转向: ---"
+
+[node name="FirepowerPreview" type="Label" parent="BottomPanel/StatsMargin/StatsHBox/StatsSection"]
+layout_mode = 2
+text = "火力: ---"
+
+[node name="LoadPreview" type="Label" parent="BottomPanel/StatsMargin/StatsHBox/StatsSection"]
+layout_mode = 2
+text = "载重: ---"
+
+[node name="GoldSection" type="VBoxContainer" parent="BottomPanel/StatsMargin/StatsHBox"]
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="GoldLabel" type="Label" parent="BottomPanel/StatsMargin/StatsHBox/GoldSection"]
+layout_mode = 2
+text = "持有: --- 金"
+
+[node name="CostLabel" type="Label" parent="BottomPanel/StatsMargin/StatsHBox/GoldSection"]
+layout_mode = 2
+text = "改装费用: ---"
+
+[node name="CostDiffLabel" type="Label" parent="BottomPanel/StatsMargin/StatsHBox/GoldSection"]
+layout_mode = 2
+text = ""
+
+[node name="MessageLabel" type="Label" parent="BottomPanel/StatsMargin/StatsHBox/GoldSection"]
+layout_mode = 2
+text = ""
+
 [node name="ButtonsSection" type="HBoxContainer" parent="BottomPanel/StatsMargin/StatsHBox"]
 layout_mode = 2
 size_flags_horizontal = 4
@@ -167,3 +211,41 @@ text = "确认改装"
 [node name="CancelBtn" type="Button" parent="BottomPanel/StatsMargin/StatsHBox/ButtonsSection"]
 layout_mode = 2
 text = "取消"
+
+# === 左侧面板：属性差值显示 ===
+[node name="DiffPanel" type="VBoxContainer" parent="HSplit/LeftPanel/PreviewArea"]
+layout_mode = 2
+
+[node name="DiffTitle" type="Label" parent="HSplit/LeftPanel/PreviewArea/DiffPanel"]
+layout_mode = 2
+text = "属性变化"
+
+[node name="DiffHP" type="Label" parent="HSplit/LeftPanel/PreviewArea/DiffPanel"]
+layout_mode = 2
+text = ""
+
+[node name="DiffSpeed" type="Label" parent="HSplit/LeftPanel/PreviewArea/DiffPanel"]
+layout_mode = 2
+text = ""
+
+[node name="DiffTurn" type="Label" parent="HSplit/LeftPanel/PreviewArea/DiffPanel"]
+layout_mode = 2
+text = ""
+
+[node name="DiffFirepower" type="Label" parent="HSplit/LeftPanel/PreviewArea/DiffPanel"]
+layout_mode = 2
+text = ""
+
+[node name="DiffLoad" type="Label" parent="HSplit/LeftPanel/PreviewArea/DiffPanel"]
+layout_mode = 2
+text = ""
+
+# === 右侧面板：商店/装备列表 ===
+[node name="ShopScroll" type="ScrollContainer" parent="HSplit/RightPanel"]
+layout_mode = 2
+size_flags_horizontal = 3
+horizontal_scroll_mode = 0
+
+[node name="ShopVBox" type="VBoxContainer" parent="HSplit/RightPanel/ShopScroll"]
+layout_mode = 2
+size_flags_horizontal = 3
