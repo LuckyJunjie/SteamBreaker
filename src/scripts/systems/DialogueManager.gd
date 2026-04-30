@@ -31,6 +31,14 @@ func _ready() -> void:
 
 
 ## 尝试从 JSON 文件加载对话树
+## JSON 格式示例:
+## {
+##   "bond_talk_xxx": [
+##     {"speaker": "角色名", "text": "...", "mood": "neutral",
+##      "options": [{"text": "...", "next": "next_id", "affection": 2}]}
+##   ]
+## }
+## 字段映射: speaker→speaker_name, next→next_dialogue, affection→affection_delta
 func _load_dialogue_trees_from_files() -> void:
     var base_path: String = "res://src/resources/dialogues/"
     var companion_ids: Array[String] = ["companion_keerli", "companion_tiechan", "companion_beisuo", "companion_linhuo", "companion_shenlan"]
@@ -43,8 +51,78 @@ func _load_dialogue_trees_from_files() -> void:
             if json_data.parse(json_text) == OK:
                 var parsed: Dictionary = json_data.get_data()
                 if parsed is Dictionary:
-                    _merge_dialogue_tree(parsed)
+                    _load_json_dialogue_tree(parsed, cid)
                     print("[DialogueManager] Loaded dialogue tree from: ", file_path)
+
+
+## 加载并转换 JSON 对话树到内部格式
+func _load_json_dialogue_tree(data: Dictionary, companion_id: String) -> void:
+    for top_key in data.keys():
+        var entries: Variant = data[top_key]
+        if entries is Array:
+            # 数组格式: 每个元素是一个对话节点
+            # 第一个元素的 options 指向子节点，子节点在同文件的独立 key 中定义
+            # 也支持整个数组作为一个对话节点（单节点对话链）
+            for i in range(entries.size()):
+                var entry: Dictionary = entries[i]
+                if entry is Dictionary:
+                    var normalized: Dictionary = _normalize_dialogue_entry(entry, companion_id, top_key)
+                    # 使用 entry 中的 next 引用作为 key（如果存在）
+                    # 否则使用 top_key + 序号
+                    var entry_key: String
+                    if i == 0 and entries.size() == 1:
+                        # 只有一个元素：直接用 top_key 作为 dialogue_id
+                        entry_key = top_key
+                    elif i == 0:
+                        # 第一个元素：作为入口，用 top_key
+                        entry_key = top_key
+                    else:
+                        # 后续元素：优先用 next 引用作为 key，否则用 top_key + _N
+                        var next_ref: String = str(entry.get("next", ""))
+                        entry_key = next_ref if next_ref != "" and next_ref != "end" else (top_key + "_" + str(i))
+
+                    _dialogue_library[entry_key] = normalized
+        elif entries is Dictionary:
+            # 字典格式：直接合并（兼容处理）
+            _merge_dialogue_tree({top_key: entries})
+
+
+## 将 JSON 条目转换为 DialogueManager 内部格式
+func _normalize_dialogue_entry(entry: Dictionary, companion_id: String, default_id: String) -> Dictionary:
+    var speaker_name: String = entry.get("speaker", "")
+    var mood: String = entry.get("mood", "neutral")
+    var text: String = entry.get("text", "")
+    var options_raw: Array = entry.get("options", [])
+
+    # 转换 options 字段名
+    var options: Array = []
+    for opt: Variant in options_raw:
+        if opt is Dictionary:
+            var normalized_opt: Dictionary = {
+                "text": str(opt.get("text", "")),
+                "next_dialogue": str(opt.get("next", "")),
+                "affection_delta": int(opt.get("affection", 0))
+            }
+            # 可选字段透传
+            if opt.has("is_correct"):
+                normalized_opt["is_correct"] = bool(opt.get("is_correct", false))
+            if opt.has("is_special"):
+                normalized_opt["is_special"] = bool(opt.get("is_special", false))
+            if opt.has("dislike_triggered"):
+                normalized_opt["dislike_triggered"] = bool(opt.get("dislike_triggered", false))
+            if opt.has("reward"):
+                normalized_opt["reward"] = opt.get("reward", {})
+            if opt.has("unlock_bond"):
+                normalized_opt["unlock_bond"] = str(opt.get("unlock_bond", ""))
+            options.append(normalized_opt)
+
+    return {
+        "companion_id": companion_id,
+        "speaker_name": speaker_name,
+        "mood": mood,
+        "text": text,
+        "options": options
+    }
 
 
 ## 合并从 JSON 加载的对话到库中（已存在的会被覆盖）
