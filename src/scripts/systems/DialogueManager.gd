@@ -33,8 +33,8 @@ func _ready() -> void:
 
 ## 尝试从 JSON 文件加载对话树
 func _load_dialogue_trees_from_files() -> void:
-    var base_path: String = "res://resources/dialogues/"
-    var companion_ids: Array[String] = ["companion_keerli", "companion_tiechan", "companion_shenlan"]
+    var base_path: String = "res://src/resources/dialogues/"
+    var companion_ids: Array[String] = ["companion_keerli", "companion_tiechan", "companion_beisuo", "companion_linhuo", "companion_shenlan"]
 
     for cid in companion_ids:
         var file_path: String = base_path + cid + "_dialogues.json"

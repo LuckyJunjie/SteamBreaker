@@ -1,0 +1,93 @@
+{
+  "bond_talk_tiechan_0": [
+    {
+      "speaker": "铁砧",
+      "text": "……船上的零件检查完了。没有异常。",
+      "options": [
+        {"text": "辛苦了，要不要休息一下？", "next": "tiechan_rest", "affection": 2},
+        {"text": "机械身体也需要休息吗？", "next": "tiechan_body", "affection": 1},
+        {"text": "（沉默地看着他工作）", "next": "tiechan_silent", "affection": 0}
+      ]
+    }
+  ],
+  "tiechan_rest": [
+    {
+      "speaker": "铁砧",
+      "text": "……休息不需要。但如果你这么说，我会停下来一会儿。",
+      "options": [
+        {"text": "你从来不说累吗？", "next": "tiechan_tired", "affection": 2},
+        {"text": "谢谢配合。", "next": "end", "affection": 1}
+      ]
+    }
+  ],
+  "tiechan_body": [
+    {
+      "speaker": "铁砧",
+      "text": "……不需要。机械不会累。但有时候齿轮会涩。那不是累，是磨损。",
+      "options": [
+        {"text": "有办法减少磨损吗？", "next": "tiechan_maintain", "affection": 3},
+        {"text": "听起来有点寂寞。", "next": "tiechan_lonely", "affection": 2}
+      ]
+    }
+  ],
+  "tiechan_silent": [
+    {
+      "speaker": "铁砧",
+      "text": "……（继续拧着螺丝，金属摩擦的声音在船舱里回荡）",
+      "options": [
+        {"text": "你的手艺真好。", "next": "tiechan_skill", "affection": 2},
+        {"text": "（继续沉默地看）", "next": "end", "affection": 1}
+      ]
+    }
+  ],
+  "tiechan_tired": [
+    {
+      "speaker": "铁砧",
+      "text": "……没有「累」这个概念。但有时候会想停下来。不是因为疲劳，是因为……算了，没什么。",
+      "options": [
+        {"text": "因为什么？", "next": "tiechan_feeling", "affection": 3},
+        {"text": "不想说就算了。", "next": "end", "affection": 0}
+      ]
+    }
+  ],
+  "tiechan_maintain": [
+    {
+      "speaker": "铁砧",
+      "text": "……正常保养就够了。你已经做得很好了，船长。加油的时机总是很准。",
+      "options": [
+        {"text": "因为你值得被照顾。", "next": "end", "affection": 4, "unlock_bond": "tiechan_care"},
+        {"text": "你可是重要的船员。", "next": "end", "affection": 2}
+      ]
+    }
+  ],
+  "tiechan_lonely": [
+    {
+      "speaker": "铁砧",
+      "text": "……寂寞吗。也许吧。但已经习惯了。有船、有零件、有你在……不算寂寞。",
+      "options": [
+        {"text": "……我也是。", "next": "end", "affection": 4, "unlock_bond": "tiechan_companion"},
+        {"text": "习惯就好。", "next": "end", "affection": -1}
+      ]
+    }
+  ],
+  "tiechan_skill": [
+    {
+      "speaker": "铁砧",
+      "text": "……做了很多年。手习惯了而已。但如果船航行顺利，就是最好的回报。",
+      "options": [
+        {"text": "有你在，船一定能走得更远。", "next": "end", "affection": 3},
+        {"text": "下次教教我？", "next": "end", "affection": 2}
+      ]
+    }
+  ],
+  "tiechan_feeling": [
+    {
+      "speaker": "铁砧",
+      "text": "……因为有时候会想，如果我全是钢铁，是不是就不用想这些了。但现在这样……也不坏。",
+      "options": [
+        {"text": "你现在的样子就很好。", "next": "end", "affection": 5, "unlock_bond": "tiechan_accept"},
+        {"text": "……", "next": "end", "affection": 1}
+      ]
+    }
+  ]
+}

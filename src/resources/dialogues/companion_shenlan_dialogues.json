@@ -1,0 +1,233 @@
+{
+  "bond_talk_shenlan_0": [
+    {
+      "speaker": "深蓝",
+      "text": "……船长。你听，海在说话。",
+      "options": [
+        {"text": "它在说什么？", "next": "shenlan_listen", "affection": 2},
+        {"text": "我只听到海浪声。", "next": "shenlan_hear", "affection": 1},
+        {"text": "（静静地站在她身边）", "next": "shenlan_quiet", "affection": 2}
+      ]
+    }
+  ],
+  "shenlan_listen": [
+    {
+      "speaker": "深蓝",
+      "text": "……它说，附近有东西沉了。很久以前的东西。也许是宝藏，也许是……别的。",
+      "options": [
+        {"text": "能带我去找吗？", "next": "shenlan_treasure", "affection": 3},
+        {"text": "我不想打扰海底的安宁。", "next": "shenlan_respect", "affection": 2}
+      ]
+    }
+  ],
+  "shenlan_hear": [
+    {
+      "speaker": "深蓝",
+      "text": "……没关系。有一天你也会听到的。鱼人的耳朵和你们不一样。我们能听到更深的东西。",
+      "options": [
+        {"text": "是什么样的声音？", "next": "shenlan_sound", "affection": 3},
+        {"text": "教教我怎么听？", "next": "shenlan_teach", "affection": 3}
+      ]
+    }
+  ],
+  "shenlan_quiet": [
+    {
+      "speaker": "深蓝",
+      "text": "……（她的长发在水中轻轻飘动，像海草一样）……谢谢你陪我。",
+      "options": [
+        {"text": "我很乐意。", "next": "end", "affection": 3},
+        {"text": "海边的你很美。", "next": "shenlan_beautiful", "affection": -2}
+      ]
+    }
+  ],
+  "shenlan_treasure": [
+    {
+      "speaker": "深蓝",
+      "text": "……好。我带你去。但要小心。海底不只有宝藏，还有等待。",
+      "options": [
+        {"text": "我准备好了。", "next": "end", "affection": 4, "unlock_bond": "shenlan_depths"},
+        {"text": "等待什么？", "next": "shenlan_wait", "affection": 2}
+      ]
+    }
+  ],
+  "shenlan_respect": [
+    {
+      "speaker": "深蓝",
+      "text": "……你懂。这是很好的品质。海洋喜欢懂得尊重的人。",
+      "options": [
+        {"text": "大海教会了你很多吧。", "next": "end", "affection": 3},
+        {"text": "你和大海是什么关系？", "next": "shenlan_relation", "affection": 2}
+      ]
+    }
+  ],
+  "shenlan_sound": [
+    {
+      "speaker": "深蓝",
+      "text": "……像是很远很远的地方传来的歌声。没有歌词，但能听懂。它在说：来吧，这里有你要找的东西。",
+      "options": [
+        {"text": "……我也想去看看。", "next": "end", "affection": 4},
+        {"text": "那声音不害怕吗？", "next": "shenlan_fear", "affection": 3}
+      ]
+    }
+  ],
+  "shenlan_teach": [
+    {
+      "speaker": "深蓝",
+      "text": "……闭上眼睛。不要想陆地上的事。想象你是一片海……很深很深的海……",
+      "options": [
+        {"text": "（照做）……好像有什么……", "next": "shenlan_feel", "affection": 5, "unlock_bond": "shenlan_ocean"},
+        {"text": "我做不到。", "next": "end", "affection": 0}
+      ]
+    }
+  ],
+  "shenlan_beautiful": [
+    {
+      "speaker": "深蓝",
+      "text": "……（脸微微泛红）船长……这里只有海能听到我说话。不要让别人知道。",
+      "options": [
+        {"text": "我不会说的。", "next": "end", "affection": 3},
+        {"text": "你害羞了？", "next": "end", "affection": -1}
+      ]
+    }
+  ],
+  "shenlan_wait": [
+    {
+      "speaker": "深蓝",
+      "text": "……等待被记住的东西。沉船记得它的船员。大海记得所有掉进去的眼泪。",
+      "options": [
+        {"text": "……你记得什么？", "next": "shenlan_memory", "affection": 3},
+        {"text": "大海的記憶比人还长啊。", "next": "end", "affection": 2}
+      ]
+    }
+  ],
+  "shenlan_relation": [
+    {
+      "speaker": "深蓝",
+      "text": "……海洋是母亲。我是它的一部分。就像浪花是海的一部分，但浪花会碎掉，海不会。",
+      "options": [
+        {"text": "你会碎掉吗？", "next": "shenlan_break", "affection": 3},
+        {"text": "所以你永远不会消失？", "next": "end", "affection": 2}
+      ]
+    }
+  ],
+  "shenlan_fear": [
+    {
+      "speaker": "深蓝",
+      "text": "……不害怕。深海很黑，但黑也是海的一部分。就像沉默也是语言的一部分。",
+      "options": [
+        {"text": "你教会我怎么看待黑暗了。", "next": "end", "affection": 4},
+        {"text": "……你总是这么平静吗？", "next": "shenlan_calm", "affection": 2}
+      ]
+    }
+  ],
+  "shenlan_feel": [
+    {
+      "speaker": "深蓝",
+      "text": "……感觉到了吗？那是海的心跳。它接受你了，船长。从现在起，你也是海的一部分了。",
+      "options": [
+        {"text": "……谢谢你，深蓝。", "next": "end", "affection": 5, "unlock_bond": "shenlan_ocean"},
+        {"text": "这是什么感觉……好温暖。", "next": "end", "affection": 4}
+      ]
+    }
+  ],
+  "shenlan_memory": [
+    {
+      "speaker": "深蓝",
+      "text": "……我记得很深的水。很静的地方。我的家在那里。但现在已经没有了。",
+      "options": [
+        {"text": "发生了什么？", "next": "shenlan_lost", "affection": 3},
+        {"text": "……我很抱歉。", "next": "end", "affection": 2}
+      ]
+    }
+  ],
+  "shenlan_break": [
+    {
+      "speaker": "深蓝",
+      "text": "……也许会。但碎掉之后，碎片还是会回到海里。所以没有什么会真正消失。",
+      "options": [
+        {"text": "……这是安慰吗？", "next": "end", "affection": 2},
+        {"text": "我会保护你不碎掉的。", "next": "end", "affection": 4, "unlock_bond": "shenlan_protect"}
+      ]
+    }
+  ],
+  "shenlan_calm": [
+    {
+      "speaker": "深蓝",
+      "text": "……不是平静。是习惯了。海底很静。在那之后，就很难被什么东西打破了。",
+      "options": [
+        {"text": "我可以试着打破它吗？", "next": "shenlan_break_wall", "affection": 4},
+        {"text": "不急。", "next": "end", "affection": 1}
+      ]
+    }
+  ],
+  "shenlan_lost": [
+    {
+      "speaker": "深蓝",
+      "text": "……海啸。很久以前的事了。我被冲到了浅海，然后就再也回不去了。",
+      "options": [
+        {"text": "所以你才在船上？", "next": "shenlan_reason", "affection": 3},
+        {"text": "……我能帮你回去吗？", "next": "shenlan_return", "affection": 4}
+      ]
+    }
+  ],
+  "shenlan_break_wall": [
+    {
+      "speaker": "深蓝",
+      "text": "……（她的眼睛里有什么东西闪了一下）……也许吧。也许你已经开始了。",
+      "options": [
+        {"text": "我很高兴。", "next": "end", "affection": 4, "unlock_bond": "shenlan_heart"},
+        {"text": "慢慢来就好。", "next": "end", "affection": 2}
+      ]
+    }
+  ],
+  "shenlan_reason": [
+    {
+      "speaker": "深蓝",
+      "text": "……船在海上走，就像鱼在水里游。我想找到回去的路。所以我跟着船走。",
+      "options": [
+        {"text": "我们一起找。", "next": "end", "affection": 4},
+        {"text": "如果找不到呢？", "next": "shenlan_no_return", "affection": 2}
+      ]
+    }
+  ],
+  "shenlan_return": [
+    {
+      "speaker": "深蓝",
+      "text": "……（沉默了很久）……也许家已经不在了。但也许……还有别的海可以接纳我。",
+      "options": [
+        {"text": "这里就是你的家。", "next": "end", "affection": 5, "unlock_bond": "shenlan_home"},
+        {"text": "我会帮你找的。", "next": "end", "affection": 3}
+      ]
+    }
+  ],
+  "shenlan_no_return": [
+    {
+      "speaker": "深蓝",
+      "text": "……那就找不到吧。但跟着船走的这段时间……也很好。",
+      "options": [
+        {"text": "这段时间对你来说是什么？", "next": "shenlan_time", "affection": 3},
+        {"text": "……我也是。", "next": "end", "affection": 3}
+      ]
+    }
+  ],
+  "shenlan_time": [
+    {
+      "speaker": "深蓝",
+      "text": "……是海流把我带到不同的地方。有些地方有珊瑚，有些地方只有沙。但你在这里的时候……不像沙。",
+      "options": [
+        {"text": "像什么？", "next": "shenlan_what", "affection": 4},
+        {"text": "……我也很高兴。", "next": "end", "affection": 3}
+      ]
+    }
+  ],
+  "shenlan_what": [
+    {
+      "speaker": "深蓝",
+      "text": "……像磷火。很小，但是会亮。在很深很黑的地方，也能看到的那种亮。",
+      "options": [
+        {"text": "……（说不出话）", "next": "end", "affection": 4, "unlock_bond": "shenlan_light"},
+        {"text": "谢谢你，深蓝。", "next": "end", "affection": 3}
+      ]
+    }
+  ]
+}
