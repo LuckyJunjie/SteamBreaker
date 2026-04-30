@@ -250,3 +250,26 @@ func request_attack(weapon_index: int, target_id: String, part: String = "hull")
 func request_skip_turn() -> void:
 	print("[BattleManager] Skip turn requested")
 	advance_turn()
+
+## ─── 战斗统计（用于存档）───────────────────────────────
+var battles_won: int = 0
+var battles_fought: int = 0
+var total_damage_dealt: float = 0.0
+
+func get_save_data() -> Dictionary:
+	return {
+		"battles_won": battles_won,
+		"battles_fought": battles_fought,
+		"total_damage_dealt": total_damage_dealt,
+	}
+
+func apply_save_data(data: Dictionary) -> void:
+	battles_won = data.get("battles_won", 0)
+	battles_fought = data.get("battles_fought", 0)
+	total_damage_dealt = data.get("total_damage_dealt", 0.0)
+
+## ─── 战斗结算（由BattleEndState调用）────────────────────
+func on_battle_ended(victory: bool) -> void:
+	battles_fought += 1
+	if victory:
+		battles_won += 1

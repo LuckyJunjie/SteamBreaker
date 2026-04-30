@@ -40,3 +40,16 @@ func apply_loadout(loadout: ShipLoadout) -> void:
         current_loadout.ship_name,
         current_loadout.current_hp,
         current_loadout.get_max_hp()])
+
+## ─── 存档接口 ──────────────────────────────────────────────
+func get_save_data() -> Dictionary:
+	return {
+		"current_loadout": current_loadout.duplicate() if current_loadout else null,
+		"ship_name": current_loadout.ship_name if current_loadout else "蒸汽破浪号",
+	}
+
+func apply_save_data(data: Dictionary) -> void:
+	if data.has("current_loadout") and data.current_loadout:
+		apply_loadout(data.current_loadout)
+	if data.has("ship_name") and current_loadout:
+		current_loadout.ship_name = data.ship_name
