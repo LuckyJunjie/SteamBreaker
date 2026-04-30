@@ -1,4 +1,3 @@
-class_name InventoryManager
 extends Node
 
 ## 玩家背包管理器
@@ -113,14 +112,14 @@ func use_item(item_id: String) -> bool:
     var success = false
 
     match item_res.item_type:
-        GameItem.ItemType.CONSUMABLE:
+        0:
             success = _use_consumable(item_res)
-        GameItem.ItemType.KEY_ITEM:
+        2:
             success = _use_key_item(item_res)
-        GameItem.ItemType.GIFT:
+        3:
             # 礼物需要指定目标伙伴，这里简化处理
             success = _use_gift(item_res)
-        GameItem.ItemType.EQUIPMENT:
+        1:
             # 装备暂未实现
             print("[InventoryManager] Equipment not yet implemented: %s" % item_id)
             item_used.emit(item_id, false)
@@ -128,7 +127,7 @@ func use_item(item_id: String) -> bool:
 
     if success:
         # 消耗品使用后消失
-        if item_res.item_type == GameItem.ItemType.CONSUMABLE:
+        if item_res.item_type == 0:
             remove_item(item_id, 1)
         item_used.emit(item_id, true)
     else:
@@ -137,7 +136,7 @@ func use_item(item_id: String) -> bool:
     return success
 
 ## 使用消耗品
-func _use_consumable(item: GameItem) -> bool:
+func _use_consumable(item: Resource) -> bool:
     var effect_type = item.effect_data.get("type", "")
 
     match effect_type:
@@ -170,7 +169,7 @@ func _use_consumable(item: GameItem) -> bool:
     return true
 
 ## 使用关键道具
-func _use_key_item(item: GameItem) -> bool:
+func _use_key_item(item: Resource) -> bool:
     var effect_type = item.effect_data.get("type", "")
 
     match effect_type:
@@ -199,7 +198,7 @@ func _use_key_item(item: GameItem) -> bool:
     return true
 
 ## 使用礼物（增加好感度）
-func _use_gift(item: GameItem) -> bool:
+func _use_gift(item: Resource) -> bool:
     var effect_type = item.effect_data.get("type", "")
     if effect_type != "affection":
         return false
@@ -229,7 +228,7 @@ func _use_gift(item: GameItem) -> bool:
     return true
 
 ## 获取物品资源（优先从ItemDatabase）
-func _get_item_resource(item_id: String) -> GameItem:
+func _get_item_resource(item_id: String) -> Resource:
     if _item_db and _item_db.has_method("get_item"):
         var item = _item_db.get_item(item_id)
         if item:
