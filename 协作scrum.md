@@ -56,6 +56,19 @@
 
 **Push状态**: commit a1068c8 已commit，本地已验证，push待网络确认
 
+## Sprint 13 — Medium Bug 修复（2026-04-30 10:36 启动）
+
+| Task | Agent | 状态 | 产出 |
+|------|-------|------|------|
+| gold-hud-fix | apollo | 🔄 执行中 | 初始金币统一 + HUD延迟查找 |
+| test-fix | chiron | 🔄 执行中 | 测试文件路径修复 |
+| save-slot-fix | athena | 🔄 执行中 | 隐藏auto-save槽位 + PartPickerPopup验证 |
+
+### Subagent Session
+- apollo: `e26e571a`
+- chiron: `b8912f88`
+- athena: `ac53b87f`
+
 ---
 
 ## Sprint 11 完成汇总
