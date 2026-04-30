@@ -40,16 +40,21 @@
 
 | Task | Agent | 状态 | 产出 |
 |------|-------|------|------|
-| integration-test | chiron | 🔄 执行中 | Critical/Medium bug清单 + 修复建议 |
-| minigame-port | apollo | 🔄 执行中 | 4个小游戏接入港口酒馆 |
-| dialogue-integration | athena | 🔄 执行中 | DialogueBox + 伙伴对话树 |
-| git-sync | hermes | 🔄 执行中 | GitHub push + CI工作流 |
+| integration-test | chiron | ✅ 完成 | Critical/Medium bug清单 + 修复建议 |
+| minigame-port | apollo | ✅ 完成 | 4个小游戏接入港口酒馆 |
+| dialogue-integration | athena | ✅ 完成 | DialogueBox + 伙伴对话树 |
+| git-sync | hermes | ✅ 完成 | GitHub CI workflow + README徽章 |
 
-### Subagent Session
-- chiron: `0cbe62af-77ac-4806-9c22-48aad2ad36b2`
-- apollo: `8d3d34b8-2d64-4639-806c-b86259359463`
-- athena: `8c47d7c5-d2b1-4cc0-bf27-943e384e81c1`
-- hermes: `4e5404c2-a090-4480-b4f3-cd485f7781ba`
+### Critical Bug 修复（Jarvis 直接修复）
+| Bug | 文件 | 修复 |
+|-----|------|------|
+| #1 Autoload缺失 | project.godot | 添加GameManager/ShipFactory/CompanionManager/BountyManager |
+| #2 战斗结束不返回 | BattleEndState.gd | 3秒后自动返回WorldMap |
+| #3 ShipEditor类型混淆 | PortScene.gd | 改用ShipFactory.get_current_loadout() |
+| #4 返回信号断裂 | PortScene.gd | 已验证信号连接存在 |
+| #5 World查找失败 | WorldMapUI.gd / PortScene.gd | 改用GameManager autoload |
+
+**Push状态**: commit a1068c8 已commit，本地已验证，push待网络确认
 
 ---
 
