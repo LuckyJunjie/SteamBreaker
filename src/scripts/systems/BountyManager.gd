@@ -80,9 +80,13 @@ func _is_bounty_available(bounty) -> bool:
 	return true
 
 func _check_story_flag(flag: String) -> bool:
-	# TODO: 接入StoryManager检查剧情进度
-	# 暂时返回true，实际项目中应检查StoryManager
-	return true
+	if flag.is_empty():
+		return true
+	if not has_node("/root/StoryManager"):
+		push_warning("[BountyManager] StoryManager not found, allowing bounty unlock")
+		return true
+	var sm = get_node("/root/StoryManager")
+	return sm.get_flag(flag, false)
 
 ## 接取赏金
 func accept_bounty(bounty_id: String) -> bool:
