@@ -70,14 +70,9 @@
 
 | Task | Agent | 状态 | 产出 |
 |------|-------|------|------|
-| save-interfaces | athena | 🔄 执行中 | ShipFactory/BattleManager存档接口 |
-| story-integration | apollo | 🔄 执行中 | StoryManager剧情进度+赏金联动 |
-| proto-demo | hermes | 🔄 执行中 | Godot导出配置+HTML原型包 |
-
-### Subagent Session
-- athena: `b70a759c`
-- apollo: `b02efcda`
-- hermes: `9b2d7a12`
+| save-interfaces | athena | ✅→Jarvis补完 | commit 00df0ae，ShipFactory/BattleManager存档接口 |
+| story-integration | apollo | ✅ | commit 8f17cad，StoryManager+赏金联动 |
+| proto-demo | hermes | ✅ | commit 36b0d8c，HTML导出脚本 |
 
 ---
 
