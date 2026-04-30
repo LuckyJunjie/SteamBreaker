@@ -39,6 +39,12 @@ const INTERACT_POINTS = {
         "label": "杂货商店",
         "icon": "🛒",
         "desc": "购买道具与部件"
+    },
+    "bond_trader": {
+        "position": Vector2(600, 280),
+        "label": "债券交易所",
+        "icon": "📜",
+        "desc": "帝国债券买卖"
     }
 }
 
@@ -79,7 +85,8 @@ func _find_nodes() -> void:
         "shipyard": _find_child_by_name("ShipyardIcon"),
         "tavern": _find_child_by_name("TavernIcon"),
         "bounty_board": _find_child_by_name("BountyIcon"),
-        "shop": _find_child_by_name("ShopIcon")
+        "shop": _find_child_by_name("ShopIcon"),
+        "bond_trader": _find_child_by_name("BondTraderIcon")
     }
     
     # 映射交互点标签
@@ -87,7 +94,8 @@ func _find_nodes() -> void:
         "shipyard": _find_child_by_name("ShipyardLabel"),
         "tavern": _find_child_by_name("TavernLabel"),
         "bounty_board": _find_child_by_name("BountyLabel"),
-        "shop": _find_child_by_name("ShopLabel")
+        "shop": _find_child_by_name("ShopLabel"),
+        "bond_trader": _find_child_by_name("BondTraderLabel")
     }
     
     print("[PortScene] Found nodes - title:", _port_title, " hint:", _interaction_hint)
@@ -193,6 +201,8 @@ func _activate_point(point_id: String) -> void:
             _open_bounty_board()
         "shop":
             _open_shop()
+        "bond_trader":
+            _open_bond_trader()
 
 
 # === 子面板打开/关闭 ===
@@ -244,6 +254,28 @@ func _open_shop() -> void:
     
     var panel = _create_shop_panel()
     _show_panel(panel, "Shop")
+
+
+func _open_bond_trader() -> void:
+    print("[PortScene] Opening EmpireBondUI...")
+    
+    var scene_path = "res://scenes/ui/EmpireBondUI.tscn"
+    if not ResourceLoader.exists(scene_path):
+        push_error("[PortScene] EmpireBondUI.tscn not found at: " + scene_path)
+        return
+    
+    var scene_res = load(scene_path)
+    var instance = scene_res.instantiate()
+    
+    # 连接关闭信号
+    if instance.has_signal("panel_closed"):
+        instance.panel_closed.connect(_on_bond_panel_closed)
+    
+    _show_panel(instance, "EmpireBondUI")
+
+
+func _on_bond_panel_closed() -> void:
+    print("[PortScene] EmpireBondUI closed")
 
 
 func _open_inventory() -> void:

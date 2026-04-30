@@ -87,6 +87,11 @@ func _setup_ui():
     inventory_btn.pressed.connect(_open_inventory)
     bottom_bar.add_child(inventory_btn)
 
+    var bond_btn = Button.new()
+    bond_btn.text = "📜 债券"
+    bond_btn.pressed.connect(_open_bond_panel)
+    bottom_bar.add_child(bond_btn)
+
 func _setup_bounty_tracker() -> void:
     BountyTrackerPanel = Panel.new()
     BountyTrackerPanel.set_anchors_preset(Control.PRESET_TOP_RIGHT)
@@ -613,6 +618,21 @@ func _open_inventory() -> void:
         panel.visible = true
     else:
         print("[HUD] InventoryPanel not found in scene tree")
+
+func _open_bond_panel() -> void:
+    print("[HUD] Opening EmpireBondUI...")
+    var scene_path = "res://scenes/ui/EmpireBondUI.tscn"
+    if not ResourceLoader.exists(scene_path):
+        push_error("[HUD] EmpireBondUI.tscn not found at: " + scene_path)
+        return
+    var scene_res = load(scene_path)
+    var instance = scene_res.instantiate()
+    instance.panel_closed.connect(_on_bond_panel_closed)
+    add_child(instance)
+    print("[HUD] EmpireBondUI shown")
+
+func _on_bond_panel_closed() -> void:
+    print("[HUD] EmpireBondUI closed")
 
 # ============================================================
 # World Navigation / 世界导航控件

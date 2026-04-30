@@ -109,6 +109,16 @@ horizontal_alignment = 1
 vertical_alignment = 1
 theme_override_font_sizes/font_size = 48
 
+[node name="BondTraderIcon" type="Label" parent="BgLayer/PointIcons"]
+offset_left = 560.0
+offset_top = 240.0
+offset_right = 640.0
+offset_bottom = 320.0
+text = "📜"
+horizontal_alignment = 1
+vertical_alignment = 1
+theme_override_font_sizes/font_size = 48
+
 [node name="PointLabels" type="Node2D" parent="BgLayer"]
 
 [node name="ShipyardLabel" type="Label" parent="BgLayer/PointLabels"]
@@ -147,6 +157,16 @@ offset_top = 500.0
 offset_right = 460.0
 offset_bottom = 530.0
 text = "杂货商店"
+horizontal_alignment = 1
+vertical_alignment = 1
+theme_override_font_sizes/font_size = 20
+
+[node name="BondTraderLabel" type="Label" parent="BgLayer/PointLabels"]
+offset_left = 530.0
+offset_top = 330.0
+offset_right = 670.0
+offset_bottom = 360.0
+text = "债券交易所"
 horizontal_alignment = 1
 vertical_alignment = 1
 theme_override_font_sizes/font_size = 20

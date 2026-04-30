@@ -87,6 +87,16 @@ func spend_bonds(amount: int) -> bool:
 		return true
 	return false
 
+# 债券持久化（字典格式，兼容 EmpireBondUI）
+var _bond_data: Dictionary = {}
+
+func get_bonds() -> Dictionary:
+	return _bond_data.duplicate(true)
+
+func set_bonds(data: Dictionary) -> void:
+	_bond_data = data.duplicate(true)
+	print("[GameState] Bonds data updated: ", _bond_data)
+
 # ============================================
 # Story Progress / 剧情进度管理
 # ============================================
@@ -152,6 +162,7 @@ func get_save_data() -> Dictionary:
 		"player_name": player_name,
 		"gold": gold,
 		"empire_bonds": empire_bonds,
+		"bond_data": _bond_data.duplicate(true),
 		"story_progress": story_progress,
 		"story_flags": story_flags.duplicate(true),
 		"current_zone": current_zone,
@@ -164,6 +175,7 @@ func apply_save_data(data: Dictionary) -> void:
 	player_name = data.get("player_name", "船长")
 	gold = data.get("gold", 1000)
 	empire_bonds = data.get("empire_bonds", 0)
+	_bond_data = data.get("bond_data", {}).duplicate(true)
 	story_progress = data.get("story_progress", 0)
 	story_flags = data.get("story_flags", {}).duplicate(true)
 	
@@ -179,6 +191,7 @@ func reset() -> void:
 	player_name = "船长"
 	gold = 5000
 	empire_bonds = 0
+	_bond_data = {}
 	story_progress = 0
 	story_flags = {}
 	current_zone = ZoneType.PORT
