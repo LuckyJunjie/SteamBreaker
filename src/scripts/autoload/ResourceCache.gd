@@ -38,6 +38,10 @@ func _preload_all_resources() -> void:
 # ============================================
 
 func _preload_companions() -> void:
+	# Explicit preload for companions not found by dir scan (compatibility)
+	_companions_cache["beisuo"] = load("res://resources/companions/companion_beisuo.tres")
+	_companions_cache["linhuo"] = load("res://resources/companions/companion_linhuo.tres")
+
 	var companion_dir := "res://resources/companions/"
 	var dir := DirAccess.open(companion_dir)
 	if dir:

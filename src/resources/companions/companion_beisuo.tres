@@ -1,0 +1,24 @@
+[gd_resource type="Resource" script_class="Companion" load_steps=1 format=3]
+
+[ext_resource type="Script" path="res://scripts/resources/companion.gd" id="1"]
+
+[resource]
+script = ExtResource("1")
+companion_id = "beisuo"
+name = "贝索船长"
+species = "人类"
+portrait = null
+base_stats = {
+	"hp": 100,
+	"attack": 30,
+	"defense": 20,
+	"speed": 15,
+	"morale_max": 3
+}
+personality = "酒鬼，爱讲旧事"
+likes = ["item_rum"]
+dislikes = []
+affection = 0
+story_flags = {}
+is_recruited = false
+skill_ids = ["skill_snipe_helm", "skill_emergency_repair"]

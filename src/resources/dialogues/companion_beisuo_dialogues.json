@@ -1,0 +1,42 @@
+{
+  "bond_talk_beisuo_0": [
+    {
+      "speaker": "贝索船长",
+      "text": "（醉醺醺地靠在吧台上）",
+      "options": [
+        {"text": "老爷子，你以前是做什么的？", "next": "beisuo_story_1", "affection": 2},
+        {"text": "别喝了，说说帝国的事", "next": "beisuo_empire", "affection": -1},
+        {"text": "（默默离开）", "next": "end", "affection": 0}
+      ]
+    }
+  ],
+  "beisuo_story_1": [
+    {
+      "speaker": "贝索船长",
+      "text": "帝国第七舰队...那时候我还是个毛头小子...",
+      "options": [
+        {"text": "第七舰队？后来怎么了？", "next": "beisuo_betrayal", "affection": 3},
+        {"text": "战争故事我听够了", "next": "end", "affection": -2}
+      ]
+    }
+  ],
+  "beisuo_empire": [
+    {
+      "speaker": "贝索船长",
+      "text": "帝国...哼，帝国早就不认我们这些老骨头了。",
+      "options": [
+        {"text": "发生了什么？", "next": "beisuo_betrayal", "affection": 2},
+        {"text": "（不追问）", "next": "end", "affection": 0}
+      ]
+    }
+  ],
+  "beisuo_betrayal": [
+    {
+      "speaker": "贝索船长",
+      "text": "（眼神突然锐利）...有人背叛了我们。那个名字我永远不会忘记...",
+      "options": [
+        {"text": "是谁？", "next": "end", "affection": 5, "unlock_bond": "beisuo_revenge"}
+      ]
+    }
+  ]
+}

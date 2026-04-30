@@ -1,0 +1,41 @@
+{
+  "bond_talk_linhuo_0": [
+    {
+      "speaker": "磷火",
+      "text": "（小小的珊瑚体在桌上跳动）磷火磷火！你身上有海的味道！",
+      "options": [
+        {"text": "你是什么生物？", "next": "linhuo_intro", "affection": 2},
+        {"text": "（戳戳它）", "next": "linhuo_poke", "affection": 1}
+      ]
+    }
+  ],
+  "linhuo_intro": [
+    {
+      "speaker": "磷火",
+      "text": "磷火是珊瑚精！在大海深处出生的！但是...磷火的海变脏了...",
+      "options": [
+        {"text": "我可以帮你找到干净的海", "next": "end", "affection": 4, "unlock_bond": "linhuo_ocean"},
+        {"text": "珊瑚精是什么？能吃吗？", "next": "linhuo_offend", "affection": -5}
+      ]
+    }
+  ],
+  "linhuo_poke": [
+    {
+      "speaker": "磷火",
+      "text": "（闪烁出粉色光芒）痒！好痒！哈哈哈！",
+      "options": [
+        {"text": "真有趣", "next": "end", "affection": 2}
+      ]
+    }
+  ],
+  "linhuo_offend": [
+    {
+      "speaker": "磷火",
+      "text": "（颜色变暗，缩成一团）...磷火不是食物...",
+      "options": [
+        {"text": "对不起，我不是有意的", "next": "end", "affection": 1},
+        {"text": "（离开）", "next": "end", "affection": 0}
+      ]
+    }
+  ]
+}
