@@ -1,4 +1,3 @@
-class_name CompanionSkill
 extends Node
 
 ## 伙伴技能系统
