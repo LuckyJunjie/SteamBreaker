@@ -23,10 +23,10 @@
 
 | Task | Agent | 状态 | 产出 |
 |------|-------|------|------|
-| ship-editor-polish | apollo | 🔄 执行中 | 装备拖拽+预览+确认购买流程 |
+| ship-editor-polish | apollo | ✅ 完成 | commit 5097fcc，ShipEditor全面重写，拖拽+购买+预览 |
 | battle-ai-polish | einstein | 🔄 执行中 | 敌方AI决策+行动延迟动画 |
 | save-persistence | athena | ✅ 完成 | commit c73604d，自动存档5个触发点 |
-| companion-integration | einstein | 🔄 执行中 | 伙伴羁绊UI+战斗外技能触发 |
+| companion-integration | einstein | ✅ 完成 | commit 443afc8，伙伴羁绊面板+礼物系统+对话入口 |
 
 ### Subagent Session
 - apollo: `e47916a7-d611-4c79-ab48-04cf652ef327`
