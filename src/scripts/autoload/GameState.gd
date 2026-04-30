@@ -177,7 +177,7 @@ func apply_save_data(data: Dictionary) -> void:
 func reset() -> void:
 	"""Reset to default/new game state."""
 	player_name = "船长"
-	gold = 1000
+	gold = 5000
 	empire_bonds = 0
 	story_progress = 0
 	story_flags = {}

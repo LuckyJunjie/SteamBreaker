@@ -692,23 +692,27 @@ func show_navigation_panel(visible: bool) -> void:
 ## ============================================
 
 func _detect_battle_mode() -> void:
-	# 检查当前场景是否是战斗场景
+	# Use deferred lookup to handle BattleManager loading after HUD ready
+	await get_tree().process_frame
 	var tree = get_tree()
 	if not tree:
 		return
 	var root = tree.root
 	if not root:
 		return
-	var battle = root.find_child("Battle", false, false)
+	var battle = root.find_child("BattleManager", true, false)
 	if battle:
 		is_in_battle_mode = true
 		battle_manager_ref = battle
-		print("[HUD] Battle mode detected")
-		if battle.has_method("get_player_ship"):
-			var ship: ShipCombatData = battle.get_player_ship()
-			if ship:
-				current_weapons = ship.weapons
-				print("[HUD] Loaded %d weapons from player ship" % current_weapons.size())
+		_connect_battle_signals()
+		print("[HUD] BattleManager resolved via deferred lookup")
+	else:
+		# Fallback to scene-based detection
+		var scene_battle = root.find_child("Battle", false, false)
+		if scene_battle:
+			is_in_battle_mode = true
+			battle_manager_ref = scene_battle
+			print("[HUD] Battle mode detected (scene fallback)")
 
 func _setup_battle_action_panel() -> void:
 	BattleActionPanel = Panel.new()

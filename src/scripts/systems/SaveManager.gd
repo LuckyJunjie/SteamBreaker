@@ -4,6 +4,7 @@ extends Node
 ## 存档管理器 - 完善版：收集所有系统状态 + 自动存档
 
 const MAX_SAVE_SLOTS := 10
+const AUTO_SAVE_SLOT := -1  # Internal only, never shown in save list
 const SAVE_EXTENSION := ".json"
 
 signal save_completed(slot: int, success: bool, message: String)
@@ -39,9 +40,15 @@ func _ensure_save_directory() -> void:
 
 ## Save game to slot / 保存游戏到槽位
 func save(slot: int, data: Variant = null) -> bool:
-    if slot < 0 or slot >= MAX_SAVE_SLOTS:
+    if slot != AUTO_SAVE_SLOT and (slot < 0 or slot >= MAX_SAVE_SLOTS):
         push_error("[SaveManager] Invalid slot: %d" % slot)
         save_completed.emit(slot, false, "无效的存档槽位")
+        return false
+    
+    # Auto-save slot uses a fixed internal path
+    if slot == AUTO_SAVE_SLOT and not _ensure_auto_save_path():
+        push_error("[SaveManager] Failed to create auto-save directory")
+        save_completed.emit(slot, false, "自动存档目录创建失败")
         return false
     
     # Use provided data or collect current game state
@@ -73,8 +80,8 @@ func auto_save(reason: String = "auto") -> void:
     if not _should_auto_save():
         return
     
-    # Use quick slot 9 for auto-save
-    var success: bool = save(9)
+    # Use internal auto-save slot
+    var success: bool = save(AUTO_SAVE_SLOT)
     if success:
         _last_auto_save_time = Time.get_unix_time_from_system()
         auto_save_triggered.emit(reason)
@@ -151,6 +158,8 @@ func delete(slot: int) -> bool:
 func list_saves() -> Array[Dictionary]:
     var saves: Array[Dictionary] = []
     for slot in range(MAX_SAVE_SLOTS):
+        if slot == AUTO_SAVE_SLOT:
+            continue  # skip internal auto-save
         var info: Dictionary = _get_slot_info(slot)
         saves.append(info)
     return saves

@@ -22,20 +22,20 @@ func before_each():
     _game_state.story_flags = {}
     
     _ship_factory = add_node_autofree(Node.new())
-    _ship_factory.set_script(load("res://scripts/systems/ShipFactory.gd"))
+    _ship_factory.set_script(load("res://src/scripts/systems/ShipFactory.gd"))
     _ship_factory.name = "ShipFactory"
     
     _companion_manager = add_node_autofree(Node.new())
     _companion_manager.name = "CompanionManager"
     # CompanionManager 脚本待创建，提前留接口桩
-    _companion_manager.set_script(load("res://scripts/systems/CompanionManager.gd"))
+    _companion_manager.set_script(load("res://src/scripts/systems/CompanionManager.gd"))
     
     _battle_manager = add_node_autofree(Node.new())
-    _battle_manager.set_script(load("res://scripts/battles/BattleManager.gd"))
+    _battle_manager.set_script(load("res://src/scripts/battles/BattleManager.gd"))
     _battle_manager.name = "BattleManager"
     
     _save_manager = add_node_autofree(Node.new())
-    _save_manager.set_script(load("res://scripts/systems/SaveManager.gd"))
+    _save_manager.set_script(load("res://src/scripts/systems/SaveManager.gd"))
     _save_manager.name = "SaveManager"
 
 
@@ -176,7 +176,7 @@ func test_save_manager_collects_ship_factory_loadout():
     loadout.ship_name = "测试舰"
     
     # 检查 ShipFactory 是否有 apply_loadout 方法（SaveManager 依赖此方法）
-    assert_true(_ship_factory.has_method("apply_loadout") == false,
+    assert_true(_ship_factory.has_method("apply_loadout"),
         "ISSUE: ShipFactory.apply_loadout() does not exist — SaveManager.apply_save won't work")
     
     # 检查 ShipFactory 是否有 current_loadout（SaveManager._collect_game_state 依赖此）
@@ -203,9 +203,9 @@ func test_ship_loadout_serialization_paths():
 
 func test_save_manager_calls_companion_manager_get_save_data():
     # CompanionManager 应该有 get_save_data 方法
-    assert_true(_companion_manager.has_method("get_save_data") == false,
+    assert_true(_companion_manager.has_method("get_save_data"),
         "ISSUE: CompanionManager.get_save_data() does not exist — companions won't be saved")
-    assert_true(_companion_manager.has_method("apply_save_data") == false,
+    assert_true(_companion_manager.has_method("apply_save_data"),
         "ISSUE: CompanionManager.apply_save_data() does not exist — companions won't be loaded")
 
 
@@ -234,15 +234,15 @@ func test_save_data_companion_round_trip():
 
 func test_save_manager_bounty_collect_methods_exist():
     # SaveManager._get_completed_bounties 期望 BattleManager.get_completed_bounty_ids
-    assert_true(_battle_manager.has_method("get_completed_bounty_ids") == false,
+    assert_true(_battle_manager.has_method("get_completed_bounty_ids"),
         "ISSUE: BattleManager.get_completed_bounty_ids() does not exist")
     
     # SaveManager._get_in_progress_bounties 期望 BattleManager.get_in_progress_bounties
-    assert_true(_battle_manager.has_method("get_in_progress_bounties") == false,
+    assert_true(_battle_manager.has_method("get_in_progress_bounties"),
         "ISSUE: BattleManager.get_in_progress_bounties() does not exist")
     
     # SaveManager._apply_bounties 期望 BattleManager.apply_bounty_progress
-    assert_true(_battle_manager.has_method("apply_bounty_progress") == false,
+    assert_true(_battle_manager.has_method("apply_bounty_progress"),
         "ISSUE: BattleManager.apply_bounty_progress() does not exist")
 
 

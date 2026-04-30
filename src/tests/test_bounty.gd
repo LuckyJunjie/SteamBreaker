@@ -10,11 +10,11 @@ var _battle_manager: Node
 
 func before_each():
     _bounty_manager = add_node_autofree(Node.new())
-    _bounty_manager.set_script(load("res://scripts/systems/BountyManager.gd"))
+    _bounty_manager.set_script(load("res://src/scripts/systems/BountyManager.gd"))
     _bounty_manager.name = "BountyManager"
     
     _battle_manager = add_node_autofree(Node.new())
-    _battle_manager.set_script(load("res://scripts/battles/BattleManager.gd"))
+    _battle_manager.set_script(load("res://src/scripts/battles/BattleManager.gd"))
     _battle_manager.name = "BattleManager"
 
 
@@ -105,11 +105,11 @@ func test_bounty_manager_check_bounty_kill_interface():
 
 func test_battle_manager_does_not_have_bounty_integration():
     # BattleManager 没有赏金相关方法 — 需要接入
-    assert_true(_battle_manager.has_method("get_completed_bounty_ids") == false,
+    assert_true(_battle_manager.has_method("get_completed_bounty_ids"),
         "ISSUE: BattleManager.get_completed_bounty_ids() missing — needed for SaveManager integration")
-    assert_true(_battle_manager.has_method("get_in_progress_bounties") == false,
+    assert_true(_battle_manager.has_method("get_in_progress_bounties"),
         "ISSUE: BattleManager.get_in_progress_bounties() missing — needed for SaveManager integration")
-    assert_true(_battle_manager.has_method("apply_bounty_progress") == false,
+    assert_true(_battle_manager.has_method("apply_bounty_progress"),
         "ISSUE: BattleManager.apply_bounty_progress() missing — needed for SaveManager integration")
 
 

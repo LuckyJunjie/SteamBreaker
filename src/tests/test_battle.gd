@@ -18,11 +18,11 @@ func before_each():
     
     # 初始化玩家 ShipCombatData
     _player_combat_data = add_node_autofree(Node.new())
-    _player_combat_data.set_script(load("res://scripts/battles/ShipCombatData.gd"))
+    _player_combat_data.set_script(load("res://src/scripts/battles/ShipCombatData.gd"))
     
     # 初始化敌人 ShipCombatData
     _enemy_combat_data = add_node_autofree(Node.new())
-    _enemy_combat_data.set_script(load("res://scripts/battles/ShipCombatData.gd"))
+    _enemy_combat_data.set_script(load("res://src/scripts/battles/ShipCombatData.gd"))
 
 
 func after_each():
@@ -304,12 +304,12 @@ func test_cannot_move_when_paralyzed():
 func test_check_game_over_all_player_ships_destroyed():
     var player_ship1 = Node2D.new()
     player_ship1.name = "Player1"
-    player_ship1.set_script(load("res://scripts/systems/ShipEntity.gd"))
+    player_ship1.set_script(load("res://src/scripts/systems/ShipEntity.gd"))
     add_child(player_ship1)
     
     var enemy_ship = Node2D.new()
     enemy_ship.name = "Enemy1"
-    enemy_ship.set_script(load("res://scripts/systems/ShipEntity.gd"))
+    enemy_ship.set_script(load("res://src/scripts/systems/ShipEntity.gd"))
     add_child(enemy_ship)
     
     _battle_manager.AddShip(player_ship1)

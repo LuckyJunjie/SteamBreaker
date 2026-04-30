@@ -9,7 +9,7 @@ var _ship_factory: Node
 
 func before_each():
     _ship_factory = add_node_autofree(Node2D.new())
-    _ship_factory.set_script(load("res://scripts/systems/ShipFactory.gd"))
+    _ship_factory.set_script(load("res://src/scripts/systems/ShipFactory.gd"))
     _ship_factory.name = "ShipFactory"
 
 
