@@ -1,0 +1,18 @@
+[gd_resource type="Resource" script_class="GameItem" load_steps=1 format=3]
+
+[ext_resource type="Script" path="res://scripts/resources/game_item.gd" id="1_item"]
+
+[resource]
+script = ExtResource("1_item")
+item_id = "return_port_smoke"
+name = "归港烟玉"
+description = "蕴含古老蒸汽魔法的玉石，粉碎后可瞬间返回铁锈湾港口。使用一次后消失。"
+item_type = 3
+icon_emoji = "🏠"
+buy_price = 500
+sell_price = 200
+effect_data = {
+    "type": "teleport",
+    "target": "rusty_bay",
+    "description": "使用后瞬间返回铁锈湾"
+}

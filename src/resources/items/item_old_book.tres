@@ -1,0 +1,20 @@
+[gd_resource type="Resource" script_class="GameItem" load_steps=1 format=3]
+
+[ext_resource type="Script" path="res://scripts/resources/game_item.gd" id="1_item"]
+
+[resource]
+script = ExtResource("1_item")
+item_id = "old_book"
+name = "旧书"
+description = "一本泛黄的古籍，内容涉及航海图志与蒸汽机械原理。知识分子会很喜欢。"
+item_type = 3
+icon_emoji = "📖"
+buy_price = 120
+sell_price = 40
+effect_data = {
+    "type": "affection",
+    "affection_min": 5,
+    "affection_max": 10,
+    "applicable_to": "scholar",
+    "description": "知识型伙伴好感度 +5~10"
+}

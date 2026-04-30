@@ -26,6 +26,8 @@ ShipFactory="*res://scripts/systems/ShipFactory.gd"
 CompanionManager="*res://scripts/systems/CompanionManager.gd"
 BountyManager="*res://scripts/systems/BountyManager.gd"
 StoryManager="*res://scripts/systems/StoryManager.gd"
+ItemDatabase="*res://scripts/systems/ItemDatabase.gd"
+InventoryManager="*res://scripts/systems/InventoryManager.gd"
 
 [display]
 

@@ -1,0 +1,18 @@
+[gd_resource type="Resource" script_class="GameItem" load_steps=1 format=3]
+
+[ext_resource type="Script" path="res://scripts/resources/game_item.gd" id="1_item"]
+
+[resource]
+script = ExtResource("1_item")
+item_id = "sea_chart"
+name = "海图"
+description = "标注了未知海域的古老海图，揭示了新的航路与宝藏位置。"
+item_type = 3
+icon_emoji = "🗺️"
+buy_price = 0
+sell_price = 0
+effect_data = {
+    "type": "reveal_area",
+    "area_id": "unknown_sea",
+    "description": "揭示新海域"
+}

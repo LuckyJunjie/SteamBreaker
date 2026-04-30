@@ -206,6 +206,9 @@ func apply_save(data: Variant) -> void:
     # Apply companions via CompanionManager
     _apply_companions(data.companions_data)
     
+    # Apply inventory via InventoryManager
+    _apply_inventory(data.inventory_data)
+    
     # Apply bounty progress via BountyManager (directly, not via BattleManager)
     _apply_bounties(data)
     
@@ -340,6 +343,10 @@ func _collect_game_state() -> Variant :
     data.companions_data = _collect_companions()
     print("[SaveManager] Collected %d companions" % data.companions_data.size())
     
+    # ---- InventoryManager (背包数据) ----
+    data.inventory_data = _collect_inventory()
+    print("[SaveManager] Collected inventory: %d slots" % data.inventory_data.size())
+    
     # ---- BountyManager (赏金进度) ----
     data.bounties_completed = _get_completed_bounties()
     data.bounties_in_progress = _get_in_progress_bounties()
@@ -425,3 +432,19 @@ func _collect_companions() -> Array[Dictionary]:
                     "skill_ids": c.get("skill_ids") if c.get("skill_ids") else [],
                 })
     return comp_data
+
+func _collect_inventory() -> Array[Dictionary]:
+    var root := get_tree().root
+    var inv_manager: Node = root.find_child("InventoryManager", true, false)
+    if inv_manager and inv_manager.has_method("get_save_data"):
+        return inv_manager.get_save_data().get("inventory", [])
+    return []
+
+func _apply_inventory(inv_data: Array[Dictionary]) -> void:
+    var root := get_tree().root
+    var inv_manager: Node = root.find_child("InventoryManager", true, false)
+    if inv_manager and inv_manager.has_method("apply_save_data"):
+        inv_manager.apply_save_data({"inventory": inv_data})
+        print("[SaveManager] Applied inventory: %d slots" % inv_data.size())
+    else:
+        print("[SaveManager] InventoryManager not found or no apply_save_data method")

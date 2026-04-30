@@ -1,0 +1,21 @@
+[gd_resource type="Resource" script_class="GameItem" load_steps=1 format=3]
+
+[ext_resource type="Script" path="res://scripts/resources/game_item.gd" id="1_item"]
+
+[resource]
+script = ExtResource("1_item")
+item_id = "ship_model"
+name = "船模"
+description = "精细制作的蒸汽帆船模型。对船匠和机械改造人有特殊意义。"
+item_type = 3
+icon_emoji = "⛵"
+buy_price = 200
+sell_price = 80
+effect_data = {
+    "type": "affection",
+    "affection_min": 15,
+    "affection_max": 25,
+    "applicable_to": "ironclad_companion",
+    "target_companion": "companion_tiechan",
+    "description": "铁砧好感度 +15~25"
+}

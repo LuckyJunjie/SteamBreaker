@@ -1,0 +1,18 @@
+[gd_resource type="Resource" script_class="GameItem" load_steps=1 format=3]
+
+[ext_resource type="Script" path="res://scripts/resources/game_item.gd" id="1_item"]
+
+[resource]
+script = ExtResource("1_item")
+item_id = "repair_kit"
+name = "修理工具包"
+description = "包含木板、铆钉和简易焊枪的修理套装，可恢复船只100点耐久度。"
+item_type = 0
+icon_emoji = "🔧"
+buy_price = 150
+sell_price = 60
+effect_data = {
+    "type": "repair_ship",
+    "hp_restore": 100,
+    "description": "恢复船只100HP"
+}

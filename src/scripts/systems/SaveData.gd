@@ -20,6 +20,9 @@ const SAVE_VERSION := "1.0.0"
 @export var bounties_completed: Array[String] = []
 @export var bounties_in_progress: Array[Dictionary] = []
 
+# Inventory data
+@export var inventory_data: Array[Dictionary] = []
+
 # Story progress
 @export var story_progress: int = 0
 @export var story_flags: Dictionary = {}
@@ -42,6 +45,7 @@ static func create_new(player_name: String = "船长") -> SaveData:
     data.companions_data = []
     data.bounties_completed = []
     data.bounties_in_progress = []
+    data.inventory_data = []
     data.story_progress = 0
     data.story_flags = {}
     data.settings = {}
@@ -62,6 +66,7 @@ func to_dict() -> Dictionary:
         "story_flags": story_flags,
         "bounties_completed": bounties_completed,
         "bounties_in_progress": bounties_in_progress,
+        "inventory_data": inventory_data,
         "settings": settings,
     }
     
@@ -86,6 +91,7 @@ func from_dict(dict: Dictionary) -> void:
     story_flags = dict.get("story_flags", {})
     bounties_completed = dict.get("bounties_completed", [])
     bounties_in_progress = dict.get("bounties_in_progress", [])
+    inventory_data = dict.get("inventory_data", [])
     settings = dict.get("settings", {})
     
     # Deserialize ship loadout

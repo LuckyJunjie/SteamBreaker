@@ -246,6 +246,23 @@ func _open_shop() -> void:
     _show_panel(panel, "Shop")
 
 
+func _open_inventory() -> void:
+    print("[PortScene] Opening Inventory...")
+    
+    if not ResourceLoader.exists("res://scenes/ui/InventoryPanel.tscn"):
+        push_error("[PortScene] InventoryPanel.tscn not found")
+        return
+    
+    var scene = load("res://scenes/ui/InventoryPanel.tscn")
+    var panel = scene.instantiate()
+    
+    # 设置背包管理器
+    if InventoryManager:
+        panel.set_inventory_manager(InventoryManager)
+    
+    _show_panel(panel, "Inventory")
+
+
 func _show_panel(panel: Control, panel_name: String) -> void:
     _clear_panels()
     
@@ -777,11 +794,19 @@ func _create_shop_panel() -> Control:
     back_btn.pressed.connect(_close_active_panel)
     panel.add_child(back_btn)
     
+    # 背包按钮
+    var inv_btn = Button.new()
+    inv_btn.text = "🎒 背包"
+    inv_btn.position = Vector2(620, 30)
+    inv_btn.pressed.connect(_open_inventory)
+    panel.add_child(inv_btn)
+    
     # 玩家金币显示
     var gold_lbl = Label.new()
     gold_lbl.text = "持有金币: %d 金克朗" % _get_player_gold()
-    gold_lbl.position = Vector2(600, 30)
+    gold_lbl.position = Vector2(600, 65)
     gold_lbl.add_theme_color_override("font_color", Color(1.0, 0.85, 0.3))
+    gold_lbl.name = "GoldLabel"
     panel.add_child(gold_lbl)
     
     var content = VBoxContainer.new()
@@ -794,23 +819,36 @@ func _create_shop_panel() -> Control:
     shop_lbl.add_theme_color_override("font_color", Color(0.6, 0.6, 0.6))
     content.add_child(shop_lbl)
     
-    var items = [
-        {"name": "木板修复包", "price": 100, "desc": "恢复200耐久", "icon": "🔧"},
-        {"name": "锅炉清洁剂", "price": 80, "desc": "降低30过热值", "icon": "🧴"},
-        {"name": "烟雾弹", "price": 150, "desc": "紧急回避+50%", "icon": "💨"},
-        {"name": "声呐浮标", "price": 200, "desc": "显示周围敌舰", "icon": "📡"},
-        {"name": "陈年朗姆", "price": 50, "desc": "贝索船长喜好", "icon": "🍾"},
-        {"name": "铁皮装甲", "price": 300, "desc": "防御+3回合", "icon": "🛡️"},
-        {"name": "穿甲弹", "price": 250, "desc": "无视30%护甲", "icon": "💥"},
-        {"name": "燃烧弹", "price": 180, "desc": "持续火焰伤害", "icon": "🔥"}
-    ]
+    # 尝试从ItemDatabase加载物品列表，如果没有则使用内置列表
+    var shop_items: Array[Dictionary] = []
+    if ItemDatabase and ItemDatabase.has_method("get_all_items"):
+        var db_items = ItemDatabase.get_all_items()
+        for item_res in db_items:
+            if item_res.buy_price > 0:
+                shop_items.append({
+                    item_id = item_res.item_id,
+                    name = item_res.name,
+                    price = item_res.buy_price,
+                    desc = item_res.get_effect_description(),
+                    icon = item_res.icon_emoji
+                })
     
-    for item in items:
+    if shop_items.is_empty():
+        # 内置商品列表（当ItemDatabase不可用时）
+        shop_items = [
+            {item_id = "repair_kit", "name": "修理工具包", "price": 150, "desc": "恢复船只100HP", "icon": "🔧"},
+            {item_id = "return_port_smoke", "name": "归港烟玉", "price": 500, "desc": "瞬间返回铁锈湾", "icon": "🏠"},
+            {item_id = "flower_bouquet", "name": "花束", "price": 80, "desc": "好感度+5~15", "icon": "💐"},
+            {item_id = "old_book", "name": "旧书", "price": 120, "desc": "知识型伙伴好感+5~10", "icon": "📖"},
+            {item_id = "ship_model", "name": "船模", "price": 200, "desc": "铁砧好感+15~25", "icon": "⛵"}
+        ]
+    
+    for item in shop_items:
         var row = HBoxContainer.new()
         row.custom_minimum_size.y = 36
         
         var icon_lbl = Label.new()
-        icon_lbl.text = item["icon"]
+        icon_lbl.text = item.get("icon", "📦")
         icon_lbl.custom_minimum_size.x = 40
         row.add_child(icon_lbl)
         
@@ -820,7 +858,7 @@ func _create_shop_panel() -> Control:
         row.add_child(name_lbl)
         
         var desc_lbl = Label.new()
-        desc_lbl.text = item["desc"]
+        desc_lbl.text = item.get("desc", "")
         desc_lbl.modulate = Color(0.5, 0.5, 0.5)
         desc_lbl.custom_minimum_size.x = 160
         row.add_child(desc_lbl)
@@ -851,7 +889,14 @@ func _on_buy_item(item: Dictionary) -> void:
         print("[PortScene] Not enough gold for: ", item["name"])
         return
     
-    print("[PortScene] Bought: ", item["name"])
+    var item_id = item.get("item_id", "")
+    
+    # 添加物品到背包
+    if InventoryManager and InventoryManager.has_method("add_item"):
+        InventoryManager.add_item(item_id, 1)
+        print("[PortScene] Bought and added to inventory: %s (%s)" % [item["name"], item_id])
+    else:
+        print("[PortScene] Bought: %s (no inventory system)" % item["name"])
     
     # 刷新商店UI
     _close_active_panel()

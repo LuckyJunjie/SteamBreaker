@@ -1,0 +1,20 @@
+[gd_resource type="Resource" script_class="GameItem" load_steps=1 format=3]
+
+[ext_resource type="Script" path="res://scripts/resources/game_item.gd" id="1_item"]
+
+[resource]
+script = ExtResource("1_item")
+item_id = "flower_bouquet"
+name = "花束"
+description = "一束精心搭配的鲜花，适合送给任何人。简单但诚意十足。"
+item_type = 3
+icon_emoji = "💐"
+buy_price = 80
+sell_price = 30
+effect_data = {
+    "type": "affection",
+    "affection_min": 5,
+    "affection_max": 15,
+    "applicable_to": "all",
+    "description": "好感度 +5~15"
+}
